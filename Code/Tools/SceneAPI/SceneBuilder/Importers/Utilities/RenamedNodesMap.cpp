@@ -68,8 +68,8 @@ namespace AZ
                 if (isNameUpdated)
                 {
                     AZ_TraceContext("New node name", name);
-                    AZ_TracePrintf(Utilities::WarningWindow, "The name of the node '%s' was invalid or conflicting and was updated to '%s'.",
-                        originalNodeName.c_str(), name.c_str());
+                    // AZ_TracePrintf(Utilities::WarningWindow, "The name of the node '%s' was invalid or conflicting and was updated to '%s'.",
+                        // originalNodeName.c_str(), name.c_str());
                 }
 
                 return isNameUpdated;
