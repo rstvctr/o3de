@@ -63,6 +63,7 @@
         "Gems/Multiplayer",
         "Gems/MultiplayerCompression",
         "Gems/NvCloth",
+        "Gems/OpenXRVk",
         "Gems/PhysX",
         "Gems/PhysXDebug",
         "Gems/Prefab/PrefabBuilder",
@@ -99,7 +100,8 @@
         "Gems/Vegetation",
         "Gems/VideoPlaybackFramework",
         "Gems/VirtualGamepad",
-        "Gems/WhiteBox"
+        "Gems/WhiteBox",
+        "Gems/XR"
     ],
     "gem_names": [
         "Atom_Bootstrap",
