@@ -569,8 +569,6 @@ namespace AZ::Debug
             window = g_dbgSystemWnd;
         }
 
-        Platform::OutputToDebugger(window, message);
-
         if (!DebugInternal::g_suppressEBusCalls)
         {
             // only call into Ebusses if we are not in a recursive-exception situation as that
@@ -583,6 +581,8 @@ namespace AZ::Debug
                 return;
             }
         }
+
+        Platform::OutputToDebugger(window, message);
 
         RawOutput(window, message);
     }
