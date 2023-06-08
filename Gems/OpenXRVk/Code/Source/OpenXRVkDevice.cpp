@@ -122,12 +122,9 @@ namespace OpenXRVk
 
         m_xrLayers.clear();
         m_projectionLayerViews.clear();
-        XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
-        XrResult result = xrWaitFrame(xrSession, &frameWaitInfo, &m_frameState);
-        WARN_IF_UNSUCCESSFUL(result);
 
         XrFrameBeginInfo frameBeginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
-        result = xrBeginFrame(xrSession, &frameBeginInfo);
+        XrResult result = xrBeginFrame(xrSession, &frameBeginInfo);
         //The XR_FRAME_DISCARDED can sometimes spam harmlessly so filter it out
         if (result != XR_FRAME_DISCARDED)
         {
@@ -182,6 +179,10 @@ namespace OpenXRVk
         {
             WARN_IF_UNSUCCESSFUL(result);
         }
+
+        XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
+        result = xrWaitFrame(xrSession, &frameWaitInfo, &m_frameState);
+        WARN_IF_UNSUCCESSFUL(result);
     }
 
     void Device::PostFrameInternal()
