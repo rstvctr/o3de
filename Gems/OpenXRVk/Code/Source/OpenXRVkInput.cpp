@@ -376,9 +376,11 @@ namespace OpenXRVk
 
         rawControllerData.m_leftPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.position);
         rawControllerData.m_rightPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.position);
+        rawControllerData.m_headPositionState = convertVector3(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::View)].pose.position);
 
         rawControllerData.m_leftOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.orientation);
         rawControllerData.m_rightOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.orientation);
+        rawControllerData.m_headOrientationState = convertQuat(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::View)].pose.orientation);
 
         // Check if the Quit (Home) button was pressed this sync...
         const bool quitPressed = GetButtonState(InputDeviceXRController::Button::Home);

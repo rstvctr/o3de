@@ -50,7 +50,6 @@ namespace OpenXRVk
         void PollEvents() override;
         void LocateControllerSpace(AZ::u32 handIndex) override;
         AZ::RHI::ResultCode GetControllerPose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const override;
-        AZ::RHI::ResultCode GetControllerStagePose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const override;
         AZ::RHI::ResultCode GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const override;
         AZ::RHI::ResultCode GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const override;
         float GetControllerScale(AZ::u32 handIndex) const override;

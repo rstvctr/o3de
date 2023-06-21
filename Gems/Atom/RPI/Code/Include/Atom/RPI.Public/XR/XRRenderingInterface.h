@@ -95,9 +95,6 @@ namespace AZ::RPI
         //! pitch and roll, with +Y up, +X to the right, and -Z forward.
         virtual RHI::ResultCode GetViewLocalPose(PoseData& outPoseData) const = 0;
 
-        //! Return the Pose data associated with local view translated and Rotated by 60 deg left or right based on handIndex
-        virtual RHI::ResultCode GetControllerStagePose(const AZ::u32 handIndex, PoseData& outPoseData) const = 0;
-
         //! Return the controller scale data associated with provided hand Index.
         virtual float GetControllerScale(const AZ::u32 handIndex) const = 0;
 

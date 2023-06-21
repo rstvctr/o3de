@@ -242,15 +242,6 @@ namespace XR
         return AZ::RHI::ResultCode::NotReady;
     }
 
-    AZ::RHI::ResultCode System::GetControllerStagePose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetControllerStagePose(handIndex, outPoseData);
-        }
-        return AZ::RHI::ResultCode::NotReady;
-    }
-
     AZ::RHI::ResultCode System::GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const
     {
         if (m_session->IsSessionRunning())

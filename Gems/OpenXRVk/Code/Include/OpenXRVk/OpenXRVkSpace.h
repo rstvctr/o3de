@@ -21,10 +21,6 @@ namespace OpenXRVk
         ViewFront,
         Local,
         Stage,
-        StageLeft,
-        StageRight,
-        StageLeftRotated,
-        StageRightRotated,
         Count);
 
     //!This class is responsible for managing specific space coordinates tracked by the device

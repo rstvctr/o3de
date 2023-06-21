@@ -279,13 +279,6 @@ namespace OpenXRVk
         return GetNativeInput()->GetControllerPose(handIndex, outPoseData);
     }
     
-    AZ::RHI::ResultCode Session::GetControllerStagePose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const
-    {
-        Input* xrInput = GetNativeInput();
-        return handIndex == 0 ? xrInput->GetVisualizedSpacePose(OpenXRVk::SpaceType::StageLeft, outPoseData) :
-            xrInput->GetVisualizedSpacePose(OpenXRVk::SpaceType::StageRight, outPoseData);
-    }
-
     AZ::RHI::ResultCode Session::GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const
     {
         return GetNativeInput()->GetVisualizedSpacePose(OpenXRVk::SpaceType::ViewFront, outPoseData);

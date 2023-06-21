@@ -178,12 +178,14 @@ namespace AzFramework
         {
             static constexpr InputChannelId LPos{ "xr_controller_position_l" }; //!< The left-hand position
             static constexpr InputChannelId RPos{ "xr_controller_position_r" }; //!< The right-hand position
+            static constexpr InputChannelId HeadPos{ "xr_controller_position_h" }; //!< The head position
 
             //! All XR Controller position input ids
             static constexpr AZStd::array All
             {
                 LPos,
                 RPos,
+                HeadPos,
             };
         };
 
@@ -193,12 +195,14 @@ namespace AzFramework
         {
             static constexpr InputChannelId LOrient{ "xr_controller_orientation_l" }; //!< The left-hand orientation
             static constexpr InputChannelId ROrient{ "xr_controller_orientation_r" }; //!< The right-hand orientation
+            static constexpr InputChannelId HeadOrient{ "xr_controller_orientation_h" }; //!< The head orientation
 
             //! All XR Controller orientation input ids
             static constexpr AZStd::array All
             {
                 LOrient,
-                ROrient
+                ROrient,
+                HeadOrient,
             };
         };
 
@@ -360,8 +364,10 @@ namespace AzFramework
 
                 AZ::Vector3 m_leftPositionState = AZ::Vector3::CreateZero();                //!< The left controller position
                 AZ::Vector3 m_rightPositionState = AZ::Vector3::CreateZero();               //!< The right controller position
+                AZ::Vector3 m_headPositionState = AZ::Vector3::CreateZero();                //!< The head position
                 AZ::Quaternion m_leftOrientationState = AZ::Quaternion::CreateIdentity();   //!< The left controller orientation
                 AZ::Quaternion m_rightOrientationState = AZ::Quaternion::CreateIdentity();  //!< The right controller orientation
+                AZ::Quaternion m_headOrientationState = AZ::Quaternion::CreateIdentity();   //!< The head orientation
             }; // struct RawXRControllerState
 
             virtual RawXRControllerState& GetRawState() = 0;

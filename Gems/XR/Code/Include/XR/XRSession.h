@@ -76,9 +76,6 @@ namespace XR
         //! Api to retrieve the controller space data
         virtual AZ::RHI::ResultCode GetControllerPose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const = 0;
 
-        //! Api to retrieve the controller space data associated with local view translated and rotated by 60 deg left or right based on handIndex
-        virtual AZ::RHI::ResultCode GetControllerStagePose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const = 0;
-
         //! Api to retrieve the controller scale data
         virtual float GetControllerScale(AZ::u32 handIndex) const = 0;
 

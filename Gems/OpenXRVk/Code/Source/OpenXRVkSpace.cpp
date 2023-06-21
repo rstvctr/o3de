@@ -75,34 +75,6 @@ namespace OpenXRVk
                 referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
                 break;
             }
-            case SpaceType::StageLeft:
-            {
-                //Track Left Stage space which is basically the center stage translated to the left and down by 5m.
-                referenceSpaceCreateInfo.poseInReferenceSpace = RotateCCWAboutYAxis(0.f, { -5.f, 0.f, -5.f });
-                referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-                break;
-            }
-            case SpaceType::StageRight:
-            {
-                //Track Right Stage space which is basically the center stage translated to the right and down by 5m.
-                referenceSpaceCreateInfo.poseInReferenceSpace = RotateCCWAboutYAxis(0.f, { 5.f, 0.f, -5.f });
-                referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-                break;
-            }
-            case SpaceType::StageLeftRotated:
-            {
-                //Track Left Rotated Stage space which is basically the center stage translated and Rotated by 60 deg (i.e pi/3). Remove if not used in future
-                referenceSpaceCreateInfo.poseInReferenceSpace = RotateCCWAboutYAxis(AZ::Constants::Pi / 3.f, { -5.f, 0.5f, -5.f });
-                referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-                break;
-            }
-            case SpaceType::StageRightRotated:
-            {
-                //Track Right Rotated Stage space which is basically the center stage translated and Rotated by 60 deg (i.e pi/3). Remove if not used in future
-                referenceSpaceCreateInfo.poseInReferenceSpace = RotateCCWAboutYAxis(-AZ::Constants::Pi / 3.f, { 5.f, 0.5f, -5.f });
-                referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_STAGE;
-                break;
-            }
             default:
             {
                 AZ_Assert(false, "Unknown reference space type '%s'", ToString(static_cast<SpaceType>(spaceType)).data());

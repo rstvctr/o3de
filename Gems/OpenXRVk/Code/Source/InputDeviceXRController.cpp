@@ -92,9 +92,11 @@ namespace AzFramework
                 // Position (3D)...
                 ->BEHAVIOR_XR_CONSTANT(ControllerPosePosition::LPos)
                 ->BEHAVIOR_XR_CONSTANT(ControllerPosePosition::RPos)
+                ->BEHAVIOR_XR_CONSTANT(ControllerPosePosition::HeadPos)
                 // Orientation (quaternion)...
                 ->BEHAVIOR_XR_CONSTANT(ControllerPoseOrientation::LOrient)
                 ->BEHAVIOR_XR_CONSTANT(ControllerPoseOrientation::ROrient)
+                ->BEHAVIOR_XR_CONSTANT(ControllerPoseOrientation::HeadOrient)
             ;
         }
     }
@@ -307,8 +309,10 @@ namespace AzFramework
         m_rightThumbStickYState = 0.f;
         m_leftPositionState = AZ::Vector3::CreateZero();
         m_rightPositionState = AZ::Vector3::CreateZero();
+        m_headPositionState = AZ::Vector3::CreateZero();
         m_leftOrientationState = AZ::Quaternion::CreateIdentity();
         m_rightOrientationState = AZ::Quaternion::CreateIdentity();
+        m_headOrientationState = AZ::Quaternion::CreateIdentity();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -429,12 +433,16 @@ namespace AzFramework
             ->ProcessRawInputEvent(rawControllerState.m_leftPositionState);
         m_inputDevice.m_controllerPositionChannelsById[xrc::ControllerPosePosition::RPos]
             ->ProcessRawInputEvent(rawControllerState.m_rightPositionState);
+        m_inputDevice.m_controllerPositionChannelsById[xrc::ControllerPosePosition::HeadPos]
+            ->ProcessRawInputEvent(rawControllerState.m_headPositionState);
 
         // Orientation update...
         m_inputDevice.m_controllerOrientationChannelsById[xrc::ControllerPoseOrientation::LOrient]
             ->ProcessRawInputEvent(rawControllerState.m_leftOrientationState);
         m_inputDevice.m_controllerOrientationChannelsById[xrc::ControllerPoseOrientation::ROrient]
             ->ProcessRawInputEvent(rawControllerState.m_rightOrientationState);
+        m_inputDevice.m_controllerOrientationChannelsById[xrc::ControllerPoseOrientation::HeadOrient]
+            ->ProcessRawInputEvent(rawControllerState.m_headOrientationState);
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
