@@ -7,9 +7,11 @@
 #
 
 set(FILES
+    Include/ImGui_AZStd.h
     Include/ImGuiBus.h
     Include/ImGuiContextScope.h
     Include/OtherActiveImGuiBus.h
+    Source/ImGui_AZStd.cpp
     Source/ImGuiColorDefines.h
     Source/ImGuiManager.h
     Source/ImGuiManager.cpp
