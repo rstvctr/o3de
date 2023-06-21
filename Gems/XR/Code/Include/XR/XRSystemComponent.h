@@ -9,6 +9,7 @@
 #pragma once
 
 #include <XR/XRSystem.h>
+#include <XR/XRSystemComponentBus.h>
 #include <AzCore/Component/Component.h>
 
 namespace XR
@@ -16,6 +17,7 @@ namespace XR
     //! This class is the component related to the common XR module.
     class SystemComponent final
         : public AZ::Component
+        , public XRSystemComponentRequestBus::Handler
     {
     public:
         AZ_COMPONENT(SystemComponent, "{93A3A7E7-5188-49CD-8C37-26816476A3AE}");
@@ -34,7 +36,9 @@ namespace XR
 
     private:
         //! Check is OpenXR is enable via command line option or settings registry.
-        bool IsOpenXREnabled();
+        bool IsOpenXREnabled() override;
+        bool Start() override;
+        void Shutdown() override;
 
         Ptr<XR::System> m_xrSystem;
     };

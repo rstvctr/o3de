@@ -17,6 +17,7 @@ set(FILES
     Include/XR/XRSwapChain.h
     Include/XR/XRSystem.h
     Include/XR/XRSystemComponent.h
+    Include/XR/XRSystemComponentBus.h
     Include/XR/XRUtils.h
     Include/XR/XRObject.h
     Source/XRDevice.cpp

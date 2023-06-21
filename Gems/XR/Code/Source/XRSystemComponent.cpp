@@ -35,6 +35,8 @@ namespace XR
 
     void SystemComponent::Activate()
     {
+        XR::XRSystemComponentRequestBus::Handler::BusConnect();
+
         // Register XR system interface if openxr is enabled via command line or settings registry
         if (IsOpenXREnabled())
         {
@@ -57,9 +59,13 @@ namespace XR
     {
         if (m_xrSystem)
         {
+            AZ::RPI::XRRegisterInterface::Get()->UnRegisterXRInterface();
+
             m_xrSystem->Shutdown();
             m_xrSystem.reset();
         }
+
+        XR::XRSystemComponentRequestBus::Handler::BusDisconnect();
     }
 
     bool SystemComponent::IsOpenXREnabled()
@@ -86,5 +92,37 @@ namespace XR
             settingsRegistry->Get(isOpenXREnabledViaSR, OpenXREnableSetting);
         }
         return isOpenXREnabledViaSR || isOpenXREnabledViaCL;
+    }
+
+    bool SystemComponent::Start()
+    {
+        if (!m_xrSystem)
+        {
+            //Get the validation mode
+            AZ::RHI::ValidationMode validationMode = AZ::RHI::ValidationMode::Disabled;
+            AZ::RHI::FactoryManagerBus::BroadcastResult(validationMode, &AZ::RHI::FactoryManagerRequest::DetermineValidationMode);
+
+            //Init the XRSystem
+            System::Descriptor descriptor;
+            descriptor.m_validationMode = validationMode;
+            m_xrSystem = aznew System();
+            m_xrSystem->Init(descriptor);
+
+            //Register xr system with RPI
+            AZ::RPI::XRRegisterInterface::Get()->RegisterXRInterface(m_xrSystem.get());
+        }
+
+        return true;
+    }
+
+    void SystemComponent::Shutdown()
+    {
+        if (m_xrSystem)
+        {
+            AZ::RPI::XRRegisterInterface::Get()->UnRegisterXRInterface();
+
+            m_xrSystem->Shutdown();
+            m_xrSystem.reset();
+        }
     }
 }
