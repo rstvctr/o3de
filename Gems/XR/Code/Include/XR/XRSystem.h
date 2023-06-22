@@ -62,7 +62,6 @@ namespace XR
         AZ::RHI::Format GetSwapChainFormat(AZ::u32 viewIndex) const override;
         AZ::RHI::ResultCode GetViewFov(AZ::u32 viewIndex, AZ::RPI::FovData& outFovData) const override;
         AZ::RHI::ResultCode GetViewPose(AZ::u32 viewIndex, AZ::RPI::PoseData& outPoseData) const override;
-        AZ::RHI::ResultCode GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const override;
         AZ::RHI::ResultCode GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const override;
         AZ::RHI::ResultCode GetControllerPose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const override;
         float GetControllerScale(AZ::u32 handIndex) const override;
@@ -71,14 +70,6 @@ namespace XR
                                                    float angleBottom, float angleTop,
                                                    float nearDist, float farDist, bool reverseDepth) override;
         AZ::RHI::XRRenderingInterface* GetRHIXRRenderingInterface() override;
-        float GetXButtonState() const override;
-        float GetYButtonState() const override;
-        float GetAButtonState() const override;
-        float GetBButtonState() const override;
-        float GetXJoyStickState(AZ::u32 handIndex) const override;
-        float GetYJoyStickState(AZ::u32 handIndex) const override;
-        float GetSqueezeState(AZ::u32 handIndex) const override;
-        float GetTriggerState(AZ::u32 handIndex) const override;
         AZ::Data::Instance<AZ::RPI::AttachmentImage> InitPassFoveatedAttachment(const AZ::RPI::PassTemplate& passTemplate, const AZ::RHI::XRFoveatedLevel* level = nullptr) const override;
         ///////////////////////////////////////////////////////////////////
 

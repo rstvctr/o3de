@@ -12,13 +12,13 @@
 #include <XR/XRSpace.h>
 #include <XR/XRBase.h>
 #include <OpenXRVk_Platform.h>
+#include <AzCore/Math/Aabb.h>
 #include <AzCore/Preprocessor/Enum.h>
 
 namespace OpenXRVk
 {
     AZ_ENUM(SpaceType,
         View,
-        ViewFront,
         Local,
         Stage,
         Count);
@@ -43,6 +43,8 @@ namespace OpenXRVk
 
         //! Get the XrSpace for a given SpaceType
         XrSpace GetXrSpace(SpaceType spaceType) const;
+
+        AZ::Aabb GetReferenceSpaceBoundsRect(XrSession xrSession, SpaceType spaceType);
 
     private:
         //! XrPose specific matrix translation, Rotation functions

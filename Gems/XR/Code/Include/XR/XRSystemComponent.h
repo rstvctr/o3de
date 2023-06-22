@@ -35,10 +35,14 @@ namespace XR
         //////////////////////////////////////////////////////////////////////////
 
     private:
+        //////////////////////////////////////////////////////////////////////////
+        // XRSystemComponentRequestBus::Handler
         //! Check is OpenXR is enable via command line option or settings registry.
         bool IsOpenXREnabled() override;
         bool Start() override;
         void Shutdown() override;
+        AZ::Aabb GetPlayspaceBoundingBox() override;
+        //////////////////////////////////////////////////////////////////////////
 
         Ptr<XR::System> m_xrSystem;
     };

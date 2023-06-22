@@ -55,13 +55,6 @@ namespace OpenXRVk
                 referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
                 break;
             }
-            case SpaceType::ViewFront:
-            {
-                // Track view head-locked 5m in front of device.
-                referenceSpaceCreateInfo.poseInReferenceSpace = Translation({ 0.f, 0.f, -5.f }),
-                    referenceSpaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_VIEW;
-                break;
-            }
             case SpaceType::Local:
             {
                 //Track center Local space which is world-locked origin, gravity-aligned to exclude
@@ -124,4 +117,14 @@ namespace OpenXRVk
         }
         m_xrSpaces.clear();
     }
+
+#if 0
+    AZ::Aabb Space::GetReferenceSpaceBoundsRect(XrSession xrSession, SpaceType spaceType)
+    {
+XrResult xrGetReferenceSpaceBoundsRect(session,
+    XrReferenceSpaceType                        referenceSpaceType,
+    XrExtent2Df*                                bounds);
+    }
+#endif
+
 }

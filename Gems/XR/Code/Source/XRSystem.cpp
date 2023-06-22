@@ -242,15 +242,6 @@ namespace XR
         return AZ::RHI::ResultCode::NotReady;
     }
 
-    AZ::RHI::ResultCode System::GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetViewFrontPose(outPoseData);
-        }
-        return AZ::RHI::ResultCode::NotReady;
-    }
-
     AZ::RHI::ResultCode System::GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const
     {
         if (m_session->IsSessionRunning())
@@ -267,24 +258,6 @@ namespace XR
             return m_session->GetControllerScale(handIndex);
         }
         return 1.0f;
-    }
-
-    float System::GetSqueezeState(AZ::u32 handIndex) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetSqueezeState(handIndex);
-        }
-        return 0.0f;
-    }
-
-    float System::GetTriggerState(AZ::u32 handIndex) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetTriggerState(handIndex);
-        }
-        return 0.0f;
     }
 
     AZ::Data::Instance<AZ::RPI::AttachmentImage> System::InitPassFoveatedAttachment(const AZ::RPI::PassTemplate& passTemplate, const AZ::RHI::XRFoveatedLevel* level) const
@@ -361,60 +334,6 @@ namespace XR
         }
 
         return textureAsset;
-    }
-
-    float System::GetXButtonState() const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetXButtonState();
-        }
-        return 0.0f;
-    }
-
-    float System::GetYButtonState() const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetYButtonState();
-        }
-        return 0.0f;
-    }
-
-    float System::GetAButtonState() const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetAButtonState();
-        }
-        return 0.0f;
-    }
-
-    float System::GetBButtonState() const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetBButtonState();
-        }
-        return 0.0f;
-    }
-
-    float System::GetXJoyStickState(AZ::u32 handIndex) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetXJoyStickState(handIndex);
-        }
-        return 0.0f;
-    }
-
-    float System::GetYJoyStickState(AZ::u32 handIndex) const
-    {
-        if (m_session->IsSessionRunning())
-        {
-            return m_session->GetYJoyStickState(handIndex);
-        }
-        return 0.0f;
     }
 
     AZ::Matrix4x4 System::CreateStereoscopicProjection(float angleLeft, float angleRight,

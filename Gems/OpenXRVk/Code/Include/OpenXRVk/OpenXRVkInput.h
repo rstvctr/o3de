@@ -69,30 +69,6 @@ namespace OpenXRVk
         //! Get any button state
         bool GetButtonState(const AzFramework::InputChannelId& channelId) const;
 
-        //! Get the X button state
-        bool GetXButtonState() const;
-
-        //! Get the Y button state
-        bool GetYButtonState() const;
-
-        //! Get the A button state
-        bool GetAButtonState() const;
-
-        //! Get the B button state
-        bool GetBButtonState() const;
-
-        //! Get the joystick state for x-axis
-        float GetXJoyStickState(AZ::u32 handIndex) const;
-
-        //! Get the joystick state for y-axis
-        float GetYJoyStickState(AZ::u32 handIndex) const;
-
-        //! Get the Squeeze action
-        float GetSqueezeState(AZ::u32 handIndex) const;
-
-        //! Get the Squeeze action
-        float GetTriggerState(AZ::u32 handIndex) const;
-
     private:
         //! Creates an XrAction
         void CreateAction(XrAction& action, XrActionType actionType,

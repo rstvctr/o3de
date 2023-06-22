@@ -50,17 +50,8 @@ namespace OpenXRVk
         void PollEvents() override;
         void LocateControllerSpace(AZ::u32 handIndex) override;
         AZ::RHI::ResultCode GetControllerPose(AZ::u32 handIndex, AZ::RPI::PoseData& outPoseData) const override;
-        AZ::RHI::ResultCode GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const override;
         AZ::RHI::ResultCode GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const override;
         float GetControllerScale(AZ::u32 handIndex) const override;
-        float GetXButtonState() const override;
-        float GetYButtonState() const override;
-        float GetAButtonState() const override;
-        float GetBButtonState() const override;
-        float GetXJoyStickState(AZ::u32 handIndex) const override;
-        float GetYJoyStickState(AZ::u32 handIndex) const override;
-        float GetSqueezeState(AZ::u32 handIndex) const override;
-        float GetTriggerState(AZ::u32 handIndex) const override;
         //////////////////////////////////////////////////////////////////////////
 
     private:

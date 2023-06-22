@@ -87,9 +87,6 @@ namespace AZ::RPI
         //! Return the controller Pose data associated with provided hand Index.
         virtual RHI::ResultCode GetControllerPose(const AZ::u32 handIndex, PoseData& outPoseData) const = 0;
 
-        //! Return the Pose data associated with front view.
-        virtual RHI::ResultCode GetViewFrontPose(PoseData& outPoseData) const = 0;
-
         //! Return the Pose data associated with local view.
         //! This pose tracks center Local space which is world-locked origin, gravity-aligned to exclude
         //! pitch and roll, with +Y up, +X to the right, and -Z forward.
@@ -104,30 +101,6 @@ namespace AZ::RPI
 
         //! Returns the XR specific RHI rendering interface.
         virtual AZ::RHI::XRRenderingInterface* GetRHIXRRenderingInterface() = 0;
-
-        //! Return the X button state from the controller.
-        virtual float GetXButtonState() const = 0;
-
-        //! Return the Y button state from the controller.
-        virtual float GetYButtonState() const = 0;
-
-        //! Return the A button state from the controller.
-        virtual float GetAButtonState() const = 0;
-
-        //! Return the B button state from the controller.
-        virtual float GetBButtonState() const = 0;
-
-        //! Return the controller related joystick state for x-axis.
-        virtual float GetXJoyStickState(const AZ::u32 handIndex) const = 0;
-
-        //! Return the controller related joystick state for y-axis.
-        virtual float GetYJoyStickState(const AZ::u32 handIndex) const = 0;
-
-        //! Return the X button state from the controller.
-        virtual float GetSqueezeState(const AZ::u32 handIndex) const = 0;
-
-        //! Return the X button state from the controller.
-        virtual float GetTriggerState(const AZ::u32 handIndex) const = 0;
 
         //! Initialize a shading rate image attachment of a pass template with contents suitable for a foveated level.
         //! Returns the image that was created and initialized.

@@ -40,30 +40,13 @@ namespace XR
         // Register XR system interface if openxr is enabled via command line or settings registry
         if (IsOpenXREnabled())
         {
-            //Get the validation mode
-            AZ::RHI::ValidationMode validationMode = AZ::RHI::ValidationMode::Disabled;
-            AZ::RHI::FactoryManagerBus::BroadcastResult(validationMode, &AZ::RHI::FactoryManagerRequest::DetermineValidationMode);
-
-            //Init the XRSystem
-            System::Descriptor descriptor;
-            descriptor.m_validationMode = validationMode;
-            m_xrSystem = aznew System();
-            m_xrSystem->Init(descriptor);
-
-            //Register xr system with RPI
-            AZ::RPI::XRRegisterInterface::Get()->RegisterXRInterface(m_xrSystem.get());
+            Start();
         }
     }
 
     void SystemComponent::Deactivate()
     {
-        if (m_xrSystem)
-        {
-            AZ::RPI::XRRegisterInterface::Get()->UnRegisterXRInterface();
-
-            m_xrSystem->Shutdown();
-            m_xrSystem.reset();
-        }
+        Shutdown();
 
         XR::XRSystemComponentRequestBus::Handler::BusDisconnect();
     }
@@ -98,6 +81,8 @@ namespace XR
     {
         if (!m_xrSystem)
         {
+            XRSystemComponentNotificationBus::Broadcast(&XRSystemComponentNotifications::OnPreStartXRSystem);
+
             //Get the validation mode
             AZ::RHI::ValidationMode validationMode = AZ::RHI::ValidationMode::Disabled;
             AZ::RHI::FactoryManagerBus::BroadcastResult(validationMode, &AZ::RHI::FactoryManagerRequest::DetermineValidationMode);
@@ -110,6 +95,8 @@ namespace XR
 
             //Register xr system with RPI
             AZ::RPI::XRRegisterInterface::Get()->RegisterXRInterface(m_xrSystem.get());
+
+            XRSystemComponentNotificationBus::Broadcast(&XRSystemComponentNotifications::OnPostStartXRSystem);
         }
 
         return true;
@@ -119,10 +106,19 @@ namespace XR
     {
         if (m_xrSystem)
         {
+            XRSystemComponentNotificationBus::Broadcast(&XRSystemComponentNotifications::OnPreShutdownXRSystem);
+
             AZ::RPI::XRRegisterInterface::Get()->UnRegisterXRInterface();
 
             m_xrSystem->Shutdown();
             m_xrSystem.reset();
+
+            XRSystemComponentNotificationBus::Broadcast(&XRSystemComponentNotifications::OnPostShutdownXRSystem);
         }
+    }
+
+    AZ::Aabb SystemComponent::GetPlayspaceBoundingBox()
+    {
+        return {};
     }
 }

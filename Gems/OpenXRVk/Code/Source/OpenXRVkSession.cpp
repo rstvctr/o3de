@@ -279,11 +279,6 @@ namespace OpenXRVk
         return GetNativeInput()->GetControllerPose(handIndex, outPoseData);
     }
     
-    AZ::RHI::ResultCode Session::GetViewFrontPose(AZ::RPI::PoseData& outPoseData) const
-    {
-        return GetNativeInput()->GetVisualizedSpacePose(OpenXRVk::SpaceType::ViewFront, outPoseData);
-    }
-
     AZ::RHI::ResultCode Session::GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const
     {
         return GetNativeInput()->GetVisualizedSpacePose(OpenXRVk::SpaceType::Local, outPoseData);
@@ -292,46 +287,6 @@ namespace OpenXRVk
     float Session::GetControllerScale(AZ::u32 handIndex) const
     {
         return GetNativeInput()->GetControllerScale(handIndex);
-    }
-
-    float Session::GetSqueezeState(AZ::u32 handIndex) const
-    {
-        return GetNativeInput()->GetSqueezeState(handIndex);
-    }
-
-    float Session::GetTriggerState(AZ::u32 handIndex) const
-    {
-        return GetNativeInput()->GetTriggerState(handIndex);
-    }
-
-    float Session::GetXButtonState() const
-    {
-        return (GetNativeInput()->GetXButtonState() ? 1.f : 0.f);
-    }
-
-    float Session::GetYButtonState() const
-    {
-        return (GetNativeInput()->GetYButtonState() ? 1.f : 0.f);
-    }
-
-    float Session::GetAButtonState() const
-    {
-        return (GetNativeInput()->GetAButtonState() ? 1.f : 0.f);
-    }
-
-    float Session::GetBButtonState() const
-    {
-        return (GetNativeInput()->GetBButtonState() ? 1.f : 0.f);
-    }
-
-    float Session::GetXJoyStickState(AZ::u32 handIndex) const
-    {
-        return GetNativeInput()->GetXJoyStickState(handIndex);
-    }
-    
-    float Session::GetYJoyStickState(AZ::u32 handIndex) const
-    {
-        return GetNativeInput()->GetYJoyStickState(handIndex);
     }
 
     XrSession Session::GetXrSession() const

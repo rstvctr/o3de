@@ -118,13 +118,16 @@ namespace OpenXRVk
         using namespace AzFramework;
         auto createXrAction = [this, &xrInstance](const InputChannelId& channelId, const XrActionType actionType)
         {
+            const AZStd::string xrPathStr{ m_xrControllerImpl->GetInputChannelPath(channelId) };
+            if (xrPathStr.empty())
+                return;
+
             m_xrActionIndices[channelId] = m_xrActionPaths.size();
             m_xrActionPaths.push_back({});
 
             CreateAction(m_xrActionPaths.back().action, actionType, channelId.GetName(), channelId.GetName(),
                 aznumeric_cast<AZ::u32>(AZStd::size(m_handSubactionPath)), m_handSubactionPath.data());
 
-            const AZStd::string xrPathStr{ m_xrControllerImpl->GetInputChannelPath(channelId) };
             [[maybe_unused]] const XrResult pathResult = xrStringToPath(xrInstance, xrPathStr.data(), &m_xrActionPaths.back().binding);
             WARN_IF_UNSUCCESSFUL(pathResult);
         };
@@ -376,11 +379,11 @@ namespace OpenXRVk
 
         rawControllerData.m_leftPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.position);
         rawControllerData.m_rightPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.position);
-        rawControllerData.m_headPositionState = convertVector3(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::View)].pose.position);
+        rawControllerData.m_headPositionState = convertVector3(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::Local)].pose.position);
 
         rawControllerData.m_leftOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.orientation);
         rawControllerData.m_rightOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.orientation);
-        rawControllerData.m_headOrientationState = convertQuat(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::View)].pose.orientation);
+        rawControllerData.m_headOrientationState = convertQuat(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::Local)].pose.orientation);
 
         // Check if the Quit (Home) button was pressed this sync...
         const bool quitPressed = GetButtonState(InputDeviceXRController::Button::Home);
@@ -482,58 +485,6 @@ namespace OpenXRVk
     {
         const auto& state = m_xrControllerImpl->GetRawState();
         return state.GetDigitalButtonState(channelId);
-    }
-
-    bool Input::GetXButtonState() const
-    {
-        return GetButtonState(AzFramework::InputDeviceXRController::Button::X);
-    }
-
-    bool Input::GetYButtonState() const
-    {
-        return GetButtonState(AzFramework::InputDeviceXRController::Button::Y);
-    }
-
-    bool Input::GetAButtonState() const
-    {
-        return GetButtonState(AzFramework::InputDeviceXRController::Button::A);
-    }
-
-    bool Input::GetBButtonState() const
-    {
-        return GetButtonState(AzFramework::InputDeviceXRController::Button::B);
-    }
-
-    float Input::GetXJoyStickState(AZ::u32 handIndex) const
-    {
-        const auto& state = m_xrControllerImpl->GetRawState();
-        return (handIndex == static_cast<AZ::u32>(XR::Side::Left))
-            ? state.m_leftThumbStickXState
-            : state.m_rightThumbStickXState;
-    }
-
-    float Input::GetYJoyStickState(AZ::u32 handIndex) const
-    {
-        const auto& state = m_xrControllerImpl->GetRawState();
-        return (handIndex == static_cast<AZ::u32>(XR::Side::Left))
-            ? state.m_leftThumbStickYState
-            : state.m_rightThumbStickYState;
-    }
-
-    float Input::GetSqueezeState(AZ::u32 handIndex) const
-    {
-        const auto& state = m_xrControllerImpl->GetRawState();
-        return (handIndex == static_cast<AZ::u32>(XR::Side::Left))
-            ? state.m_leftGripState
-            : state.m_rightGripState;
-    }
-
-    float Input::GetTriggerState(AZ::u32 handIndex) const
-    {
-        const auto& state = m_xrControllerImpl->GetRawState();
-        return (handIndex == static_cast<AZ::u32>(XR::Side::Left))
-            ? state.m_leftTriggerState
-            : state.m_rightTriggerState;
     }
 
 } // namespace OpenXRVk
