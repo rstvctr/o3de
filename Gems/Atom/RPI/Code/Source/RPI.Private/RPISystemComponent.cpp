@@ -132,18 +132,18 @@ namespace AZ
                     m_rpiSystem.InitializeSystemAssets();
                 });
 
-            AZ::SystemTickBus::Handler::BusConnect();
+            AZ::TickBus::Handler::BusConnect();
             AZ::RHI::RHISystemNotificationBus::Handler::BusConnect();
         }
 
         void RPISystemComponent::Deactivate()
         {
-            AZ::SystemTickBus::Handler::BusDisconnect();
+            AZ::TickBus::Handler::BusDisconnect();
             m_rpiSystem.Shutdown();
             AZ::RHI::RHISystemNotificationBus::Handler::BusDisconnect();
         }
 
-        void RPISystemComponent::OnSystemTick()
+        void RPISystemComponent::OnTick([[maybe_unused]] float deltaTime, [[maybe_unused]] ScriptTimePoint time)
         {
             if (m_performanceCollector)
             {

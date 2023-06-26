@@ -14,6 +14,7 @@
 #pragma once
 
 #include <AzCore/Component/Component.h>
+#include <AzCore/Component/TickBus.h>
 #include <AzCore/Debug/PerformanceCollector.h>
 
 #include <Atom/RHI/RHISystemInterface.h>
@@ -38,7 +39,7 @@ namespace AZ
          */
         class RPISystemComponent final
             : public AZ::Component
-            , public AZ::SystemTickBus::Handler
+            , public AZ::TickBus::Handler
             , public AZ::RHI::RHISystemNotificationBus::Handler
             , public XRRegisterInterface::Registrar
             , public PerformanceCollectorOwner::Registrar
@@ -67,7 +68,9 @@ namespace AZ
             RPISystemComponent(const RPISystemComponent&) = delete;
 
             // SystemTickBus overrides...
-            void OnSystemTick() override;
+            void OnTick(float deltaTime, ScriptTimePoint time) override;
+            int GetTickOrder() override { return TICK_LAST; }
+
                         
             // RHISystemNotificationBus::Handler
             void OnDeviceRemoved(RHI::Device* device) override;
