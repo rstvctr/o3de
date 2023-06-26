@@ -379,11 +379,23 @@ namespace OpenXRVk
 
         rawControllerData.m_leftPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.position);
         rawControllerData.m_rightPositionState = convertVector3(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.position);
-        rawControllerData.m_headPositionState = convertVector3(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::Local)].pose.position);
 
         rawControllerData.m_leftOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Left)].pose.orientation);
         rawControllerData.m_rightOrientationState = convertQuat(m_handSpaceLocation[static_cast<AZ::u32>(XR::Side::Right)].pose.orientation);
-        rawControllerData.m_headOrientationState = convertQuat(m_xrVisualizedSpaceLocations[static_cast<AZ::u32>(SpaceType::Local)].pose.orientation);
+
+        // XXX hax
+        XrSpaceLocation spaceLocation{};
+        spaceLocation.type = XR_TYPE_SPACE_LOCATION;
+        if (const XrResult res = xrLocateSpace(session->GetXrSpace(OpenXRVk::SpaceType::View), session->GetXrSpace(OpenXRVk::SpaceType::Local), device->GetPredictedDisplayTime(), &spaceLocation);
+            res == XR_SUCCESS)
+        {
+            if ((spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+                (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+            {
+                rawControllerData.m_headPositionState = convertVector3(spaceLocation.pose.position);
+                rawControllerData.m_headOrientationState = convertQuat(spaceLocation.pose.orientation);
+            }
+        }
 
         // Check if the Quit (Home) button was pressed this sync...
         const bool quitPressed = GetButtonState(InputDeviceXRController::Button::Home);
