@@ -14,7 +14,6 @@
 // Qt
 #include <QPainter>
 #include <QThread>
-#include <QTimer>
 
 AZ_PUSH_DISABLE_DLL_EXPORT_MEMBER_WARNING
 #include <ui_StartupLogoDialog.h>
@@ -97,17 +96,14 @@ void CStartupLogoDialog::SetText(const char* text)
 
 void CStartupLogoDialog::SetInfoText(const char* text)
 {
-    QString qtext(text);
-    QTimer::singleShot(0, qApp, [this, qtext] {
-        m_ui->m_TransparentText->setText(qtext);
+    m_ui->m_TransparentText->setText(text);
 
-        if (QThread::currentThread() == thread())
-        {
-            m_ui->m_TransparentText->repaint();
-        }
+    if (QThread::currentThread() == thread())
+    {
+        m_ui->m_TransparentText->repaint();
+    }
 
-        qApp->processEvents(QEventLoop::ExcludeUserInputEvents); // if you don't process events, repaint does not function correctly.
-    });
+    qApp->processEvents(QEventLoop::ExcludeUserInputEvents); // if you don't process events, repaint does not function correctly.
 }
 
 void CStartupLogoDialog::paintEvent(QPaintEvent*)
