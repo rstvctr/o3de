@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <AzCore/Math/Vector2.h>
 #include <AzCore/Memory/SystemAllocator.h>
 #include <AzCore/std/smart_ptr/intrusive_base.h>
 #include <Atom/RHI/ValidationLayer.h>
@@ -16,6 +17,8 @@
 
 namespace XR
 {
+    class Session;
+
     //! Base XR Space class which will provide access to the back-end concrete object
     class Space
         : public ::XR::Object
@@ -31,6 +34,8 @@ namespace XR
 
         AZ::RHI::ResultCode Init(Descriptor descriptor);
         const Space::Descriptor& GetDescriptor() const;
+
+        virtual AZ::Vector2 GetPlayspaceBounds(Session* session) const = 0;
 
     private:
         ///////////////////////////////////////////////////////////////////

@@ -6,6 +6,7 @@
  *
  */
 
+#include <OpenXRVk/OpenXRVkSession.h>
 #include <OpenXRVk/OpenXRVkSpace.h>
 #include <OpenXRVk/OpenXRVkUtils.h>
 #include <AzCore/Debug/Trace.h>
@@ -118,13 +119,17 @@ namespace OpenXRVk
         m_xrSpaces.clear();
     }
 
-#if 0
-    AZ::Aabb Space::GetReferenceSpaceBoundsRect(XrSession xrSession, SpaceType spaceType)
+
+    AZ::Vector2 Space::GetPlayspaceBounds(XR::Session* session) const
     {
-XrResult xrGetReferenceSpaceBoundsRect(session,
-    XrReferenceSpaceType                        referenceSpaceType,
-    XrExtent2Df*                                bounds);
+        XrExtent2Df extent;
+        XrResult result = xrGetReferenceSpaceBoundsRect(azrtti_cast<OpenXRVk::Session*>(session)->GetXrSession(), XR_REFERENCE_SPACE_TYPE_STAGE, &extent);
+        if (IsSuccess(result))
+        {
+            return AZ::Vector2(extent.width, extent.height);
+        }
+
+        return {};
     }
-#endif
 
 }

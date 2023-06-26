@@ -90,6 +90,8 @@ namespace XR
         AZ::RHI::ResultCode InitVariableRateShadingImageContent(AZ::RHI::Image* image, AZ::RHI::XRFoveatedLevel type) const override;
         ///////////////////////////////////////////////////////////////////
 
+        Session* GetSession() { return m_session.get(); }
+
     private:
         Ptr<Instance> m_instance;
         Ptr<Session> m_session;

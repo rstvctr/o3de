@@ -2,7 +2,7 @@
 
 #include <AzCore/EBus/EBus.h>
 #include <AzCore/Interface/Interface.h>
-#include <AzCore/Math/Aabb.h>
+#include <AzCore/Math/Vector2.h>
 
 namespace XR
 {
@@ -20,7 +20,7 @@ namespace XR
         virtual bool Start() = 0;
         virtual void Shutdown() = 0;
         virtual bool IsOpenXREnabled() = 0;
-        virtual AZ::Aabb GetPlayspaceBoundingBox() = 0;
+        virtual AZ::Vector2 GetPlayspaceBoundingBox() = 0;
     };
 
     class XRSystemComponentNotifications : public AZ::EBusTraits

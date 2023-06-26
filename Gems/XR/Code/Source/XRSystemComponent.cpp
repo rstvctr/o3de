@@ -117,8 +117,19 @@ namespace XR
         }
     }
 
-    AZ::Aabb SystemComponent::GetPlayspaceBoundingBox()
+    AZ::Vector2 SystemComponent::GetPlayspaceBoundingBox()
     {
+        if (!m_xrSystem)
+            return {};
+
+        if (XR::Session* session = m_xrSystem->GetSession())
+        {
+            if (XR::Space* space = session->GetSpace())
+            {
+                return space->GetPlayspaceBounds(session);
+            }
+        }
+
         return {};
     }
 }

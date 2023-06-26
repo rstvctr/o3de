@@ -44,7 +44,7 @@ namespace OpenXRVk
         //! Get the XrSpace for a given SpaceType
         XrSpace GetXrSpace(SpaceType spaceType) const;
 
-        AZ::Aabb GetReferenceSpaceBoundsRect(XrSession xrSession, SpaceType spaceType);
+        AZ::Vector2 GetPlayspaceBounds(XR::Session* session) const override;
 
     private:
         //! XrPose specific matrix translation, Rotation functions

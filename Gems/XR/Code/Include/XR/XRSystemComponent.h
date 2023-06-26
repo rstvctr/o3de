@@ -41,7 +41,7 @@ namespace XR
         bool IsOpenXREnabled() override;
         bool Start() override;
         void Shutdown() override;
-        AZ::Aabb GetPlayspaceBoundingBox() override;
+        AZ::Vector2 GetPlayspaceBoundingBox() override;
         //////////////////////////////////////////////////////////////////////////
 
         Ptr<XR::System> m_xrSystem;
