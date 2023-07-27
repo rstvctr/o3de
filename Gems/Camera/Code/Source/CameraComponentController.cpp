@@ -542,13 +542,12 @@ namespace Camera
         // Update stereoscopic projection matrix if XR system is active
         if (m_xrSystem && m_xrSystem->ShouldRender())
         {
+            // Will get updated later...
+#if 0 
             AZ::RPI::PoseData frontPoseData;
             [[maybe_unused]] AZ::RHI::ResultCode resultCode = m_xrSystem->GetViewLocalPose(frontPoseData);
             // Convert to O3de's coordinate system and update the camera orientation for the correct eye view
             AZ::Quaternion viewLocalPoseOrientation = frontPoseData.m_orientation;
-            viewLocalPoseOrientation.SetX(-frontPoseData.m_orientation.GetX());
-            viewLocalPoseOrientation.SetY(frontPoseData.m_orientation.GetZ());
-            viewLocalPoseOrientation.SetZ(-frontPoseData.m_orientation.GetY());
 
             // Apply the stereoscopic view provided by the device
             AZ::Matrix3x4 worldTransform =
@@ -561,6 +560,24 @@ namespace Camera
             }
 
             m_atomCameraViewGroup->SetCameraTransform(worldTransform);
+#else
+            // TODO: if (multiview) ...
+            AZ::RPI::PoseData frontPoseData;
+            [[maybe_unused]] AZ::RHI::ResultCode resultCode = m_xrSystem->GetViewLocalPose(frontPoseData);
+            AZ::Matrix3x4 worldTransform =
+                AZ::Matrix3x4::CreateFromQuaternionAndTranslation(frontPoseData.m_orientation, frontPoseData.m_position);
+            m_atomCameraViewGroup->SetCameraTransform(worldTransform, AZ::RPI::ViewType::Default);
+
+            for (AZ::u32 i = 0; i < m_numSterescopicViews; i++)
+            {
+                AZ::RPI::PoseData poseData;
+                m_xrSystem->GetViewPose(i, poseData);
+
+                AZ::Matrix3x4 cameraTransform =
+                    AZ::Matrix3x4::CreateFromQuaternionAndTranslation(poseData.m_orientation, poseData.m_position);
+                m_atomCameraViewGroup->GetView(AZ::RPI::ViewType::XrLeft)->SetCameraTransform(cameraTransform, i);
+            }
+#endif
         }
         else
         {
@@ -654,7 +671,13 @@ namespace Camera
                             m_config.m_nearClipDistance,
                             m_config.m_farClipDistance,
                             reverseDepth);
-                        m_atomCameraViewGroup->SetStereoscopicViewToClipMatrix(projection, reverseDepth, viewType);
+                        if (m_xrSystem->GetRHIXRRenderingInterface()->IsMultiviewSupported())
+                        {
+                            if (auto view = m_atomCameraViewGroup->GetView(AZ::RPI::ViewType::XrLeft))
+                                view->SetStereoscopicViewToClipMatrix(projection, reverseDepth, i);
+                        }
+                        else
+                            m_atomCameraViewGroup->SetStereoscopicViewToClipMatrix(projection, reverseDepth, viewType);
                     }
                 }
             } 
