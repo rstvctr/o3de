@@ -156,7 +156,7 @@ namespace AZ
             uploadMipRequest.m_image = &image;
             uploadMipRequest.m_mipSlices = request.m_tailMipSlices;
             uploadMipRequest.m_waitForUpload = true;
-            device.GetAsyncUploadQueue().QueueUpload(uploadMipRequest, request.m_descriptor.m_mipLevels);
+            device.GetAsyncUploadQueue()->QueueUpload(uploadMipRequest, request.m_descriptor.m_mipLevels);
 
             // update resident mip level
             image.SetStreamedMipLevel(expectedResidentMipLevel);
@@ -192,7 +192,7 @@ namespace AZ
                 request.m_completeCallback();
             };
 
-            device.GetAsyncUploadQueue().QueueUpload(newRequest, residentMipLevelBefore);
+            device.GetAsyncUploadQueue()->QueueUpload(newRequest, residentMipLevelBefore);
             return RHI::ResultCode::Success;
         }
 
@@ -237,7 +237,7 @@ namespace AZ
         void StreamingImagePool::WaitFinishUploading(const Image& image)
         {
             auto& device = static_cast<Device&>(GetDevice());
-            device.GetAsyncUploadQueue().WaitForUpload(image.GetUploadHandle());
+            device.GetAsyncUploadQueue()->WaitForUpload(image.GetUploadHandle());
         }
 
         void StreamingImagePool::SetNameInternal(const AZStd::string_view& name)

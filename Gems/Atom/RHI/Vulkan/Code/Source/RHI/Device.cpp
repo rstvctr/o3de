@@ -393,6 +393,11 @@ namespace AZ
             result = m_stagingBufferPool->Init(*this, poolDesc);
             RETURN_RESULT_IF_UNSUCCESSFUL(result);
 
+            m_asyncUploadQueue = aznew AsyncUploadQueue();
+            AsyncUploadQueue::Descriptor asyncUploadQueueDescriptor(GetDescriptor().m_platformLimitsDescriptor->m_platformDefaultValues.m_asyncQueueStagingBufferSizeInBytes);
+            asyncUploadQueueDescriptor.m_device = this;
+            m_asyncUploadQueue->Init(asyncUploadQueueDescriptor);
+
             {
                 m_constantBufferPool = BufferPool::Create();
                 static int index = 0;
@@ -554,18 +559,10 @@ namespace AZ
             return m_queueFamilyProperties;
         }
 
-        AsyncUploadQueue& Device::GetAsyncUploadQueue()
+        AsyncUploadQueue* Device::GetAsyncUploadQueue()
         {
-            if (!m_asyncUploadQueue)
-            {
-                m_asyncUploadQueue = aznew AsyncUploadQueue();
-                AsyncUploadQueue::Descriptor asyncUploadQueueDescriptor(RHI::RHISystemInterface::Get()->GetPlatformLimitsDescriptor()->m_platformDefaultValues.m_asyncQueueStagingBufferSizeInBytes);
-                asyncUploadQueueDescriptor.m_device = this;
-                m_asyncUploadQueue->Init(asyncUploadQueueDescriptor);
-            }
-
-            return *m_asyncUploadQueue;
-        }
+            return m_asyncUploadQueue.get();
+        }        
 
         BindlessDescriptorPool& Device::GetBindlessDescriptorPool()
         {

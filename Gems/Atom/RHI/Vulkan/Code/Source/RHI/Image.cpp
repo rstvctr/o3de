@@ -602,7 +602,7 @@ namespace AZ
                         m_highestMipLevel = adjustedTargetMipLevel;
                         m_residentSizeInBytes = m_sparseImageInfo->GetRequiredMemorySize(m_highestMipLevel);
                         auto& device = static_cast<Device&>(GetDevice());
-                        device.GetAsyncUploadQueue().QueueBindSparse(bindSparseInfo);
+                        device.GetAsyncUploadQueue()->QueueBindSparse(bindSparseInfo);
                     }
                 }
             }
@@ -702,7 +702,7 @@ namespace AZ
                 VkBindSparseInfo bindSparseInfo = m_sparseImageInfo->GetBindSparseInfo(startMip, endMip);
                 m_highestMipLevel = endMip;
                 m_residentSizeInBytes = m_sparseImageInfo->GetRequiredMemorySize(m_highestMipLevel);
-                device.GetAsyncUploadQueue().QueueBindSparse(bindSparseInfo);
+                device.GetAsyncUploadQueue()->QueueBindSparse(bindSparseInfo);
             }
             else 
             {

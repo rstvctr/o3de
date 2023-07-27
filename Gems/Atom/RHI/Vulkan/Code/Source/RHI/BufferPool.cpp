@@ -122,7 +122,10 @@ namespace AZ
             auto& device = static_cast<Device&>(GetDevice());
 
             // Wait for any pending streaming upload.
-            device.GetAsyncUploadQueue().WaitForUpload(buffer.GetUploadHandle());
+            if (device.GetAsyncUploadQueue())
+            {
+                device.GetAsyncUploadQueue()->WaitForUpload(buffer.GetUploadHandle());
+            }
 
             if (auto* resolver = GetResolver())
             {
@@ -230,7 +233,7 @@ namespace AZ
         RHI::ResultCode BufferPool::StreamBufferInternal(const RHI::BufferStreamRequest& request)
         {
             auto& device = static_cast<Device&>(GetDevice());
-            device.GetAsyncUploadQueue().QueueUpload(request);
+            device.GetAsyncUploadQueue()->QueueUpload(request);
             return RHI::ResultCode::Success;
         }
 

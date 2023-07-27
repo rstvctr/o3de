@@ -89,7 +89,7 @@ namespace AZ
 
             const AZStd::vector<VkQueueFamilyProperties>& GetQueueFamilyProperties() const;
 
-            AsyncUploadQueue& GetAsyncUploadQueue();
+            AsyncUploadQueue* GetAsyncUploadQueue();
 
             BindlessDescriptorPool& GetBindlessDescriptorPool();
 
