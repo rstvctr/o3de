@@ -36,6 +36,28 @@ set(FILES
     Materials/Types/StandardPBR_ParallaxState.lua
     Materials/Types/StandardPBR_Roughness.lua
     Materials/Types/MaterialInputs/DetailMapsCommonFunctor.lua
+    Passes/Multiview/DepthMaxMultiview.pass
+    Passes/Multiview/DepthMSAAMultiview.pass
+    Passes/Multiview/DepthMultiview.pass
+    Passes/Multiview/DepthParentMultiview.pass
+    Passes/Multiview/DepthToLinearDepthMultiview.pass
+    Passes/Multiview/FastDepthAwareBlurHorMultiview.pass
+    Passes/Multiview/FastDepthAwareBlurMultiview.pass
+    Passes/Multiview/FastDepthAwareBlurVerMultiview.pass
+    Passes/Multiview/FullscreenCopyMultiview.pass
+    Passes/Multiview/FullscreenShadowMultiview.pass
+    Passes/Multiview/LightCullingMultiview.pass
+    Passes/Multiview/LightCullingParentMultiview.pass
+    Passes/Multiview/LightCullingRemapMultiview.pass
+    Passes/Multiview/LightCullingTilePrepareMSAAMultiview.pass
+    Passes/Multiview/MSAAResolveDepthMultiview.pass
+    Passes/Multiview/MultiViewForward.pass
+    Passes/Multiview/MultiViewPipeline.pass
+    Passes/Multiview/MultiViewSkyBox.pass
+    Passes/Multiview/MultiViewTransparent.pass
+    Passes/Multiview/MultiViewTransparentParent.pass
+    Passes/Multiview/ShadowParentMultiview.pass
+    Passes/Multiview/UIParentMultiview.pass
     Passes/AuxGeom.pass
     Passes/BlendColorGradingLuts.pass
     Passes/Bloom.pass
@@ -115,11 +137,6 @@ set(FILES
     Passes/MSAAResolveColor.pass
     Passes/MSAAResolveCustom.pass
     Passes/MSAAResolveDepth.pass
-    Passes/MultiViewForward.pass
-    Passes/MultiViewPipeline.pass
-    Passes/MultiViewSkyBox.pass
-    Passes/MultiViewTransparent.pass
-    Passes/MultiViewTransparentParent.pass
     Passes/MultiViewXRLeftPipeline.pass
     Passes/MultiViewXRRightPipeline.pass
     Passes/NewDepthOfField.pass
@@ -369,6 +386,16 @@ set(FILES
     Shaders/Materials/StandardPBR/StandardPBR_PixelGeometryEval.azsli
     Shaders/Materials/StandardPBR/StandardPBR_SurfaceData.azsli
     Shaders/Materials/StandardPBR/StandardPBR_SurfaceEval.azsli
+    Shaders/Multiview/DepthToLinearDepthMultiview.azsl
+    Shaders/Multiview/DepthToLinearDepthMultiview.shader
+    Shaders/Multiview/FastDepthAwareBlurHorMultiview.shader
+    Shaders/Multiview/FastDepthAwareBlurVerMultiview.shader
+    Shaders/Multiview/LightCullingMultiview.shader
+    Shaders/Multiview/LightCullingRemapMultiview.shader
+    Shaders/Multiview/LightCullingTilePrepareMultiview.shader
+    Shaders/Multiview/MSAAResolveDepthMultiview.azsl
+    Shaders/Multiview/MSAAResolveDepthMultiview.shader
+    Shaders/Multiview/FullscreenShadowMultiview.shader
     Shaders/MorphTargets/MorphTargetCS.azsl
     Shaders/MorphTargets/MorphTargetCS.shader
     Shaders/MorphTargets/MorphTargetSRG.azsli

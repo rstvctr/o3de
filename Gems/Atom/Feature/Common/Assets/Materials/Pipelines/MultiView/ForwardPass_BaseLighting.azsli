@@ -20,11 +20,9 @@
 #define ENABLE_TRANSMISSION 0
 #define ENABLE_SHADER_DEBUGGING 1
 #define ENABLE_CLEAR_COAT 0
-#define ENABLE_SHADOWS 0
+#define MULTIVIEW 1
 #define ENABLE_LIGHT_CULLING 0
-#define ENABLE_AREA_LIGHTS 0
-#define ENABLE_PHYSICAL_SKY 0
-#define ENABLE_MERGE_FILMIC_TONEMAP 1
+#define ENABLE_SHADOWS 1
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +31,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <Atom/RPI/ShaderResourceGroups/DefaultDrawSrg.azsli>
-#include <Atom/Features/Pipeline/Forward/ForwardPassSrg.azsli>
+#include <Atom/Features/Pipeline/Forward/MultiviewForwardPassSrg.azsli>
 
 #include "../../../Shaders/Materials/BasePBR/BasePBR_LightingData.azsli"
 #include "../../../Shaders/Materials/BasePBR/BasePBR_LightingBrdf.azsli"

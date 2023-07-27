@@ -15,7 +15,11 @@
 
 ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_framebuffer;
+#else
     Texture2D<float4> m_framebuffer;
+#endif
     Sampler LinearSampler
     {
         MinFilter = Linear;
@@ -55,12 +59,20 @@ float3 NormalizedToCinemaLimits(const float3 inputColor)
     return linearColor;
 }
 
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
     // Fetch the pixel color from the input texture
+#if MULTIVIEW
+    float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, float3(IN.m_texCoord, viewIndex)).rgb;
+#else
     float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, IN.m_texCoord).rgb;
+#endif
     
     // Applying tone mapper.
     switch (o_tonemapperType)

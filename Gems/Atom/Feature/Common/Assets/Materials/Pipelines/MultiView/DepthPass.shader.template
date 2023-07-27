@@ -1,0 +1,24 @@
+{
+    "Source" : "TEMPLATE_AZSL_PATH",
+    
+    "Definitions" : ["MULTIVIEW=1"],
+
+    "DepthStencilState" : { 
+        "Depth" : { "Enable" : true, "CompareFunc" : "GreaterEqual" }
+    },
+
+    "ProgramSettings" : 
+    {
+        "EntryPoints":
+        [
+            {
+                "name": "VertexShader",
+                "type" : "Vertex"
+            }
+        ] 
+    },
+
+    "DrawList" : "multiviewDepth",
+
+    "MultiviewLayers": 2
+}

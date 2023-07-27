@@ -30,6 +30,43 @@
             "shader": "./TintedTransparent_StandardLighting.shader.template",
             "azsli": "./Transparent_StandardLighting.azsli",
             "tag": "tintedTransparent"
+        },
+        {
+            "shader": "./DepthPass.shader.template",
+            "azsli": "../Common/DepthPass.azsli",
+            "tag": "depth"
+        },
+        {
+            "shader": "./DepthPass_CustomZ.shader.template",
+            "azsli": "../Common/DepthPass_CustomZ.azsli",
+            "tag": "depth_customZ"
+        },
+        {
+            "shader": "../Common/ShadowmapPass.shader.template",
+            "azsli": "../Common/DepthPass.azsli",
+            "tag": "shadow"
+        },
+        {
+            "shader": "../Common/ShadowmapPass_CustomZ.shader.template",
+            "azsli": "../Common/DepthPass_CustomZ.azsli",
+            "tag": "shadow_customZ"
+        },
+        // Used by the light culling system to produce accurate depth bounds for this object when it uses blended transparency
+        {
+            "shader": "./DepthPassTransparentMin.shader.template",
+            "azsli": "../Common/DepthPass.azsli",
+            "tag": "depthPassTransparentMin"
+        },
+        {
+            "shader": "./DepthPassTransparentMax.shader.template",
+            "azsli": "../Common/DepthPass.azsli",
+            "tag": "depthPassTransparentMax"
+        },
+
+        {
+            "shader": "./TintedTransparent_StandardLighting.shader.template",
+            "azsli": "./Transparent_StandardLighting.azsli",
+            "tag": "tintedTransparent"
         }
     ],
     "runtime": {
@@ -45,7 +82,17 @@
                 "defaultValue": false
             },
             {
+                "name": "castShadows",
+                "type": "Bool",
+                "defaultValue": true
+            },
+            {
                 "name": "doubleSided",
+                "type": "Bool",
+                "defaultValue": false
+            },
+            {
+                "name": "hasPerPixelDepth",
                 "type": "Bool",
                 "defaultValue": false
             },
@@ -54,7 +101,6 @@
                 "type": "Bool",
                 "defaultValue": false
             }
-            // Note we don't include "hasPerPixelDepth" because the VR pipeline will be highly optimized, and unlikely to ever support PDO or similar features.
         ],
         "functors": 
         [

@@ -10,37 +10,60 @@
 #error Do not include this file directly. Include the main .srgi file instead.
 #endif
 
-#define VIEWSRG_VIEWPROJECTIONMATRIX ViewSrg::m_viewProjectionMatrix
-#define VIEWSRG_VIEWMATRIX ViewSrg::m_viewMatrix
-#define VIEWSRG_VIEWMATRIXINVERSE ViewSrg::m_viewMatrixInverse
-#define VIEWSRG_PROJECTIONMATRIX ViewSrg::m_projectionMatrix
-#define VIEWSRG_PROJECTIONMATRIXINVERSE ViewSrg::m_projectionMatrixInverse
-#define VIEWSRG_VIEWPROJECTIONINVERSEMATRIX ViewSrg::m_viewProjectionInverseMatrix
-#define VIEWSRG_VIEWPROJECTIONPREVMATRIX ViewSrg::m_viewProjectionPrevMatrix
-#define VIEWSRG_WORLDPOSITION ViewSrg::m_worldPosition
-#define VIEWSRG_LINEARIZEDEPTHCONSTANTS m_linearizeDepthConstants
-#define VIEWSRG_UNPROJECTIONCONSTANTS m_unprojectionConstants
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
+#if MULTIVIEW
+static uint g_viewIndex;
+#endif
+
+#if MULTIVIEW
+#define VIEWSRG_VIEWPROJECTIONMATRIX ViewSrg::m_viewProjectionMatrix[g_viewIndex]
+#define VIEWSRG_VIEWMATRIX ViewSrg::m_viewMatrix[g_viewIndex]
+#define VIEWSRG_VIEWMATRIXINVERSE ViewSrg::m_viewMatrixInverse[g_viewIndex]
+#define VIEWSRG_PROJECTIONMATRIX ViewSrg::m_projectionMatrix[g_viewIndex]
+#define VIEWSRG_PROJECTIONMATRIXINVERSE ViewSrg::m_projectionMatrixInverse[g_viewIndex]
+#define VIEWSRG_VIEWPROJECTIONINVERSEMATRIX ViewSrg::m_viewProjectionInverseMatrix[g_viewIndex]
+#define VIEWSRG_VIEWPROJECTIONPREVMATRIX ViewSrg::m_viewProjectionPrevMatrix[g_viewIndex]
+#define VIEWSRG_WORLDPOSITION ViewSrg::m_worldPosition[g_viewIndex]
+#define VIEWSRG_LINEARIZEDEPTHCONSTANTS m_linearizeDepthConstants[g_viewIndex]
+#define VIEWSRG_UNPROJECTIONCONSTANTS m_unprojectionConstants[g_viewIndex]
+#else
+#define VIEWSRG_VIEWPROJECTIONMATRIX ViewSrg::m_viewProjectionMatrix[0]
+#define VIEWSRG_VIEWMATRIX ViewSrg::m_viewMatrix[0]
+#define VIEWSRG_VIEWMATRIXINVERSE ViewSrg::m_viewMatrixInverse[0]
+#define VIEWSRG_PROJECTIONMATRIX ViewSrg::m_projectionMatrix[0]
+#define VIEWSRG_PROJECTIONMATRIXINVERSE ViewSrg::m_projectionMatrixInverse[0]
+#define VIEWSRG_VIEWPROJECTIONINVERSEMATRIX ViewSrg::m_viewProjectionInverseMatrix[0]
+#define VIEWSRG_VIEWPROJECTIONPREVMATRIX ViewSrg::m_viewProjectionPrevMatrix[0]
+#define VIEWSRG_WORLDPOSITION ViewSrg::m_worldPosition[0]
+#define VIEWSRG_LINEARIZEDEPTHCONSTANTS m_linearizeDepthConstants[0]
+#define VIEWSRG_UNPROJECTIONCONSTANTS m_unprojectionConstants[0]
+#endif
 
 partial ShaderResourceGroup ViewSrg
 {
-    row_major float4x4 m_viewProjectionMatrix;          // World -> Projection
-    row_major float4x4 m_viewMatrix;                    // World -> View
-    row_major float4x4 m_viewMatrixInverse;             // View -> World
-    row_major float4x4 m_projectionMatrix;              // View -> Projection
-    row_major float4x4 m_projectionMatrixInverse;       // Projection -> View
-    row_major float4x4 m_viewProjectionInverseMatrix;   // Projection -> World
+    row_major float4x4 m_viewProjectionMatrix[2];          // World -> Projection
+    row_major float4x4 m_viewMatrix[2];                    // World -> View
+    row_major float4x4 m_viewMatrixInverse[2];             // View -> World
+    row_major float4x4 m_projectionMatrix[2];              // View -> Projection
+    row_major float4x4 m_projectionMatrixInverse[2];       // Projection -> View
+    row_major float4x4 m_viewProjectionInverseMatrix[2];   // Projection -> World
 
     // view projection matrix of last frame
-    row_major float4x4 m_viewProjectionPrevMatrix;
+    row_major float4x4 m_viewProjectionPrevMatrix[2];
 
-    float3 m_worldPosition;
+    float3 m_worldPosition[2];
 
     // Constants to help calculate linear depth in an optimized manner
-    float4 m_linearizeDepthConstants;
+    float4 m_linearizeDepthConstants[2];
 
     // Constants used to unproject depth values and reconstruct the view-space position (Z-forward & Y-up)
     // See the GetViewSpacePosition( ) function below
-    float4 m_unprojectionConstants;
+    float4 m_unprojectionConstants[2];
+
+
 
     // Debug members...
 
@@ -77,6 +100,7 @@ partial ShaderResourceGroup ViewSrg
         return float3(screenRay * linearDepth, linearDepth);
     }
 }
+
 
 #include <Atom/Feature/Common/Assets/ShaderResourceGroups/Decals/ViewSrg.azsli>
 #include <Atom/Feature/Common/Assets/ShaderResourceGroups/CoreLights/ViewSrg.azsli>

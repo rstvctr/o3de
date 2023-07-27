@@ -6,6 +6,10 @@
  *
  */
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 #include <Atom/Features/SrgSemantics.azsli>
 
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
@@ -18,7 +22,11 @@
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_framebuffer;
+#else
     Texture2D<float4> m_framebuffer;
+#endif
     Sampler LinearSampler
     {
         MinFilter = Linear;
@@ -32,11 +40,19 @@ ShaderResourceGroup PassSrg : SRG_PerPass
 
 ////////////////////////////////////////////////////////////////////////////////
 // A entry point of pixel shader.
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
+#if MULTIVIEW
+    float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, float3(IN.m_texCoord, viewIndex)).rgb;
+#else
     float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, IN.m_texCoord).rgb;
+#endif
     OUT.m_color.rgb = TransformColor(color, ColorSpaceId::ACEScg, ColorSpaceId::SRGB);
     OUT.m_color.w = 1;
 

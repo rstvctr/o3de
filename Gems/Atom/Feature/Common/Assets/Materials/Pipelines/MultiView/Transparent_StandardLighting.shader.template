@@ -54,6 +54,8 @@
       ]
     },
 
-    "DrawList" : "multiviewTransparent"
+    "DrawList" : "multiviewTransparent",
+
+    "MultiviewLayers": 2
 }
 

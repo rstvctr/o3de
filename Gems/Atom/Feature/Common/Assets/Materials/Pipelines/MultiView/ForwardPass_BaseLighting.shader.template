@@ -1,5 +1,7 @@
 {
     "Source" : "TEMPLATE_AZSL_PATH",
+    
+    "Definitions" : ["MULTIVIEW=1"],
 
     "DepthStencilState" :
     {
@@ -45,6 +47,8 @@
       ]
     },
 
-    "DrawList" : "multiViewForward"
+    "DrawList" : "multiviewForward",
+
+    "MultiviewLayers": 2
 }
 

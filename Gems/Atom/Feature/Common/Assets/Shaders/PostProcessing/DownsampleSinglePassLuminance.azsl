@@ -8,6 +8,10 @@
 
 // refer https://github.com/GPUOpen-Effects/FidelityFX-SPD/blob/c52944f547884774a1b33066f740e6bf89f927f5/sample/src/DX12/SPDIntegration.hlsl
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 #include <Atom/RPI/Math.azsli>
 #include <Atom/Features/SrgSemantics.azsli>
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
@@ -19,9 +23,15 @@ struct SpdGlobalAtomicBuffer
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_inputImage;
+    RWTexture2DArray<float4> m_imageDestination[13];
+    [[verbatim("globallycoherent")]] RWTexture2DArray<float4> m_mip6;
+#else
     Texture2D<float4> m_inputImage;
     RWTexture2D<float4> m_imageDestination[13];
     [[verbatim("globallycoherent")]] RWTexture2D<float4> m_mip6;
+#endif
     [[verbatim("globallycoherent")]] RWStructuredBuffer<SpdGlobalAtomicBuffer> m_globalAtomic;
 
     // Mip level count of m_imageDestination.
@@ -44,12 +54,20 @@ groupshared AF1 s_spdIntermediateG[16][16];
 groupshared AF1 s_spdIntermediateB[16][16];
 groupshared AF1 s_spdIntermediateA[16][16];
 
+#if MULTIVIEW
+AF4 SpdLoadSourceImage(AF2 tex, AU1 slice)
+#else
 AF4 SpdLoadSourceImage(AF2 tex, AU1 /* slice */)
+#endif
 {
     if (tex.x < PassSrg::m_imageSize.x &&
         tex.y < PassSrg::m_imageSize.y)
     {
+#if MULTIVIEW
+        const float3 rgb = PassSrg::m_inputImage[uint3(tex, slice)].rgb;
+#else
         const float3 rgb = PassSrg::m_inputImage[tex].rgb;
+#endif
         const float luminance = CalculateLuminance(rgb, ColorSpaceId::ACEScg);
         return AF4(luminance, luminance, luminance, 1.);
     }
@@ -59,13 +77,21 @@ AF4 SpdLoadSourceImage(AF2 tex, AU1 /* slice */)
     }
 }
 
+#if MULTIVIEW
+AF4 SpdLoad(ASU2 tex, AU1 slice)
+#else
 AF4 SpdLoad(ASU2 tex, AU1 /* slice */)
+#endif
 {
     const AU1 GloballyCoherentMipIndex = 6;
     if ((tex.x >> GloballyCoherentMipIndex) < PassSrg::m_imageSize.x &&
         (tex.y >> GloballyCoherentMipIndex) < PassSrg::m_imageSize.y)
     {
+#if MULTIVIEW
+        return PassSrg::m_mip6[uint3(tex, slice)];
+#else
         return PassSrg::m_mip6[tex];
+#endif
     }
     else
     {
@@ -73,30 +99,56 @@ AF4 SpdLoad(ASU2 tex, AU1 /* slice */)
     }
 }
 
+#if MULTIVIEW
+void SpdStore(ASU2 pix, AF4 value, AU1 mip, AU1 slice)
+#else
 void SpdStore(ASU2 pix, AF4 value, AU1 mip, AU1 /* slice */)
+#endif
 {
     // Store to the globally coherent working mip slice.
     if (mip == 5 && value.w > 0.)
+#if MULTIVIEW
+        PassSrg::m_mip6[uint3(pix, slice)] = value;
+#else
         PassSrg::m_mip6[pix] = value;
+#endif
     
     const AU1 mipAdjusted = min(mip, PassSrg::m_destinationMipLevelCount - 1);
+#if MULTIVIEW
+    PassSrg::m_imageDestination[mipAdjusted][uint3(pix, slice)] = value;
+#else
     PassSrg::m_imageDestination[mipAdjusted][pix] = value;
+#endif
 }
 
+#if MULTIVIEW
+void SpdIncreaseAtomicCounter(AU1 slice)
+{
+    InterlockedAdd(PassSrg::m_globalAtomic[slice].m_counter, 1, s_spdCounter);
+}
+#else
 void SpdIncreaseAtomicCounter(AU1 /* slice*/)
 {
     InterlockedAdd(PassSrg::m_globalAtomic[0].m_counter, 1, s_spdCounter);
 }
+#endif
 
 AU1 SpdGetAtomicCounter()
 {
     return s_spdCounter;
 }
 
+#if MULTIVIEW
+void SpdResetAtomicCounter(AU1 slice)
+{
+    PassSrg::m_globalAtomic[slice].m_counter = 0;
+}
+#else
 void SpdResetAtomicCounter(AU1 /* slice */)
 {
     PassSrg::m_globalAtomic[0].m_counter = 0;
 }
+#endif
 
 AF4 SpdLoadIntermediate(AU1 x, AU1 y)
 {

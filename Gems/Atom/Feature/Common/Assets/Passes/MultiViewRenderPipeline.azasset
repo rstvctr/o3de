@@ -10,7 +10,7 @@
         "AllowModification": true,
         "RenderSettings": {
             "MultisampleState": {
-                "samples": 1
+                "samples": 4
             }
         }
     }

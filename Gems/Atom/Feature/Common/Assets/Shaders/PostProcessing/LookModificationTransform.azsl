@@ -17,7 +17,11 @@
 
 ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_framebuffer;
+#else
     Texture2D<float4> m_framebuffer;
+#endif
     Sampler LinearSampler
     {
         MinFilter = Linear;
@@ -142,12 +146,20 @@ float4 SampleBSpline3D(Texture3D<float4> texture, SamplerState linearSampler, fl
     return result / totalWeight;
 }
 
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
     // Fetch the pixel color from the input texture
+#if MULTIVIEW
+    float3 color = PassSrg::m_framebuffer.SampleLevel(PassSrg::LinearSampler, float3(IN.m_texCoord, viewIndex), 0.0).rgb;
+#else
     float3 color = PassSrg::m_framebuffer.SampleLevel(PassSrg::LinearSampler, IN.m_texCoord, 0.0).rgb;
+#endif
 
     if (o_enableExposureControlFeature)
     {

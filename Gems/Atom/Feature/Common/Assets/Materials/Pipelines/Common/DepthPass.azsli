@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
- 
+
 #define MATERIALPIPELINE_SHADER_HAS_PIXEL_STAGE 0
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,8 +14,15 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if MULTIVIEW
+VsOutput VertexShader(VsInput IN, uint viewIndex : SV_ViewID)
+#else
 VsOutput VertexShader(VsInput IN)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     VsOutput OUT = EvaluateVertexGeometry(IN);
     return OUT;
 }

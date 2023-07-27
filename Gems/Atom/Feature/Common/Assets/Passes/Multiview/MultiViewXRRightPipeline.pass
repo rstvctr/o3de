@@ -4,7 +4,7 @@
     "ClassName": "PassAsset",
     "ClassData": {
         "PassTemplate": {
-            "Name": "MultiViewPipelineTemplate",
+            "Name": "MultiViewXRRightPipelineTemplate",
             "PassClass": "ParentPass",
             "Slots": [
                 {
@@ -104,7 +104,7 @@
                             }
                         }
                     ]
-                }, 
+                },
                 {
                     "Name": "AuxGeomPass",
                     "TemplateName": "AuxGeomPassTemplate",
@@ -134,7 +134,7 @@
                 {
                     "Name": "UIPass",
                     "TemplateName": "UIParentTemplate",
-                    "Connections": [  
+                    "Connections": [
                         {
                             "LocalSlot": "DepthInputOutput",
                             "AttachmentRef": {

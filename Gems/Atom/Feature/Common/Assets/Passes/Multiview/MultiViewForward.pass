@@ -15,6 +15,66 @@
                     "ScopeAttachmentUsage": "Shader"
                 },
                 {
+                    "Name": "FullscreenShadow",
+                    "ShaderInputName": "m_fullscreenShadow",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },                 
+                {
+                    "Name": "DirectionalLightShadowmap",
+                    "ShaderInputName": "m_directionalLightShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ExponentialShadowmapDirectional",
+                    "ShaderInputName": "m_directionalLightExponentialShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ProjectedShadowmap",
+                    "ShaderInputName": "m_projectedShadowmaps",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ExponentialShadowmapProjected",
+                    "ShaderInputName": "m_projectedExponentialShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                // {
+                //     "Name": "TileLightData",
+                //     "SlotType": "Input",
+                //     "ShaderInputName": "m_tileLightData",
+                //     "ScopeAttachmentUsage": "Shader",
+                //     "ImageViewDesc": {
+                //         "IsArray": 1
+                //     }
+                // },
+                // {
+                //     "Name": "LightListRemapped",
+                //     "SlotType": "Input",
+                //     "ShaderInputName": "m_lightListRemapped",
+                //     "ScopeAttachmentUsage": "Shader"
+                // },
+                {
                     "Name": "VRSTextureInput",
                     "SlotType": "Input",
                     "ScopeAttachmentUsage": "ShadingRate",
@@ -24,16 +84,9 @@
                 },
                 // Outputs...
                 {
-                    "Name": "DepthStencilOutput",
-                    "SlotType": "Output",
-                    "ScopeAttachmentUsage": "DepthStencil",
-                    "LoadStoreAction": {
-                        "ClearValue": {
-                            "Type": "DepthStencil"
-                        },
-                        "LoadAction": "Clear",
-                        "LoadActionStencil": "Clear"
-                    }
+                    "Name": "DepthStencilInputOutput",
+                    "SlotType": "InputOutput",
+                    "ScopeAttachmentUsage": "DepthStencil"
                 },
                 {
                     "Name": "LightingOutput",
@@ -73,26 +126,14 @@
                         "Attachment": "PipelineOutput"
                       }
                     },
-                  "MultisampleSource": {
-                    "Pass": "Parent",
-                    "Attachment": "PipelineOutput"
-                  },
-                    "ImageDescriptor": {
-                      "Format": "R16G16B16A16_FLOAT",
-                      "SharedQueueMask": "Graphics"
-                    }
-                },
-                {
-                    "Name": "DepthAttachment",
-                    "SizeSource": {
-                      "Source": {
-                        "Pass": "Parent",
-                        "Attachment": "PipelineOutput"
-                      }
+                    "MultisampleSource": {
+                        "Pass": "This",
+                        "Attachment": "DepthStencilInputOutput"
                     },
                     "ImageDescriptor": {
-                      "Format": "D32_FLOAT_S8X24_UINT",
-                      "SharedQueueMask": "Graphics"
+                        "Format": "R16G16B16A16_FLOAT",
+                        "SharedQueueMask": "Graphics",
+                        "ArraySize": 2
                     }
                 },
                 {
@@ -104,13 +145,6 @@
                 }
             ],
             "Connections": [
-                {
-                  "LocalSlot": "DepthStencilOutput",
-                  "AttachmentRef": {
-                    "Pass": "This",
-                    "Attachment": "DepthAttachment"
-                  }
-                },
                 {
                     "LocalSlot": "LightingOutput",
                     "AttachmentRef": {
@@ -130,6 +164,13 @@
                     "AttachmentRef": {
                         "Pass": "This",
                         "Attachment": "VRSTexture"
+                    }
+                },
+                {
+                    "LocalSlot": "FullscreenShadow",
+                    "AttachmentRef": {
+                        "Pass": "PipelineGlobal",
+                        "Attachment": "FullscreenShadowBuffer"
                     }
                 }
             ]

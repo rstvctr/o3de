@@ -1,0 +1,55 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "DepthPassMultiviewTemplate",
+            "PassClass": "RasterPass",
+            "Slots": [
+                {
+                    "Name": "Output",
+                    "SlotType": "Output",
+                    "ScopeAttachmentUsage": "DepthStencil",
+                    "LoadStoreAction": {
+                        "ClearValue": {
+                            "Type": "DepthStencil"
+                        },
+                        "LoadAction": "Clear",
+                        "LoadActionStencil": "Clear"
+                    }
+                },		
+                {
+                    "Name": "SkinnedMeshes",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "InputAssembly"
+                }
+            ],
+            "ImageAttachments": [
+                {
+                    "Name": "DepthStencil",
+                    "SizeSource": {
+                        "Source": {
+                            "Pass": "Parent",
+                            "Attachment": "PipelineOutput"
+                        }
+                    },
+                    "ImageDescriptor": {
+                        "Format": "D32_FLOAT_S8X24_UINT",
+                        "SharedQueueMask": "Graphics",
+                        "ArraySize": 2
+                    }
+                }
+            ],
+            "Connections": [
+                {
+                    "LocalSlot": "Output",
+                    "AttachmentRef": {
+                        "Pass": "This",
+                        "Attachment": "DepthStencil"
+                    }
+                }
+            ]
+        }
+    }
+}

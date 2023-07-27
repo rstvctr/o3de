@@ -115,8 +115,8 @@ namespace AZ
 
         void View::AddDrawPacket(const RHI::DrawPacket* drawPacket, Vector3 worldPosition)
         {
-            Vector3 cameraToObject = worldPosition - m_position;
-            float depth = cameraToObject.Dot(-m_viewToWorldMatrix.GetBasisZAsVector3());
+            Vector3 cameraToObject = worldPosition - m_position[0];
+            float depth = cameraToObject.Dot(-m_viewToWorldMatrix[0].GetBasisZAsVector3());
             AddDrawPacket(drawPacket, depth);
         }
 
@@ -152,31 +152,31 @@ namespace AZ
             return m_orFlags;
         }
 
-        void View::SetWorldToViewMatrix(const AZ::Matrix4x4& worldToView)
+        void View::SetWorldToViewMatrix(const AZ::Matrix4x4& worldToView, int index)
         {
-            m_viewToWorldMatrix = worldToView.GetInverseFast();
-            m_position = m_viewToWorldMatrix.GetTranslation();
+            m_viewToWorldMatrix[index] = worldToView.GetInverseFast();
+            m_position[index] = m_viewToWorldMatrix[index].GetTranslation();
 
-            m_worldToViewMatrix = worldToView;
-            m_worldToClipMatrix = m_viewToClipMatrix * m_worldToViewMatrix;
-            m_clipToWorldMatrix = m_worldToClipMatrix.GetInverseFull();
+            m_worldToViewMatrix[index] = worldToView;
+            m_worldToClipMatrix[index] = m_viewToClipMatrix[index] * m_worldToViewMatrix[index];
+            m_clipToWorldMatrix[index] = m_worldToClipMatrix[index].GetInverseFull();
 
-            m_onWorldToViewMatrixChange.Signal(m_worldToViewMatrix);
-            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix);
+            m_onWorldToViewMatrixChange.Signal(m_worldToViewMatrix[index]);
+            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix[index]);
         }
 
-        AZ::Transform View::GetCameraTransform() const
+        AZ::Transform View::GetCameraTransform(int index) const
         {
             static const Quaternion yUpToZUp = Quaternion::CreateRotationX(-AZ::Constants::HalfPi);
             return AZ::Transform::CreateFromQuaternionAndTranslation(
-                Quaternion::CreateFromMatrix4x4(m_viewToWorldMatrix) * yUpToZUp,
-                m_viewToWorldMatrix.GetTranslation()
+                Quaternion::CreateFromMatrix4x4(m_viewToWorldMatrix[index]) * yUpToZUp,
+                m_viewToWorldMatrix[index].GetTranslation()
             ).GetOrthogonalized();
         }
 
-        void View::SetCameraTransform(const AZ::Matrix3x4& cameraTransform)
+        void View::SetCameraTransform(const AZ::Matrix3x4& cameraTransform, int index)
         {
-            m_position = cameraTransform.GetTranslation();
+            m_position[index] = cameraTransform.GetTranslation();
 
             // Before inverting the matrix we must first adjust from Z-up to Y-up. The camera world matrix
             // is in a Z-up world and an identity matrix means that it faces along the positive-Y axis and Z is up.
@@ -191,41 +191,41 @@ namespace AZ
                         0,0,1,0,
                         0,0,0,1 };
             yUpWorld.StoreToRowMajorFloat12(viewToWorldMatrixRaw);
-            const AZ::Matrix4x4 prevViewToWorldMatrix = m_viewToWorldMatrix;
-            m_viewToWorldMatrix = AZ::Matrix4x4::CreateFromRowMajorFloat16(viewToWorldMatrixRaw);
+            const AZ::Matrix4x4 prevViewToWorldMatrix = m_viewToWorldMatrix[index];
+            m_viewToWorldMatrix[index] = AZ::Matrix4x4::CreateFromRowMajorFloat16(viewToWorldMatrixRaw);
 
-            m_worldToViewMatrix = m_viewToWorldMatrix.GetInverseFast();
+            m_worldToViewMatrix[index] = m_viewToWorldMatrix[index].GetInverseFast();
 
-            m_worldToClipMatrix = m_viewToClipMatrix * m_worldToViewMatrix;
-            m_clipToWorldMatrix = m_worldToClipMatrix.GetInverseFull();
+            m_worldToClipMatrix[index] = m_viewToClipMatrix[index] * m_worldToViewMatrix[index];
+            m_clipToWorldMatrix[index] = m_worldToClipMatrix[index].GetInverseFull();
 
             // Only signal an update when there is a change, otherwise this might block
             // user input from changing the value.
-            if (!prevViewToWorldMatrix.IsClose(m_viewToWorldMatrix))
+            if (!prevViewToWorldMatrix.IsClose(m_viewToWorldMatrix[index]))
             {
-                m_onWorldToViewMatrixChange.Signal(m_worldToViewMatrix);
+                m_onWorldToViewMatrixChange.Signal(m_worldToViewMatrix[index]);
             }
-            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix);
+            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix[index]);
         }        
 
-        void View::SetViewToClipMatrix(const AZ::Matrix4x4& viewToClip)
+        void View::SetViewToClipMatrix(const AZ::Matrix4x4& viewToClip, int index)
         {
-            m_viewToClipMatrix = viewToClip;
-            m_clipToViewMatrix = m_viewToClipMatrix.GetInverseFull();
-            m_worldToClipMatrix = m_viewToClipMatrix * m_worldToViewMatrix;
-            m_clipToWorldMatrix = m_worldToClipMatrix.GetInverseFull();
+            m_viewToClipMatrix[index] = viewToClip;
+            m_clipToViewMatrix[index] = m_viewToClipMatrix[index].GetInverseFull();
+            m_worldToClipMatrix[index] = m_viewToClipMatrix[index] * m_worldToViewMatrix[index];
+            m_clipToWorldMatrix[index] = m_worldToClipMatrix[index].GetInverseFull();
 
             // Update z depth constant simultaneously
             // zNear -> n, zFar -> f
             // A = f / (n - f), B = nf / (n - f)
-            double A = m_viewToClipMatrix.GetElement(2, 2);
-            double B = m_viewToClipMatrix.GetElement(2, 3);
+            double A = m_viewToClipMatrix[index].GetElement(2, 2);
+            double B = m_viewToClipMatrix[index].GetElement(2, 3);
 
             // Based on linearZ = fn / (depth*(f-n) - f)
-            m_linearizeDepthConstants.SetX(float(B / A)); //<------------n
-            m_linearizeDepthConstants.SetY(float(B / (A + 1.0))); //<---------f
-            m_linearizeDepthConstants.SetZ(float((B * B) / (A * (A + 1.0)))); //<-----nf
-            m_linearizeDepthConstants.SetW(float(-B / (A * (A + 1.0)))); //<------f-n
+            m_linearizeDepthConstants[index].SetX(float(B / A)); //<------------n
+            m_linearizeDepthConstants[index].SetY(float(B / (A + 1.0))); //<---------f
+            m_linearizeDepthConstants[index].SetZ(float((B * B) / (A * (A + 1.0)))); //<-----nf
+            m_linearizeDepthConstants[index].SetW(float(-B / (A * (A + 1.0)))); //<------f-n
 
             // For reverse depth the expression we dont have to do anything different as m_linearizeDepthConstants works out to be the same.
             // A = n / (f - n), B = nf / (f - n)
@@ -235,29 +235,29 @@ namespace AZ
             //m_linearizeDepthConstants.SetZ(float((B * B) / (A * (A + 1.0)))); //<----nf
             //m_linearizeDepthConstants.SetW(float(-B / (A * (A + 1.0)))); //<-----n-f
 
-            double tanHalfFovX = m_clipToViewMatrix.GetElement(0, 0);
-            double tanHalfFovY = m_clipToViewMatrix.GetElement(1, 1);
+            double tanHalfFovX = m_clipToViewMatrix[index].GetElement(0, 0);
+            double tanHalfFovY = m_clipToViewMatrix[index].GetElement(1, 1);
 
             // The constants below try to remapping 0---1 to -1---+1 and multiplying with inverse of projection.
             // Assuming that inverse of projection matrix only has value in the first column for first row
             // x = (2u-1)*ProjInves[0][0]
             // Assuming that inverse of projection matrix only has value in the second column for second row
             // y = (1-2v)*ProjInves[1][1]
-            m_unprojectionConstants.SetX(float(2.0 * tanHalfFovX));
-            m_unprojectionConstants.SetY(float(-2.0 * tanHalfFovY));
-            m_unprojectionConstants.SetZ(float(-tanHalfFovX));
-            m_unprojectionConstants.SetW(float(tanHalfFovY));
+            m_unprojectionConstants[index].SetX(float(2.0 * tanHalfFovX));
+            m_unprojectionConstants[index].SetY(float(-2.0 * tanHalfFovY));
+            m_unprojectionConstants[index].SetZ(float(-tanHalfFovX));
+            m_unprojectionConstants[index].SetW(float(tanHalfFovY));
 
-            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix);
+            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix[index]);
         }
 
-        void View::SetStereoscopicViewToClipMatrix(const AZ::Matrix4x4& viewToClip, bool reverseDepth)
+        void View::SetStereoscopicViewToClipMatrix(const AZ::Matrix4x4& viewToClip, bool reverseDepth, int index)
         {
-            m_viewToClipMatrix = viewToClip;
-            m_clipToViewMatrix = m_viewToClipMatrix.GetInverseFull();
+            m_viewToClipMatrix[index] = viewToClip;
+            m_clipToViewMatrix[index] = m_viewToClipMatrix[index].GetInverseFull();
             
-            m_worldToClipMatrix = m_viewToClipMatrix * m_worldToViewMatrix;
-            m_clipToWorldMatrix = m_worldToClipMatrix.GetInverseFull();
+            m_worldToClipMatrix[index] = m_viewToClipMatrix[index] * m_worldToViewMatrix[index];
+            m_clipToWorldMatrix[index] = m_worldToClipMatrix[index].GetInverseFull();
 
             // Update z depth constant simultaneously
             if(reverseDepth)
@@ -266,26 +266,26 @@ namespace AZ
                 // A = 2n/(f-n), B = 2fn / (f - n)
                 // the formula of A and B should be the same as projection matrix's definition
                 // currently defined in CreateStereoscopicProjection in XRUtils.cpp
-                double A = m_viewToClipMatrix.GetElement(2, 2);
-                double B = m_viewToClipMatrix.GetElement(2, 3);
+                double A = m_viewToClipMatrix[index].GetElement(2, 2);
+                double B = m_viewToClipMatrix[index].GetElement(2, 3);
 
                 // Based on linearZ = 2fn / (depth*(n-f) - 2n)
-                m_linearizeDepthConstants.SetX(float(B / A)); //<----f
-                m_linearizeDepthConstants.SetY(float((2 * B) / (A + 2.0))); //<--- 2n
-                m_linearizeDepthConstants.SetZ(float((2 * B * B) / (A * (A + 2.0)))); //<-----2fn
-                m_linearizeDepthConstants.SetW(float((-2 * B) / (A * (A + 2.0)))); //<------n-f
+                m_linearizeDepthConstants[index].SetX(float(B / A)); //<----f
+                m_linearizeDepthConstants[index].SetY(float((2 * B) / (A + 2.0))); //<--- 2n
+                m_linearizeDepthConstants[index].SetZ(float((2 * B * B) / (A * (A + 2.0)))); //<-----2fn
+                m_linearizeDepthConstants[index].SetW(float((-2 * B) / (A * (A + 2.0)))); //<------n-f
             }
             else
             {
                 // A = -(f+n)/(f-n), B = -2fn / (f - n)
-                double A = m_viewToClipMatrix.GetElement(2, 2);
-                double B = m_viewToClipMatrix.GetElement(2, 3);
+                double A = m_viewToClipMatrix[index].GetElement(2, 2);
+                double B = m_viewToClipMatrix[index].GetElement(2, 3);
 
                 //Based on linearZ = 2fn / (depth*(f-n) - (-f-n))
-                m_linearizeDepthConstants.SetX(float(B / (A + 1.0))); //<----f
-                m_linearizeDepthConstants.SetY(float((-2 * B * A)/ ((A + 1.0) * (A - 1.0)))); //<--- -f-n
-                m_linearizeDepthConstants.SetZ(float((2 * B * B) / ((A - 1.0) * (A + 1.0)))); //<-----2fn
-                m_linearizeDepthConstants.SetW(float((-2 * B) / ((A - 1.0) * (A + 1.0)))); //<------f-n
+                m_linearizeDepthConstants[index].SetX(float(B / (A + 1.0))); //<----f
+                m_linearizeDepthConstants[index].SetY(float((-2 * B * A)/ ((A + 1.0) * (A - 1.0)))); //<--- -f-n
+                m_linearizeDepthConstants[index].SetZ(float((2 * B * B) / ((A - 1.0) * (A + 1.0)))); //<-----2fn
+                m_linearizeDepthConstants[index].SetW(float((-2 * B) / ((A - 1.0) * (A + 1.0)))); //<------f-n
             }     
 
             // The constants below try to remap 0---1 to -1---+1 and multiply with inverse of projection.
@@ -293,17 +293,17 @@ namespace AZ
             // x = (2u-1)*ProjInves[0][0] + ProjInves[0][3]
             // Assuming that inverse of projection matrix only has value in the second column for second row
             // y = (1-2v)*ProjInves[1][1] + ProjInves[1][3]
-            float multiplierConstantX = 2.0f * m_clipToViewMatrix.GetElement(0, 0);
-            float multiplierConstantY = -2.0f * m_clipToViewMatrix.GetElement(1, 1);
-            float additionConstantX = m_clipToViewMatrix.GetElement(0, 3) - m_clipToViewMatrix.GetElement(0, 0);
-            float additionConstantY = m_clipToViewMatrix.GetElement(1, 1) + m_clipToViewMatrix.GetElement(1, 3);
+            float multiplierConstantX = 2.0f * m_clipToViewMatrix[index].GetElement(0, 0);
+            float multiplierConstantY = -2.0f * m_clipToViewMatrix[index].GetElement(1, 1);
+            float additionConstantX = m_clipToViewMatrix[index].GetElement(0, 3) - m_clipToViewMatrix[index].GetElement(0, 0);
+            float additionConstantY = m_clipToViewMatrix[index].GetElement(1, 1) + m_clipToViewMatrix[index].GetElement(1, 3);
 
-            m_unprojectionConstants.SetX(multiplierConstantX);
-            m_unprojectionConstants.SetY(multiplierConstantY);
-            m_unprojectionConstants.SetZ(additionConstantX);
-            m_unprojectionConstants.SetW(additionConstantY);
+            m_unprojectionConstants[index].SetX(multiplierConstantX);
+            m_unprojectionConstants[index].SetY(multiplierConstantY);
+            m_unprojectionConstants[index].SetZ(additionConstantX);
+            m_unprojectionConstants[index].SetW(additionConstantY);
 
-            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix);
+            m_onWorldToClipMatrixChange.Signal(m_worldToClipMatrix[index]);
         }
         
         void View::SetClipSpaceOffset(float xOffset, float yOffset)
@@ -311,39 +311,39 @@ namespace AZ
             m_clipSpaceOffset.Set(xOffset, yOffset);
         }
 
-        const AZ::Matrix4x4& View::GetWorldToViewMatrix() const
+        const AZ::Matrix4x4& View::GetWorldToViewMatrix(int index) const
         {
-            return m_worldToViewMatrix;
+            return m_worldToViewMatrix[index];
         }
 
-        const AZ::Matrix4x4& View::GetViewToWorldMatrix() const
+        const AZ::Matrix4x4& View::GetViewToWorldMatrix(int index) const
         {
-            return m_viewToWorldMatrix;
+            return m_viewToWorldMatrix[index];
         }
 
-        AZ::Matrix3x4 View::GetWorldToViewMatrixAsMatrix3x4() const
+        AZ::Matrix3x4 View::GetWorldToViewMatrixAsMatrix3x4(int index) const
         {
-            return AZ::Matrix3x4::UnsafeCreateFromMatrix4x4(m_worldToViewMatrix);
+            return AZ::Matrix3x4::UnsafeCreateFromMatrix4x4(m_worldToViewMatrix[index]);
         }
 
-        AZ::Matrix3x4 View::GetViewToWorldMatrixAsMatrix3x4() const
+        AZ::Matrix3x4 View::GetViewToWorldMatrixAsMatrix3x4(int index) const
         {
-            return AZ::Matrix3x4::UnsafeCreateFromMatrix4x4(m_viewToWorldMatrix);
+            return AZ::Matrix3x4::UnsafeCreateFromMatrix4x4(m_viewToWorldMatrix[index]);
         }
 
-        const AZ::Matrix4x4& View::GetViewToClipMatrix() const
+        const AZ::Matrix4x4& View::GetViewToClipMatrix(int index) const
         {
-            return m_viewToClipMatrix;
+            return m_viewToClipMatrix[index];
         }
 
-        const AZ::Matrix4x4& View::GetWorldToClipMatrix() const
+        const AZ::Matrix4x4& View::GetWorldToClipMatrix(int index) const
         {
-            return m_worldToClipMatrix;
+            return m_worldToClipMatrix[index];
         }
 
-        const AZ::Matrix4x4& View::GetClipToWorldMatrix() const
+        const AZ::Matrix4x4& View::GetClipToWorldMatrix(int index) const
         {
-            return m_clipToWorldMatrix;
+            return m_clipToWorldMatrix[index];
         }
 
         bool View::HasDrawListTag(RHI::DrawListTag drawListTag)
@@ -460,7 +460,7 @@ namespace AZ
 
             // Compute position in clip space
             const Vector4 worldPosition4 = Vector4::CreateFromVector3(positionInWorld);
-            const Vector4 clipSpacePosition = m_worldToClipMatrix * worldPosition4;
+            const Vector4 clipSpacePosition = m_worldToClipMatrix[0] * worldPosition4;
 
             // Get a depth value guaranteed to be in the range 0 to 1
             float normalizedDepth = clipSpacePosition.GetZ() / clipSpacePosition.GetW();
@@ -539,50 +539,131 @@ namespace AZ
 
         void View::UpdateSrg()
         {
+            if (m_usageFlags & UsageFlags::UsageXR)
+            {
+                UpdateSrgStereo();
+            }
+            else
+            {
+                UpdateSrgMono();
+            }
+        }
+
+        void View::UpdateSrgStereo()
+        {
             if (m_shaderResourceGroup)
             {
                 if (m_clipSpaceOffset.IsZero())
                 {
-                    Matrix4x4 worldToClipPrevMatrix = m_viewToClipPrevMatrix * m_worldToViewPrevMatrix;
-                    m_shaderResourceGroup->SetConstant(m_worldToClipPrevMatrixConstantIndex, worldToClipPrevMatrix);
-                    m_shaderResourceGroup->SetConstant(m_viewProjectionMatrixConstantIndex, m_worldToClipMatrix);
-                    m_shaderResourceGroup->SetConstant(m_projectionMatrixConstantIndex, m_viewToClipMatrix);
-                    m_shaderResourceGroup->SetConstant(m_clipToWorldMatrixConstantIndex, m_clipToWorldMatrix);
-                    m_shaderResourceGroup->SetConstant(m_projectionMatrixInverseConstantIndex, m_clipToViewMatrix);
+                    AZStd::array<Matrix4x4, 2> worldToClipPrevMatrix;
+                    worldToClipPrevMatrix[0] = m_viewToClipPrevMatrix[0] * m_worldToViewPrevMatrix[0];
+                    worldToClipPrevMatrix[1] = m_viewToClipPrevMatrix[1] * m_worldToViewPrevMatrix[1];
+                    m_shaderResourceGroup->SetConstantArray(m_worldToClipPrevMatrixConstantIndex, worldToClipPrevMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_viewProjectionMatrixConstantIndex, m_worldToClipMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_projectionMatrixConstantIndex, m_viewToClipMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_clipToWorldMatrixConstantIndex, m_clipToWorldMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_projectionMatrixInverseConstantIndex, m_clipToViewMatrix);
                 }
                 else
                 {
                     // Offset the current and previous frame clip matrices
-                    Matrix4x4 offsetViewToClipMatrix = m_viewToClipMatrix;
-                    offsetViewToClipMatrix.SetElement(0, 2, m_clipSpaceOffset.GetX());
-                    offsetViewToClipMatrix.SetElement(1, 2, m_clipSpaceOffset.GetY());
+                    AZStd::array<Matrix4x4, 2> offsetViewToClipMatrix = m_viewToClipMatrix;
+                    offsetViewToClipMatrix[0].SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipMatrix[0].SetElement(1, 2, m_clipSpaceOffset.GetY());
+                    offsetViewToClipMatrix[1].SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipMatrix[1].SetElement(1, 2, m_clipSpaceOffset.GetY());
 
-                    Matrix4x4 offsetViewToClipPrevMatrix = m_viewToClipPrevMatrix;
-                    offsetViewToClipPrevMatrix.SetElement(0, 2, m_clipSpaceOffset.GetX());
-                    offsetViewToClipPrevMatrix.SetElement(1, 2, m_clipSpaceOffset.GetY());
+                    AZStd::array<Matrix4x4, 2> offsetViewToClipPrevMatrix = m_viewToClipPrevMatrix;
+                    offsetViewToClipPrevMatrix[0].SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipPrevMatrix[0].SetElement(1, 2, m_clipSpaceOffset.GetY());
+                    offsetViewToClipPrevMatrix[1].SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipPrevMatrix[1].SetElement(1, 2, m_clipSpaceOffset.GetY());
 
                     // Build other matrices dependent on the view to clip matrices
-                    Matrix4x4 offsetWorldToClipMatrix = offsetViewToClipMatrix * m_worldToViewMatrix;
-                    Matrix4x4 offsetWorldToClipPrevMatrix = offsetViewToClipPrevMatrix * m_worldToViewPrevMatrix;
+                    AZStd::array<Matrix4x4, 2> offsetWorldToClipMatrix;
+                    offsetWorldToClipMatrix[0] = offsetViewToClipMatrix[0] * m_worldToViewMatrix[0];
+                    offsetWorldToClipMatrix[1] = offsetViewToClipMatrix[1] * m_worldToViewMatrix[1];
+                    AZStd::array<Matrix4x4, 2> offsetWorldToClipPrevMatrix;
+                    offsetWorldToClipPrevMatrix[0] = offsetViewToClipPrevMatrix[0] * m_worldToViewPrevMatrix[0];
+                    offsetWorldToClipPrevMatrix[1] = offsetViewToClipPrevMatrix[1] * m_worldToViewPrevMatrix[1];
+                    AZStd::array<Matrix4x4, 2> offsetClipToWorldMatrix;
+                    offsetClipToWorldMatrix[0] = offsetWorldToClipMatrix[0].GetInverseFull();
+                    offsetClipToWorldMatrix[1] = offsetWorldToClipMatrix[1].GetInverseFull();
+                    AZStd::array<Matrix4x4, 2> offsetClipToViewMatrix;
+                    offsetClipToViewMatrix[0] = offsetViewToClipMatrix[0].GetInverseFull();
+                    offsetClipToViewMatrix[1] = offsetViewToClipMatrix[1].GetInverseFull();
 
-                    m_shaderResourceGroup->SetConstant(m_worldToClipPrevMatrixConstantIndex, offsetWorldToClipPrevMatrix);
-                    m_shaderResourceGroup->SetConstant(m_viewProjectionMatrixConstantIndex, offsetWorldToClipMatrix);
-                    m_shaderResourceGroup->SetConstant(m_projectionMatrixConstantIndex, offsetViewToClipMatrix);
-                    m_shaderResourceGroup->SetConstant(m_clipToWorldMatrixConstantIndex, offsetWorldToClipMatrix.GetInverseFull());
-                    m_shaderResourceGroup->SetConstant(m_projectionMatrixInverseConstantIndex, offsetViewToClipMatrix.GetInverseFull());
+                    m_shaderResourceGroup->SetConstantArray(m_worldToClipPrevMatrixConstantIndex, offsetWorldToClipPrevMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_viewProjectionMatrixConstantIndex, offsetWorldToClipMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_projectionMatrixConstantIndex, offsetViewToClipMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_clipToWorldMatrixConstantIndex, offsetClipToWorldMatrix);
+                    m_shaderResourceGroup->SetConstantArray(m_projectionMatrixInverseConstantIndex, offsetClipToViewMatrix);
                 }
 
-                m_shaderResourceGroup->SetConstant(m_worldPositionConstantIndex, m_position);
-                m_shaderResourceGroup->SetConstant(m_viewMatrixConstantIndex, m_worldToViewMatrix);
-                m_shaderResourceGroup->SetConstant(m_viewMatrixInverseConstantIndex, m_viewToWorldMatrix);
-                m_shaderResourceGroup->SetConstant(m_zConstantsConstantIndex, m_linearizeDepthConstants);
-                m_shaderResourceGroup->SetConstant(m_unprojectionConstantsIndex, m_unprojectionConstants);
+                // Set these individually because a Vector3 is actually 16bytes for efficiency reasons I presume
+                m_shaderResourceGroup->SetConstantArray(m_worldPositionConstantIndex, m_position);
+                m_shaderResourceGroup->SetConstantArray(m_viewMatrixConstantIndex, m_worldToViewMatrix);
+                m_shaderResourceGroup->SetConstantArray(m_viewMatrixInverseConstantIndex, m_viewToWorldMatrix);
+                m_shaderResourceGroup->SetConstantArray(m_zConstantsConstantIndex, m_linearizeDepthConstants);
+                m_shaderResourceGroup->SetConstantArray(m_unprojectionConstantsIndex, m_unprojectionConstants);
 
                 m_shaderResourceGroup->Compile();
             }
 
-            m_viewToClipPrevMatrix = m_viewToClipMatrix;
-            m_worldToViewPrevMatrix = m_worldToViewMatrix;
+            m_viewToClipPrevMatrix[0] = m_viewToClipMatrix[0];
+            m_worldToViewPrevMatrix[0] = m_worldToViewMatrix[0];
+            m_viewToClipPrevMatrix[1] = m_viewToClipMatrix[1];
+            m_worldToViewPrevMatrix[1] = m_worldToViewMatrix[1];
+
+            m_clipSpaceOffset.Set(0);
+        }
+
+        void View::UpdateSrgMono()
+        {
+            if (m_shaderResourceGroup)
+            {
+                if (m_clipSpaceOffset.IsZero())
+                {
+                    Matrix4x4 worldToClipPrevMatrix = m_viewToClipPrevMatrix[0] * m_worldToViewPrevMatrix[0];
+                    m_shaderResourceGroup->SetConstant(m_worldToClipPrevMatrixConstantIndex, worldToClipPrevMatrix, 0);
+                    m_shaderResourceGroup->SetConstant(m_viewProjectionMatrixConstantIndex, m_worldToClipMatrix[0], 0);
+                    m_shaderResourceGroup->SetConstant(m_projectionMatrixConstantIndex, m_viewToClipMatrix[0], 0);
+                    m_shaderResourceGroup->SetConstant(m_clipToWorldMatrixConstantIndex, m_clipToWorldMatrix[0], 0);
+                    m_shaderResourceGroup->SetConstant(m_projectionMatrixInverseConstantIndex, m_clipToViewMatrix[0], 0);
+                }
+                else
+                {
+                    // Offset the current and previous frame clip matrices
+                    Matrix4x4 offsetViewToClipMatrix = m_viewToClipMatrix[0];
+                    offsetViewToClipMatrix.SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipMatrix.SetElement(1, 2, m_clipSpaceOffset.GetY());
+
+                    Matrix4x4 offsetViewToClipPrevMatrix = m_viewToClipPrevMatrix[0];
+                    offsetViewToClipPrevMatrix.SetElement(0, 2, m_clipSpaceOffset.GetX());
+                    offsetViewToClipPrevMatrix.SetElement(1, 2, m_clipSpaceOffset.GetY());
+
+                    // Build other matrices dependent on the view to clip matrices
+                    Matrix4x4 offsetWorldToClipMatrix = offsetViewToClipMatrix * m_worldToViewMatrix[0];
+                    Matrix4x4 offsetWorldToClipPrevMatrix = offsetViewToClipPrevMatrix * m_worldToViewPrevMatrix[0];
+
+                    m_shaderResourceGroup->SetConstant(m_worldToClipPrevMatrixConstantIndex, offsetWorldToClipPrevMatrix, 0);
+                    m_shaderResourceGroup->SetConstant(m_viewProjectionMatrixConstantIndex, offsetWorldToClipMatrix, 0);
+                    m_shaderResourceGroup->SetConstant(m_projectionMatrixConstantIndex, offsetViewToClipMatrix, 0);
+                    m_shaderResourceGroup->SetConstant(m_clipToWorldMatrixConstantIndex, offsetWorldToClipMatrix.GetInverseFull(), 0);
+                    m_shaderResourceGroup->SetConstant(m_projectionMatrixInverseConstantIndex, offsetViewToClipMatrix.GetInverseFull(), 0);
+                }
+
+                m_shaderResourceGroup->SetConstant(m_worldPositionConstantIndex, m_position[0], 0);
+                m_shaderResourceGroup->SetConstant(m_viewMatrixConstantIndex, m_worldToViewMatrix[0], 0);
+                m_shaderResourceGroup->SetConstant(m_viewMatrixInverseConstantIndex, m_viewToWorldMatrix[0], 0);
+                m_shaderResourceGroup->SetConstant(m_zConstantsConstantIndex, m_linearizeDepthConstants[0], 0);
+                m_shaderResourceGroup->SetConstant(m_unprojectionConstantsIndex, m_unprojectionConstants[0], 0);
+
+                m_shaderResourceGroup->Compile();
+            }
+
+            m_viewToClipPrevMatrix[0] = m_viewToClipMatrix[0];
+            m_worldToViewPrevMatrix[0] = m_worldToViewMatrix[0];
 
             m_clipSpaceOffset.Set(0);
         }
@@ -606,6 +687,7 @@ namespace AZ
             {
                 if (auto rpiSystemInterface = RPISystemInterface::Get())
                 {
+                    
                     if (Data::Asset<ShaderAsset> viewSrgShaderAsset = rpiSystemInterface->GetCommonShaderAssetForSrgs();
                         viewSrgShaderAsset.IsReady())
                     {

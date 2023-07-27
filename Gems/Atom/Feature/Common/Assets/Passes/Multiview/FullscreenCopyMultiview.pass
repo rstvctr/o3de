@@ -1,0 +1,45 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "FullscreenCopyMultiviewTemplate",
+            "PassClass": "FullScreenTriangle",
+            "Slots": [
+                {
+                    "Name": "Input",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "MipSliceMin": "0",
+                        "MipSliceMax": "0",
+                        "ArraySliceMin": 0,
+                        "ArraySliceMax": 1
+                    }
+                },
+                {
+                    "Name": "Output",
+                    "SlotType": "Output",
+                    "ScopeAttachmentUsage": "RenderTarget",
+                    "LoadStoreAction": {
+                        "LoadAction": "DontCare"
+                    }
+                }
+            ],
+            "FallbackConnections": [
+                {
+                    "Input" : "Input",
+                    "Output" : "Output"
+                }
+            ],
+            "PassData": {
+                "$type": "FullscreenTrianglePassData",
+                "MultiviewLayers": 2,
+                "ShaderAsset": {
+                    "FilePath": "Shaders/Multiview/FullscreenCopyMultiview.shader"
+                }
+            }
+        }
+    }
+}

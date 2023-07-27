@@ -74,7 +74,7 @@ namespace AZ
 
             // The algorithm has each thread output three pixels in the blur direction
             u32 targetThreadCountX = (size.m_width + 2) / 3;
-            SetTargetThreadCounts(targetThreadCountX, size.m_height, 1);
+            SetTargetThreadCounts(targetThreadCountX, size.m_height, outputAttachment->m_descriptor.m_image.m_arraySize);
 
             RPI::ComputePass::FrameBeginInternal(params);
         }
@@ -116,7 +116,7 @@ namespace AZ
 
             // The algorithm has each thread output three pixels in the blur direction
             u32 targetThreadCountY = (size.m_height + 2) / 3;
-            SetTargetThreadCounts(size.m_width, targetThreadCountY, 1);
+            SetTargetThreadCounts(size.m_width, targetThreadCountY, outputAttachment->m_descriptor.m_image.m_arraySize);
 
             RPI::ComputePass::FrameBeginInternal(params);
         }

@@ -5,7 +5,7 @@
  * SPDX-License-Identifier: Apache-2.0 OR MIT
  *
  */
- 
+
 #define MATERIALPIPELINE_SHADER_HAS_GEOMETRIC_PIXEL_STAGE 1
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -14,8 +14,15 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 
+#if MULTIVIEW
+VsOutput VertexShader(VsInput IN, uint viewIndex : SV_ViewID)
+#else
 VsOutput VertexShader(VsInput IN)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     VsOutput OUT = EvaluateVertexGeometry(IN);
     return OUT;
 }
@@ -25,8 +32,15 @@ struct PsOutput
     precise float m_depth : SV_Depth;
 };
 
+#if MULTIVIEW
+PsOutput PixelShader(VsOutput IN, bool isFrontFace : SV_IsFrontFace, uint viewIndex : SV_ViewID)
+#else
 PsOutput PixelShader(VsOutput IN, bool isFrontFace : SV_IsFrontFace)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     PixelGeometryData geoData = EvaluatePixelGeometry(IN, isFrontFace);
 
     // Pixel clipping can be done here

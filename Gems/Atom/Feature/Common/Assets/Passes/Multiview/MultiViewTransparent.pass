@@ -1,0 +1,109 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "MultiViewTransparentPassTemplate",
+            "PassClass": "RasterPass",
+            "Slots": [
+                // Inputs...
+                {
+                    "Name": "BRDFTextureInput",
+                    "ShaderInputName": "m_brdfMap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader"
+                },
+                {
+                    "Name": "InputOutput",
+                    "SlotType": "InputOutput",
+                    "ScopeAttachmentUsage": "RenderTarget"
+                },
+                {
+                    "Name": "DirectionalLightShadowmap",
+                    "ShaderInputName": "m_directionalLightShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ExponentialShadowmapDirectional",
+                    "ShaderInputName": "m_directionalLightExponentialShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ProjectedShadowmap",
+                    "ShaderInputName": "m_projectedShadowmaps",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "ExponentialShadowmapProjected",
+                    "ShaderInputName": "m_projectedExponentialShadowmap",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                // {
+                //     "Name": "TileLightData",
+                //     "SlotType": "Input",
+                //     "ShaderInputName": "m_tileLightData",
+                //     "ScopeAttachmentUsage": "Shader",
+                //     "ImageViewDesc": {
+                //         "IsArray": 1
+                //     }
+                // },
+                // {
+                //     "Name": "LightListRemapped",
+                //     "SlotType": "Input",
+                //     "ShaderInputName": "m_lightListRemapped",
+                //     "ScopeAttachmentUsage": "Shader"
+                // },
+                {
+                    "Name": "InputLinearDepth",
+                    "SlotType": "Input",
+                    "ShaderInputName": "m_linearDepthTexture",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                // Input/Outputs
+                {
+                    "Name": "DepthStencil",
+                    "SlotType": "InputOutput",
+                    "ScopeAttachmentUsage": "DepthStencil"
+                }
+            ],
+            "ImageAttachments": [
+                {
+                    "Name": "BRDFTexture",
+                    "Lifetime": "Imported",
+                    "AssetRef": {
+                        "FilePath": "Textures/BRDFTexture.attimage"
+                    }
+                }
+            ],
+            "Connections": [
+                {
+                    "LocalSlot": "BRDFTextureInput",
+                    "AttachmentRef": {
+                        "Pass": "This",
+                        "Attachment": "BRDFTexture"
+                    }
+                }
+            ]
+        }
+    }
+}

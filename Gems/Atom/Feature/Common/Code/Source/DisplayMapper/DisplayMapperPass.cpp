@@ -209,7 +209,7 @@ namespace AZ
         }
 
         AZStd::shared_ptr<RPI::PassTemplate> CreatePassTemplateHelper(
-            const Name& templateName, const Name& passClass, bool renderToOwnedImage, const Name& ownedImageName, const char* shaderFilePath)
+            const Name& templateName, const Name& passClass, bool renderToOwnedImage, const Name& ownedImageName, const char* shaderFilePath, uint32_t multiviewLayers)
         {
             auto passTemplate = AZStd::make_shared<RPI::PassTemplate>();
             passTemplate->m_name = templateName;
@@ -222,6 +222,8 @@ namespace AZ
             inSlot.m_slotType = RPI::PassSlotType::Input;
             inSlot.m_scopeAttachmentUsage = RHI::ScopeAttachmentUsage::Shader;
             inSlot.m_loadStoreAction.m_loadAction = RHI::AttachmentLoadAction::DontCare;
+            inSlot.m_imageViewDesc = AZStd::make_shared<RHI::ImageViewDescriptor>();
+            inSlot.m_imageViewDesc->m_isArray = multiviewLayers > 1;
 
             RPI::PassSlot& outSlot = passTemplate->m_slots[1];
             outSlot.m_name = "Output";
@@ -242,6 +244,7 @@ namespace AZ
                 imageAttachment.m_formatSource.m_pass = "This";
                 imageAttachment.m_formatSource.m_attachment = "Input";
                 imageAttachment.m_imageDescriptor.m_bindFlags = RHI::ImageBindFlags::CopyRead | RHI::ImageBindFlags::Color | RHI::ImageBindFlags::ShaderReadWrite;
+                imageAttachment.m_imageDescriptor.m_arraySize = static_cast<uint16_t>(multiviewLayers);
 
                 outConnection.m_localSlot = "Output";
                 outConnection.m_attachmentRef.m_pass = "This";
@@ -268,6 +271,7 @@ namespace AZ
             AZStd::shared_ptr<RPI::FullscreenTrianglePassData> passData = AZStd::make_shared<RPI::FullscreenTrianglePassData>();
             passData->m_shaderAsset.m_filePath = shaderFilePath;
             passData->m_shaderAsset.m_assetId = shaderAssetId;
+            passData->m_multiviewLayers = multiviewLayers;
             passTemplate->m_passData = AZStd::move(passData);
 
             return passTemplate;
@@ -314,6 +318,8 @@ namespace AZ
          */
         void DisplayMapperPass::BuildGradingLutTemplate()
         {
+            uint32_t multiviewLayers = GetPassDescriptor().m_passTemplate->m_imageAttachments[0].m_imageDescriptor.m_arraySize;
+
             // Pass template names
             const Name acesOutputTransformTemplateName = Name{ "AcesOutputTransformTemplate" };
             const Name acesOutputTransformLutTemplateName = Name{ "AcesOutputTransformLutTemplate" };
@@ -336,13 +342,13 @@ namespace AZ
             const Name hdrGradingImageName = Name{ "HdrGradingImage" };
             const Name outputTransformImageName = Name{ "OutputTransformImage" };
 
-            const char* acesOuputTransformShaderPath = "Shaders/PostProcessing/DisplayMapper.azshader";
-            const char* acesOuputTransformLutShaderPath = "Shaders/PostProcessing/AcesOutputTransformLut.azshader";
+            const char* acesOuputTransformShaderPath = multiviewLayers > 1 ? "Shaders/Multiview/DisplayMapperMultiview.azshader" : "Shaders/PostProcessing/DisplayMapper.azshader";
+            const char* acesOuputTransformLutShaderPath = multiviewLayers > 1 ? "Shaders/Multiview/AcesOutputTransformLutMultiview.azshader" : "Shaders/PostProcessing/AcesOutputTransformLut.azshader";
             const char* bakeAcesOuputTransformLutShaderPath = "Shaders/PostProcessing/BakeAcesOutputTransformLutCS.azshader";
-            const char* passthroughShaderPath = "Shaders/PostProcessing/FullscreenCopy.azshader";
-            const char* sRGBShaderPath = "Shaders/PostProcessing/DisplayMapperSRGB.azshader";
-            const char* applyShaperLookupTableShaderFilePath = "Shaders/PostProcessing/ApplyShaperLookupTable.azshader";
-            const char* outputTransformShaderPath = "Shaders/PostProcessing/OutputTransform.azshader";
+            const char* passthroughShaderPath = multiviewLayers > 1 ? "Shaders/Multiview/FullscreenCopyMultiview.azshader" : "Shaders/PostProcessing/FullscreenCopy.azshader";
+            const char* sRGBShaderPath = multiviewLayers > 1 ? "Shaders/Multiview/DisplayMapperSRGBMultiview.azshader" : "Shaders/PostProcessing/DisplayMapperSRGB.azshader";
+            const char* applyShaperLookupTableShaderFilePath = multiviewLayers > 1 ? "Shaders/Multiview/ApplyShaperLookupTableMultiview.azshader" : "Shaders/PostProcessing/ApplyShaperLookupTable.azshader";
+            const char* outputTransformShaderPath = multiviewLayers > 1 ? "Shaders/Multiview/OutputTransformMultiview.azshader" : "Shaders/PostProcessing/OutputTransform.azshader";
 
             // Output transform templates. If there is no LDR grading LUT pass, then the output transform pass is the final pass
             // and will render to the DisplayMapper's output attachment. Otherwise, it renders to its own attachment image.
@@ -350,12 +356,12 @@ namespace AZ
             m_acesOutputTransformTemplate.reset();
             m_acesOutputTransformTemplate = CreatePassTemplateHelper(
                 acesOutputTransformTemplateName, acesOutputTransformPassClassName,
-                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, acesOuputTransformShaderPath);
+                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, acesOuputTransformShaderPath, multiviewLayers);
             // ACES LUT
             m_acesOutputTransformLutTemplate.reset();
             m_acesOutputTransformLutTemplate = CreatePassTemplateHelper(
                 acesOutputTransformLutTemplateName, acesOutputTransformLutPassClassName,
-                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, acesOuputTransformLutShaderPath);
+                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, acesOuputTransformLutShaderPath, multiviewLayers);
             // Bake ACES LUT
             m_bakeAcesOutputTransformLutTemplate.reset();
             m_bakeAcesOutputTransformLutTemplate = CreateBakeAcesLutPassTemplateHelper(
@@ -365,23 +371,23 @@ namespace AZ
             m_passthroughTemplate.reset();
             m_passthroughTemplate = CreatePassTemplateHelper(
                 displayMapperPassthroughTemplateName, displayMapperFullScreenPassClassName,
-                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, passthroughShaderPath);
+                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, passthroughShaderPath, multiviewLayers);
             // sRGB
             m_sRGBTemplate.reset();
             m_sRGBTemplate = CreatePassTemplateHelper(
                 displayMapperSRGBTemplateName, displayMapperFullScreenPassClassName,
-                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, sRGBShaderPath);
+                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, sRGBShaderPath, multiviewLayers);
             // Output Transform
             m_outputTransformTemplate.reset();
             m_outputTransformTemplate = CreatePassTemplateHelper(
                 outputTransformTemplateName, outputTransformPassClassName,
-                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, outputTransformShaderPath);
+                m_displayMapperConfigurationDescriptor.m_ldrGradingLutEnabled, outputTransformImageName, outputTransformShaderPath, multiviewLayers);
 
             // LDR grading LUT pass, if enabled, is the final pass and so it will render into the DisplayMapper's output attachment.
             m_ldrGradingLookupTableTemplate.reset();
             m_ldrGradingLookupTableTemplate = CreatePassTemplateHelper(
                 ldrGradingLutTemplateName, applyShaperLookupTablePassClassName,
-                false, Name{ "" }, applyShaperLookupTableShaderFilePath);
+                false, Name{ "" }, applyShaperLookupTableShaderFilePath, multiviewLayers);
         }
 
         template<typename PassType>

@@ -6,6 +6,10 @@
  *
  */
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 #include <scenesrg.srgi>
 #include <viewsrg.srgi>
 
@@ -18,7 +22,11 @@ ShaderResourceGroup PassSrg : SRG_PerPass
     // x = min luminance
     // y = average luminance
     // z = max luminance
+#if MULTIVIEW
+    Texture2DArray<float4> m_sceneLuminance;
+#else
     Texture2D<float4> m_sceneLuminance;
+#endif
 
     Sampler LinearSampler
     {
@@ -43,12 +51,23 @@ void MainCS(uint3 dispatch_id : SV_DispatchThreadID)
     if (ViewSrg::m_exposureControl.m_eyeAdaptationEnabled)
     {
         // Get the dimensions and mip levels from the luminance mip chain
+#if MULTIVIEW
+        uint3 inputDimensions;
+        uint numMipLevels = 1;
+        PassSrg::m_sceneLuminance.GetDimensions(0, inputDimensions.x, inputDimensions.y, inputDimensions.z, numMipLevels);
+
+        // Use smallest 1x1 mip to get scene average luminance.
+        float luminanceAvgLeft = PassSrg::m_sceneLuminance.SampleLevel(PassSrg::LinearSampler, float3(0.5f, 0.5f, 0), numMipLevels - 1).y;
+        float luminanceAvgRight = PassSrg::m_sceneLuminance.SampleLevel(PassSrg::LinearSampler, float3(0.5f, 0.5f, 1), numMipLevels - 1).y;
+        float luminanceAvg = (luminanceAvgLeft + luminanceAvgRight) / 2.0;
+#else
         uint2 inputDimensions;
         uint numMipLevels = 1;
         PassSrg::m_sceneLuminance.GetDimensions(0, inputDimensions.x, inputDimensions.y, numMipLevels);
 
         // Use smallest 1x1 mip to get scene average luminance.
         float luminanceAvg = PassSrg::m_sceneLuminance.SampleLevel(PassSrg::LinearSampler, float2(0.5f, 0.5f), numMipLevels - 1).y;
+#endif
 
         // Middle gray value is the half-tone between black and white in exposure control.
         // Defining Middle Grey value to 0.18f as the typical value used in photography. Cf. https://en.wikipedia.org/wiki/Middle_gray

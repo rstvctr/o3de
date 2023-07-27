@@ -16,7 +16,11 @@
 ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
 {
     // get the framebuffer
+#if MULTIVIEW
+    Texture2DArray<float4> m_framebuffer;
+#else
     Texture2D<float4> m_framebuffer;
+#endif
 
     // framebuffer sampler
     Sampler LinearSampler
@@ -67,12 +71,20 @@ ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
 
 #include <Atom/Features/PostProcessing/HDRColorGradingCommon.azsl>
 
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
     // Fetch the pixel color from the input texture
+#if MULTIVIEW
+    float3 frameColor = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, float3(IN.m_texCoord, viewIndex)).rgb;
+#else
     float3 frameColor = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, IN.m_texCoord).rgb;
+#endif
 
     OUT.m_color.rgb = ColorGrade(frameColor);
     OUT.m_color.w = 1;

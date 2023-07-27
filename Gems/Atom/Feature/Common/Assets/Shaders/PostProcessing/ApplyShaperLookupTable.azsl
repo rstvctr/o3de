@@ -15,7 +15,11 @@
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_colorTexture;
+#else
     Texture2D<float4> m_colorTexture;
+#endif
     Texture3D<float4> m_lut;
     Sampler LinearSampler
     {
@@ -32,12 +36,20 @@ ShaderResourceGroup PassSrg : SRG_PerPass
     float m_shaperScale;
 }
 
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
     float2 uvCoord = float2(IN.m_texCoord.x, IN.m_texCoord.y);
+#if MULTIVIEW
+    float3 color = PassSrg::m_colorTexture.Sample(PassSrg::LinearSampler, float3(uvCoord, viewIndex)).rgb;
+#else
     float3 color = PassSrg::m_colorTexture.Sample(PassSrg::LinearSampler, uvCoord).rgb;
+#endif
 
     ShaperType shaperType = (ShaperType)PassSrg::m_shaperType;
 

@@ -96,32 +96,32 @@ namespace AZ
             uint32_t GetOrFlags();
 
             //! Sets the worldToView matrix and recalculates the other matrices.
-            void SetWorldToViewMatrix(const AZ::Matrix4x4& worldToView);
+            void SetWorldToViewMatrix(const AZ::Matrix4x4& worldToView, int index = 0);
 
             //! Set the viewtoWorld matrix through camera's world transformation (z-up) and recalculates the other matrices
-            void SetCameraTransform(const AZ::Matrix3x4& cameraTransform);
+            void SetCameraTransform(const AZ::Matrix3x4& cameraTransform, int index = 0);
 
             //! Sets the viewToClip matrix and recalculates the other matrices
-            void SetViewToClipMatrix(const AZ::Matrix4x4& viewToClip);
+            void SetViewToClipMatrix(const AZ::Matrix4x4& viewToClip, int index = 0);
 
             //! Sets the viewToClip matrix and recalculates the other matrices for stereoscopic projection
-            void SetStereoscopicViewToClipMatrix(const AZ::Matrix4x4& viewToClip, bool reverseDepth = true);
+            void SetStereoscopicViewToClipMatrix(const AZ::Matrix4x4& viewToClip, bool reverseDepth = true, int index = 0);
 
             //! Sets a pixel offset on the view, usually used for jittering the camera for anti-aliasing techniques.
             void SetClipSpaceOffset(float xOffset, float yOffset);
 
-            const AZ::Matrix4x4& GetWorldToViewMatrix() const;
+            const AZ::Matrix4x4& GetWorldToViewMatrix(int index = 0) const;
             //! Use GetViewToWorldMatrix().GetTranslation() to get the camera's position.
-            const AZ::Matrix4x4& GetViewToWorldMatrix() const;
-            const AZ::Matrix4x4& GetViewToClipMatrix() const;
-            const AZ::Matrix4x4& GetWorldToClipMatrix() const;
-            const AZ::Matrix4x4& GetClipToWorldMatrix() const;
+            const AZ::Matrix4x4& GetViewToWorldMatrix(int index = 0) const;
+            const AZ::Matrix4x4& GetViewToClipMatrix(int index = 0) const;
+            const AZ::Matrix4x4& GetWorldToClipMatrix(int index = 0) const;
+            const AZ::Matrix4x4& GetClipToWorldMatrix(int index = 0) const;
 
-            AZ::Matrix3x4 GetWorldToViewMatrixAsMatrix3x4() const;
-            AZ::Matrix3x4 GetViewToWorldMatrixAsMatrix3x4() const;
+            AZ::Matrix3x4 GetWorldToViewMatrixAsMatrix3x4(int index = 0) const;
+            AZ::Matrix3x4 GetViewToWorldMatrixAsMatrix3x4(int index = 0) const;
 
             //! Get the camera's world transform, converted from the viewToWorld matrix's native y-up to z-up
-            AZ::Transform GetCameraTransform() const;
+            AZ::Transform GetCameraTransform(int index = 0) const;
 
             //! Finalize draw lists in this view. This function should only be called when all
             //! draw packets for current frame are added. 
@@ -146,6 +146,8 @@ namespace AZ
 
             //! Update View's SRG values and compile. This should only be called once per frame before execute command lists.
             void UpdateSrg();
+            void UpdateSrgStereo();
+            void UpdateSrgMono();
 
             //! Notifies consumers when the world to view matrix has changed.
             void ConnectWorldToViewMatrixChangedHandler(MatrixChangedEvent::Handler& handler);
@@ -200,26 +202,26 @@ namespace AZ
             RHI::DrawListContext m_drawListContext;
             RHI::DrawListMask m_drawListMask;
 
-            Matrix4x4 m_worldToViewMatrix;
-            Matrix4x4 m_viewToWorldMatrix;
-            Matrix4x4 m_viewToClipMatrix;
-            Matrix4x4 m_clipToViewMatrix;
-            Matrix4x4 m_clipToWorldMatrix;
+            AZStd::array<Matrix4x4, 2> m_worldToViewMatrix;
+            AZStd::array<Matrix4x4, 2> m_viewToWorldMatrix;
+            AZStd::array<Matrix4x4, 2> m_viewToClipMatrix;
+            AZStd::array<Matrix4x4, 2> m_clipToViewMatrix;
+            AZStd::array<Matrix4x4, 2> m_clipToWorldMatrix;
 
             // View's position in world space
-            Vector3 m_position;
+            AZStd::array<Vector3, 2> m_position;
 
             // Precached constants for linearZ process
-            Vector4 m_linearizeDepthConstants;
+            AZStd::array<Vector4, 2> m_linearizeDepthConstants;
 
             // Constants used to unproject depth values and reconstruct the view-space position (Z-forward & Y-up)
-            Vector4 m_unprojectionConstants;
+            AZStd::array<Vector4, 2> m_unprojectionConstants;
 
             // Cached matrix to transform from world space to clip space
-            Matrix4x4 m_worldToClipMatrix;
+            AZStd::array<Matrix4x4, 2> m_worldToClipMatrix;
 
-            Matrix4x4 m_worldToViewPrevMatrix;
-            Matrix4x4 m_viewToClipPrevMatrix;
+            AZStd::array<Matrix4x4, 2> m_worldToViewPrevMatrix;
+            AZStd::array<Matrix4x4, 2> m_viewToClipPrevMatrix;
 
             // Clip space offset for camera jitter with taa
             Vector2 m_clipSpaceOffset = Vector2(0.0f, 0.0f);

@@ -78,15 +78,26 @@ namespace AZ::RPI
     {
         if (m_xrSystem)
         {
-            for (AZ::u32 i = 0; i < m_numSterescopicViews; i++)
+            if (m_xrSystem->GetRHIXRRenderingInterface()->IsMultiviewSupported())
             {
-                uint32_t xrViewIndex =
-                    i == 0 ? static_cast<uint32_t>(AZ::RPI::ViewType::XrLeft) : static_cast<uint32_t>(AZ::RPI::ViewType::XrRight);
-                if (m_cameraViews[xrViewIndex].m_view == nullptr)
+                AZ::Name xrViewName = AZ::Name(AZStd::string::format("%s XR", name.GetCStr()));
+                uint32_t xrViewIndex = static_cast<uint32_t>(AZ::RPI::ViewType::XrLeft);
+
+                m_cameraViews[xrViewIndex].m_view =
+                    AZ::RPI::View::CreateView(xrViewName, AZ::RPI::View::UsageCamera | AZ::RPI::View::UsageXR);
+            }
+            else
+            {
+                for (AZ::u32 i = 0; i < m_numSterescopicViews; i++)
                 {
-                    AZ::Name xrViewName = AZ::Name(AZStd::string::format("%s XR %i", name.GetCStr(), i));
-                    m_cameraViews[xrViewIndex].m_view =
-                        AZ::RPI::View::CreateView(xrViewName, AZ::RPI::View::UsageCamera | AZ::RPI::View::UsageXR);
+                    uint32_t xrViewIndex =
+                        i == 0 ? static_cast<uint32_t>(AZ::RPI::ViewType::XrLeft) : static_cast<uint32_t>(AZ::RPI::ViewType::XrRight);
+                    if (m_cameraViews[xrViewIndex].m_view == nullptr)
+                    {
+                        AZ::Name xrViewName = AZ::Name(AZStd::string::format("%s XR %i", name.GetCStr(), i));
+                        m_cameraViews[xrViewIndex].m_view =
+                            AZ::RPI::View::CreateView(xrViewName, AZ::RPI::View::UsageCamera | AZ::RPI::View::UsageXR);
+                    }
                 }
             }
         }

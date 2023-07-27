@@ -23,7 +23,11 @@
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {
+#if MULTIVIEW
+    Texture2DArray<float4> m_framebuffer;
+#else
     Texture2D<float4> m_framebuffer;
+#endif
     Sampler LinearSampler
     {
         MinFilter = Linear;
@@ -53,7 +57,11 @@ ShaderResourceGroup PassSrg : SRG_PerPass
 
 ////////////////////////////////////////////////////////////////////////////////
 // A entry point of pixel shader.
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     PSOutput OUT;
 
@@ -66,7 +74,11 @@ PSOutput MainPS(VSOutput IN)
     outputTransformParams.surroundGamma = PassSrg::m_surroundGamma;
     outputTransformParams.gamma = PassSrg::m_gamma;
 
+#if MULTIVIEW
+    float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, float3(IN.m_texCoord, viewIndex)).rgb;
+#else
     float3 color = PassSrg::m_framebuffer.Sample(PassSrg::LinearSampler, IN.m_texCoord).rgb;
+#endif
 
     // Convert to ACEScg to ACES color space
     float3 aces = mul(AP1ToAP0Mat, color.rgb);

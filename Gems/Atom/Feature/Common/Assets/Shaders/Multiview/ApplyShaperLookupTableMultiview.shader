@@ -1,0 +1,26 @@
+{ 
+    "Source" : "../PostProcessing/ApplyShaperLookupTable.azsl",
+
+    "Definitions" : ["MULTIVIEW=1"],
+
+    "DepthStencilState" : {
+        "Depth" : { "Enable" : false }
+    },
+
+    "ProgramSettings":
+    {
+      "EntryPoints":
+      [
+        {
+          "name": "MainVS",
+          "type": "Vertex"
+        },
+        {
+          "name": "MainPS",
+          "type": "Fragment"
+        }
+      ]
+    },
+
+    "MultiviewLayers": 2
+}

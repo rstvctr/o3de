@@ -1,0 +1,36 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "EyeAdaptationMultiviewTemplate",
+            "PassClass": "EyeAdaptationPass",
+            "Slots": [
+                {
+                    "Name": "SceneLuminanceInput",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "EyeAdaptationDataInputOutput",
+                    "SlotType": "InputOutput",
+                    "ScopeAttachmentUsage": "Shader"
+                }
+            ],
+            "PassData": {
+                "$type": "ComputePassData",
+                "Target Thread Count X": "1",
+                "Target Thread Count Y": "1",
+                "Target Thread Count Z": "1",
+                "ShaderAsset": {
+                    "FilePath": "Shaders/Multiview/EyeAdaptationMultiview.shader"
+                },
+                "PipelineViewTag": "MainCamera"
+            }
+        }
+    }
+}

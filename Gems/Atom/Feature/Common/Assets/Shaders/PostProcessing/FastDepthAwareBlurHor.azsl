@@ -64,9 +64,15 @@ int GetLdsIndex(int2 ldsPosition)
 
 ShaderResourceGroup PassSrg : SRG_PerPass
 {
+#if MULTIVIEW
+    Texture2DArray<float> m_linearDepth;
+    Texture2DArray<float> m_blurSource;
+    RWTexture2DArray<float> m_blurTarget;
+#else
     Texture2D<float> m_linearDepth;
     Texture2D<float> m_blurSource;
     RWTexture2D<float> m_blurTarget;
+#endif
 
     // Must match the struct in FastDepthAwareBlurPasses.cpp
     struct FastDepthAwareBlurPassConstants
@@ -152,16 +158,28 @@ void WriteValueGatherToLDS(int2 ldsPosition, float4 valueGather)
     valueLDS[ GetLdsIndex(ldsPosition) ] = valueGather.x;
 }
 
+#if MULTIVIEW
+void GatherDepthAndValueToLDS(int2 ldsPosition, float2 ldsOffsetUV, uint viewIndex)
+#else
 void GatherDepthAndValueToLDS(int2 ldsPosition, float2 ldsOffsetUV)
+#endif
 {
     float2 gatherUV = mad(float2(ldsPosition), GetPixelSize(), ldsOffsetUV);
 
     // Gather and write depth to LDS
+#if MULTIVIEW
+    float4 depthGather = PassSrg::m_linearDepth.Gather(PassSrg::PointSampler, float3(gatherUV, viewIndex));
+#else
     float4 depthGather = PassSrg::m_linearDepth.Gather(PassSrg::PointSampler, gatherUV);
+#endif
     WriteDepthGatherToLDS(ldsPosition, depthGather);
 
     // Gather and write source values to LDS
+#if MULTIVIEW
+    float4 valueGather = PassSrg::m_blurSource.Gather(PassSrg::PointSampler, float3(gatherUV, viewIndex));
+#else
     float4 valueGather = PassSrg::m_blurSource.Gather(PassSrg::PointSampler, gatherUV);
+#endif
     WriteValueGatherToLDS(ldsPosition, valueGather);
 
     // Sync after LDS
@@ -187,19 +205,19 @@ void BlurStep(inout int2 ldsPosition, int2 direction,
               inout float previousDepthSlope, inout float currentDepthSlope)
 {
     // Current becomes previous
-            previousValue = currentValue;
-            previousDepth = currentDepth;
-            previousDepthSlope = currentDepthSlope;
+    previousValue = currentValue;
+    previousDepth = currentDepth;
+    previousDepthSlope = currentDepthSlope;
     
     // Get current
-            ldsPosition += direction;
-            currentDepth = ReadDepthFromLDS(ldsPosition);
-            currentValue = ReadValueFromLDS(ldsPosition);
-            currentDepthSlope = currentDepth - previousDepth;
+    ldsPosition += direction;
+    currentDepth = ReadDepthFromLDS(ldsPosition);
+    currentValue = ReadValueFromLDS(ldsPosition);
+    currentDepthSlope = currentDepth - previousDepth;
     
     // Calculate and apply falloff
     float falloff = CalculateDepthFalloff(previousDepthSlope, currentDepthSlope) * GetConstFalloff();
-            currentValue = lerp(currentValue, previousValue, falloff);
+    currentValue = lerp(currentValue, previousValue, falloff);
 }
 
 // Executes one blur loop in param 'direction' starting at param 'ldsPosition'
@@ -264,7 +282,11 @@ void MainCS(uint3 thread_id : SV_GroupThreadID, uint3 group_id : SV_GroupID, uin
         ldsPosition.x = ldsPosition.x << 1;
         ldsPosition.y = thread_id.y & 0xFFFFFFFE;
 
+#if MULTIVIEW
+        GatherDepthAndValueToLDS(ldsPosition, ldsOffsetUV, dispatch_id.z);
+#else
         GatherDepthAndValueToLDS(ldsPosition, ldsOffsetUV);
+#endif
     }
 
     // We'll be gathering outputs for three pixels in the blur loops
@@ -305,6 +327,10 @@ void MainCS(uint3 thread_id : SV_GroupThreadID, uint3 group_id : SV_GroupID, uin
     for(uint i = 0; i < OUTPUT_PIXEL_PER_THREAD; ++i)
     {
         outputPixel.x = mad(dispatch_id.x, OUTPUT_PIXEL_PER_THREAD, i);
+#if MULTIVIEW
+        PassSrg::m_blurTarget[uint3(outputPixel.xy, dispatch_id.z)] = outputs[i];
+#else
         PassSrg::m_blurTarget[outputPixel.xy] = outputs[i];
+#endif
     }
 }

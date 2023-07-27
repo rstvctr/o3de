@@ -8,6 +8,10 @@
 
 #define THREADS 16
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 // Todo: test Compute Shader version with async compute and LDS optimizations
 #define USING_COMPUTE_SHADER_DIRECTIONAL_LIGHT 0
 
@@ -62,8 +66,13 @@ ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
     Constants m_constantData;
     Texture2DArray<float> m_directionalShadowmaps;
     Texture2DArray<float> m_directionalShadowmapsESM;
+#if MULTIVIEW
+    Texture2DMSArray<float> m_depth;
+    Texture2DArray<float> m_depthLinear;
+#else
     Texture2DMS<float> m_depth;
     Texture2D<float> m_depthLinear;
+#endif
 #if USING_COMPUTE_SHADER_DIRECTIONAL_LIGHT
     RWTexture2D<float> m_fullscreenShadowOutput;
 #endif
@@ -118,8 +127,13 @@ option enum class MsaaMode { MsaaNone, Msaa2x, Msaa4x, Msaa8x, Msaa16x } o_msaaM
     // Do 2 depth gather ops to get 5 depth values (cross centered on pixel being shaded). Reminder that gather is laid out like so:
     //  W Z
     //  X Y
+#if MULTIVIEW
+    float4 depthUpLeft = PassSrg::m_depthLinear.Gather(PassSrg::PointSampler, float3(screenUV - pixelSamplePosition, g_viewIndex));
+    float4 depthBottomRight = PassSrg::m_depthLinear.Gather(PassSrg::PointSampler, float3(screenUV + pixelSamplePosition, g_viewIndex));
+#else
     float4 depthUpLeft = PassSrg::m_depthLinear.Gather(PassSrg::PointSampler, screenUV - pixelSamplePosition);
     float4 depthBottomRight = PassSrg::m_depthLinear.Gather(PassSrg::PointSampler, screenUV + pixelSamplePosition);
+#endif
 
     float3 positionVS = ViewSrg::GetViewSpacePosition(screenUV, depthUpLeft.y);
 
@@ -172,10 +186,18 @@ void MainCS(uint3 thread_id : SV_GroupThreadID, uint3 group_id : SV_GroupID, uin
 
 #else
 
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN)
+#endif
 {
     float3 positionWS;
     float3 normalWS;
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
+
     ComputeWorldNormalAndPosition(IN, positionWS, normalWS);
 
     DirectionalShadowCalculator calc;

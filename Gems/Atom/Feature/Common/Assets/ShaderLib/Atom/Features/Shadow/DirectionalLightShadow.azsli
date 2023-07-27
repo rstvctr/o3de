@@ -18,6 +18,10 @@
 #include "NormalOffsetShadows.azsli"
 #include "DirectionalLightShadowCalculator.azsli"
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 // This matchs ShadowFilterMethod in ShadowConstants.h
 option ShadowFilterMethod o_directional_shadow_filtering_method = ShadowFilterMethod::None;
 option bool o_directional_shadow_receiver_plane_bias_enable = true;
@@ -73,7 +77,11 @@ float2 DirectionalLightShadow::GetVisibilityThickTransmission(uint lightIndex, f
     
     if (UseFullscreenShadows())
     {
+#if MULTIVIEW
+        visibility = PassSrg::m_fullscreenShadow.Load(int4(screenUv.xy, g_viewIndex, 0)).x;
+#else
         visibility = PassSrg::m_fullscreenShadow.Load(int3(screenUv.xy, 0)).x;
+#endif
 
         // Compute shadow coords for call to GetThickness below
         calc.ComputeShadowCoords();
@@ -95,7 +103,11 @@ float2 DirectionalLightShadow::GetVisibilityThinTransmission(uint lightIndex, fl
 
     if (UseFullscreenShadows())
     {
+#if MULTIVIEW
+        visibility = PassSrg::m_fullscreenShadow.Load(int4(screenUv.xy, g_viewIndex, 0)).x;
+#else
         visibility = PassSrg::m_fullscreenShadow.Load(int3(screenUv.xy, 0)).x;
+#endif
     }
     else
     {    
@@ -116,7 +128,11 @@ float DirectionalLightShadow::GetVisibility(uint lightIndex, float3 worldPos, fl
 {    
     if (UseFullscreenShadows())
     {
+#if MULTIVIEW
+        return PassSrg::m_fullscreenShadow.Load(int4(screenUv.xy, g_viewIndex, 0)).x;
+#else
         return PassSrg::m_fullscreenShadow.Load(int3(screenUv.xy, 0)).x;
+#endif
     }
     else
     {

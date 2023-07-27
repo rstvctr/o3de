@@ -23,7 +23,16 @@
                 "ShaderAsset": {
                     "FilePath": "Shaders/SkyBox/MultiViewSkyBox.shader"
                 },
-                "PipelineViewTag": "MainCamera"
+                "MultiviewLayers": 2,
+                "PipelineViewTag": "MainCamera",
+                "ShaderDataMappings": {
+                    "FloatMappings": [
+                        {
+                            "Name": "m_sunIntensityMultiplier",
+                            "Value": 1.0
+                        }
+                    ]
+                }
             }
         }
     }

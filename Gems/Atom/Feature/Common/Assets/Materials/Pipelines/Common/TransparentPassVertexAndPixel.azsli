@@ -16,16 +16,30 @@ struct ForwardPassOutput
 
 // --- Vertex Shader ---
 
+#if MULTIVIEW
+VsOutput VertexShader(VsInput IN, uint viewIndex : SV_ViewID)
+#else
 VsOutput VertexShader(VsInput IN)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     VsOutput OUT = EvaluateVertexGeometry(IN);
     return OUT;
 }
 
 // --- Pixel Shader ---
 
+#if MULTIVIEW
+ForwardPassOutput PixelShader(VsOutput IN, bool isFrontFace : SV_IsFrontFace, uint viewIndex : SV_ViewID)
+#else
 ForwardPassOutput PixelShader(VsOutput IN, bool isFrontFace : SV_IsFrontFace)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     // ------- Geometry -> Surface -> Lighting -------
 
     PixelGeometryData geoData = EvaluatePixelGeometry(IN, isFrontFace);

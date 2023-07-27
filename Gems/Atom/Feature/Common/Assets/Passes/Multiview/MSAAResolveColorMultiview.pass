@@ -1,0 +1,67 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "MSAAResolveColorMultiviewTemplate",
+            "PassClass": "MSAAResolvePass",
+            "Slots": [
+                {
+                    "Name": "Input",
+                    "SlotType": "Input",
+                    "ScopeAttachmentUsage": "Shader",
+                    "LoadStoreAction": {
+                        "LoadAction": "Load",
+                        "StoreAction": "DontCare",
+                        "LoadActionStencil": "DontCare",
+                        "StoreActionStencil": "DontCare"
+                    },
+                    "ImageViewDesc": {
+                        "IsArray": 1
+                    }
+                },
+                {
+                    "Name": "Output",
+                    "SlotType": "Output",
+                    "ScopeAttachmentUsage": "Resolve"
+                }
+            ],
+            "ImageAttachments": [
+                {
+                    "Name": "ResolvedOutput",
+                    "SizeSource": {
+                        "Source": {
+                            "Pass": "This",
+                            "Attachment": "Input"
+                        }
+                    },
+                    "FormatSource": {
+                        "Pass": "This",
+                        "Attachment": "Input"
+                    },
+                    "ImageDescriptor": {
+                        "SharedQueueMask": "Graphics",
+                        "ArraySize": 2
+                    }
+                }
+            ],
+            "Connections": [
+                {
+                    "LocalSlot": "Output",
+                    "AttachmentRef": {
+                        "Pass": "This",
+                        "Attachment": "ResolvedOutput"
+                    }
+                }
+            ],
+            "FallbackConnections": [
+                // used in non-MSAA pipelines when the resolve is disabled
+                {
+                    "Input" : "Input",
+                    "Output" : "Output"
+                }
+            ]
+        }
+    }
+}

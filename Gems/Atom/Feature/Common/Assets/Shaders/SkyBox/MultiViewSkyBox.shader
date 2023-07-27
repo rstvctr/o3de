@@ -1,7 +1,9 @@
 {
     "Source" : "SkyBox.azsl",
+
+    "MultiviewLayers": 2,
         
-    "Definitions": ["QUALITY_LOW_END_TIER1=1", "QUALITY_LOW_END_TIER2=1", "ENABLE_PHYSICAL_SKY=0"],
+    "Definitions": ["MULTIVIEW=1"],
 
     "DepthStencilState" : { 
         "Depth" : { "Enable" : true, "CompareFunc" : "GreaterEqual" }

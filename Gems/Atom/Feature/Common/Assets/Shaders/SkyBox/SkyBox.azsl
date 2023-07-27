@@ -9,6 +9,10 @@
 // --- Static Options Available ---
 // SKYBOX_TWO_OUTPUTS - Skybox renders to two rendertargets instead of one (SkyBox_TwoOutputs.pass writes to specular and reflection targets)
 
+#ifndef MULTIVIEW
+#define MULTIVIEW 0
+#endif
+
 #include <Atom/Features/ColorManagement/TransformColor.azsli>
 #include <Atom/Features/PostProcessing/FullscreenVertexUtil.azsli>
 #include <Atom/Features/PostProcessing/Tonemap.azsli>
@@ -72,9 +76,17 @@ float3 HosekWilkie(float cosGamma, float gamma, float cosTheta)
     return (1.0 + A * exp(B / (cosTheta + 0.01))) * (C + D * exp(E * gamma) + F * (cosGamma * cosGamma) + G * chi + I * sqrt(cosTheta));
 }
 
+#if MULTIVIEW
+VSOutput MainVS(VSInput input, uint viewIndex : SV_ViewID)
+#else
 VSOutput MainVS(VSInput input)
+#endif
 {
     VSOutput OUT;
+
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
 
     float4 posTex = GetVertexPositionAndTexCoords(input.m_vertexID);
     OUT.m_position = float4(posTex.x, posTex.y, 0.0, 1.0);

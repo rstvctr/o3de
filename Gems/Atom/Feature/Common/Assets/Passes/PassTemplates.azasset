@@ -5,6 +5,127 @@
     "ClassData": {
         "AssetPaths": [
             {
+                "Name": "DepthMaxPassMultiviewTemplate",
+                "Path": "Passes/Multiview/DepthMaxMultiview.pass"
+            },
+            {
+                "Name": "DepthMSAAPassMultiviewTemplate",
+                "Path": "Passes/Multiview/DepthMSAAMultiview.pass"
+            },
+            {
+                "Name": "DepthPassMultiviewTemplate",
+                "Path": "Passes/Multiview/DepthMultiview.pass"
+            },
+            {
+                "Name": "DepthParentMultiviewTemplate",
+                "Path": "Passes/Multiview/DepthParentMultiview.pass"
+            },
+            {
+                "Name": "DepthToLinearDepthMultiviewTemplate",
+                "Path": "Passes/Multiview/DepthToLinearDepthMultiview.pass"
+            },
+            {
+                "Name": "DisplayMapperMultiviewTemplate",
+                "Path": "Passes/Multiview/DisplayMapperMultiview.pass"
+            },
+            {
+                "Name": "DownsampleSinglePassLuminanceMultiviewTemplate",
+                "Path": "Passes/Multiview/DownsampleSinglePassLuminanceMultiview.pass"
+            },
+            {
+                "Name": "EyeAdaptationMultiviewTemplate",
+                "Path": "Passes/Multiview/EyeAdaptationMultiview.pass"
+            },
+            {
+                "Name": "FastDepthAwareBlurHorMultiviewTemplate",
+                "Path": "Passes/Multiview/FastDepthAwareBlurHorMultiview.pass"
+            },
+            {
+                "Name": "FastDepthAwareBlurMultiviewTemplate",
+                "Path": "Passes/Multiview/FastDepthAwareBlurMultiview.pass"
+            },
+            {
+                "Name": "FastDepthAwareBlurVerMultiviewTemplate",
+                "Path": "Passes/Multiview/FastDepthAwareBlurVerMultiview.pass"
+            },
+            {
+                "Name": "FullscreenCopyMultiviewTemplate",
+                "Path": "Passes/Multiview/FullscreenCopyMultiview.pass"
+            },
+            {
+                "Name": "FullscreenShadowMultiviewTemplate",
+                "Path": "Passes/Multiview/FullscreenShadowMultiview.pass"
+            },
+            {
+                "Name": "HDRColorGradingMultiviewTemplate",
+                "Path": "Passes/Multiview/HDRColorGradingMultiview.pass"
+            },
+            {
+                "Name": "LightAdaptationParentMultiviewTemplate",
+                "Path": "Passes/Multiview/LightAdaptationParentMultiview.pass"
+            },
+            {
+                "Name": "LightCullingMultiviewTemplate",
+                "Path": "Passes/Multiview/LightCullingMultiview.pass"
+            },
+            {
+                "Name": "LightCullingParentMultiviewTemplate",
+                "Path": "Passes/Multiview/LightCullingParentMultiview.pass"
+            },
+            {
+                "Name": "LightCullingRemapMultiviewTemplate",
+                "Path": "Passes/Multiview/LightCullingRemapMultiview.pass"
+            },
+            {
+                "Name": "LightCullingTilePrepareMSAAMultiviewTemplate",
+                "Path": "Passes/Multiview/LightCullingTilePrepareMSAAMultiview.pass"
+            },
+            {
+                "Name": "LookModificationCompositeMultiviewTemplate",
+                "Path": "Passes/Multiview/LookModificationCompositeMultiview.pass"
+            },
+            {
+                "Name": "LookModificationTransformMultiviewTemplate",
+                "Path": "Passes/Multiview/LookModificationTransformMultiview.pass"
+            },
+            {
+                "Name": "MSAAResolveColorMultiviewTemplate",
+                "Path": "Passes/Multiview/MSAAResolveColorMultiview.pass"
+            },
+            {
+                "Name": "MSAAResolveDepthMultiviewTemplate",
+                "Path": "Passes/Multiview/MSAAResolveDepthMultiview.pass"
+            },
+            {
+                "Name": "MultiViewForwardPassTemplate",
+                "Path": "Passes/Multiview/MultiViewForward.pass"
+            },
+            {
+                "Name": "MultiViewPipelineTemplate",
+                "Path": "Passes/Multiview/MultiViewPipeline.pass"
+            },
+            {
+                "Name": "MultiViewSkyBoxTemplate",
+                "Path": "Passes/Multiview/MultiViewSkyBox.pass"
+            },
+            {
+                "Name": "MultiViewTransparentPassTemplate",
+                "Path": "Passes/Multiview/MultiViewTransparent.pass"
+            },
+            {
+                "Name": "MultiViewTransparentParentTemplate",
+                "Path": "Passes/Multiview/MultiViewTransparentParent.pass"
+            },
+            {
+                "Name": "ShadowParentMultiviewTemplate",
+                "Path": "Passes/Multiview/ShadowParentMultiview.pass"
+            },
+            {
+                "Name": "UIParentMultiviewTemplate",
+                "Path": "Passes/Multiview/UIParentMultiview.pass"
+            },
+
+            {
                 "Name": "MSAAResolveColorTemplate",
                 "Path": "Passes/MSAAResolveColor.pass"
             },
@@ -511,26 +632,6 @@
             {
                 "Name": "LowEndPipelineTemplate",
                 "Path": "Passes/LowEndPipeline.pass"
-            },
-            {
-                "Name": "MultiViewForwardPassTemplate",
-                "Path": "Passes/MultiViewForward.pass"
-            },
-            {
-                "Name": "MultiViewPipelineTemplate",
-                "Path": "Passes/MultiViewPipeline.pass"
-            },
-            {
-                "Name": "MultiViewSkyBoxTemplate",
-                "Path": "Passes/MultiViewSkyBox.pass"
-            },
-            {
-                "Name": "MultiViewTransparentPassTemplate",
-                "Path": "Passes/MultiViewTransparent.pass"
-            },
-            {
-                "Name": "MultiViewTransparentParentTemplate",
-                "Path": "Passes/MultiViewTransparentParent.pass"
             },
             {
                 "Name": "MultiViewXRLeftPipelineTemplate",

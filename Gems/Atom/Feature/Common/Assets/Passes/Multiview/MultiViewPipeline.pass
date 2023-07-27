@@ -1,0 +1,381 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 0,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "MultiViewPipelineTemplate",
+            "PassClass": "ParentPass",
+            "Slots": [
+                {
+                    "Name": "PipelineOutput",
+                    "SlotType": "InputOutput"
+                }
+            ],
+            "PassData": {
+                "$type": "PassData",
+                "PipelineGlobalConnections": [
+                    {
+                        "GlobalName": "PipelineOutput",
+                        "Slot": "PipelineOutput"
+                    }
+                ]
+            },
+            "PassRequests": [
+                {
+                    "Name": "MorphTargetPass",
+                    "TemplateName": "MorphTargetPassTemplate"
+                },
+                {
+                    "Name": "SkinningPass",
+                    "TemplateName": "SkinningPassTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "SkinnedMeshOutputStream",
+                            "AttachmentRef": {
+                                "Pass": "MorphTargetPass",
+                                "Attachment": "MorphTargetDeltaOutput"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "DepthPrePass",
+                    "TemplateName": "DepthParentMultiviewTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "SkinnedMeshes",
+                            "AttachmentRef": {
+                                "Pass": "SkinningPass",
+                                "Attachment": "SkinnedMeshOutputStream"
+                            }
+                        },
+                        {
+                            "LocalSlot": "PipelineOutput",
+                            "AttachmentRef": {
+                                "Pass": "Parent",
+                                "Attachment": "PipelineOutput"
+                            }
+                        }
+                    ]
+                },
+                // {
+                //     "Name": "LightCullingPass",
+                //     "TemplateName": "LightCullingParentMultiviewTemplate",
+                //     "Connections": [
+                //         {
+                //             "LocalSlot": "SkinnedMeshes",
+                //             "AttachmentRef": {
+                //                 "Pass": "SkinningPass",
+                //                 "Attachment": "SkinnedMeshOutputStream"
+                //             }
+                //         },
+                //         {
+                //             "LocalSlot": "DepthMSAA",
+                //             "AttachmentRef": {
+                //                 "Pass": "DepthPrePass",
+                //                 "Attachment": "DepthMSAA"
+                //             }
+                //         },
+                //         {
+                //             "LocalSlot": "PipelineOutput",
+                //             "AttachmentRef": {
+                //                 "Pass": "Parent",
+                //                 "Attachment": "PipelineOutput"
+                //             }
+                //         }
+                //     ]
+                // },
+                {
+                    "Name": "Shadows",
+                    "TemplateName": "ShadowParentMultiviewTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "SkinnedMeshes",
+                            "AttachmentRef": {
+                                "Pass": "SkinningPass",
+                                "Attachment": "SkinnedMeshOutputStream"
+                            }
+                        },
+                        {
+                            "LocalSlot": "PipelineOutput",
+                            "AttachmentRef": {
+                                "Pass": "Parent",
+                                "Attachment": "PipelineOutput"
+                            }
+                        },
+                        {
+                            "LocalSlot": "Depth",
+                            "AttachmentRef": {
+                                "Pass": "DepthPrePass",
+                                "Attachment": "DepthMSAA"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "ForwardPass",
+                    "TemplateName": "MultiViewForwardPassTemplate",
+                    "Connections": [
+                        // Inputs...
+                        {
+                            "LocalSlot": "DirectionalLightShadowmap",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "DirectionalShadowmap"
+                            }
+                        },
+                        {
+                            "LocalSlot": "ExponentialShadowmapDirectional",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "DirectionalESM"
+                            }
+                        },
+                        {
+                            "LocalSlot": "ProjectedShadowmap",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "ProjectedShadowmap"
+                            }
+                        },
+                        {
+                            "LocalSlot": "ExponentialShadowmapProjected",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "ProjectedESM"
+                            }
+                        },
+                        // {
+                        //     "LocalSlot": "TileLightData",
+                        //     "AttachmentRef": {
+                        //         "Pass": "LightCullingPass",
+                        //         "Attachment": "TileLightData"
+                        //     }
+                        // },
+                        // {
+                        //     "LocalSlot": "LightListRemapped",
+                        //     "AttachmentRef": {
+                        //         "Pass": "LightCullingPass",
+                        //         "Attachment": "LightListRemapped"
+                        //     }
+                        // },
+                        // Input/Outputs...
+                        {
+                            "LocalSlot": "DepthStencilInputOutput",
+                            "AttachmentRef": {
+                                "Pass": "DepthPrePass",
+                                "Attachment": "DepthMSAA"
+                            }
+                        }
+                    ],
+                    "PassData": {
+                        "$type": "RasterPassData",
+                        "DrawListTag": "multiviewForward",
+                        "PipelineViewTag": "MainCamera",
+                        "MultiviewLayers": 2,
+                        "PassSrgShaderAsset": {
+                            "FilePath": "Shaders/Multiview/MultiviewForwardPassSrg.shader"
+                        }
+                    }
+                },
+                {
+                    "Name": "SkyBoxPass",
+                    "TemplateName": "MultiViewSkyBoxTemplate",
+                    "Enabled": true,
+                    "Connections": [
+                        {
+                            "LocalSlot": "SpecularInputOutput",
+                            "AttachmentRef": {
+                                "Pass": "ForwardPass",
+                                "Attachment": "LightingOutput"
+                            }
+                        },
+                        {
+                            "LocalSlot": "SkyBoxDepth",
+                            "AttachmentRef": {
+                                "Pass": "ForwardPass",
+                                "Attachment": "DepthStencilInputOutput"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "MSAAResolvePass",
+                    "TemplateName": "MSAAResolveColorMultiviewTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "Input",
+                            "AttachmentRef": {
+                                "Pass": "SkyBoxPass",
+                                "Attachment": "SpecularInputOutput"
+                            }
+                        }
+                    ],
+                    "PassData": {
+                        "$type": "RenderPassData",
+                        "MultiviewLayers": 2
+                    }
+                },
+                {
+                    "Name": "TransparentPass",
+                    "TemplateName": "MultiViewTransparentParentTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "DirectionalShadowmap",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "DirectionalShadowmap"
+                            }
+                        },
+                        {
+                            "LocalSlot": "DirectionalESM",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "DirectionalESM"
+                            }
+                        },
+                        {
+                            "LocalSlot": "ProjectedShadowmap",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "ProjectedShadowmap"
+                            }
+                        },
+                        {
+                            "LocalSlot": "ProjectedESM",
+                            "AttachmentRef": {
+                                "Pass": "Shadows",
+                                "Attachment": "ProjectedESM"
+                            }
+                        },
+                        // {
+                        //     "LocalSlot": "TileLightData",
+                        //     "AttachmentRef": {
+                        //         "Pass": "LightCullingPass",
+                        //         "Attachment": "TileLightData"
+                        //     }
+                        // },
+                        // {
+                        //     "LocalSlot": "LightListRemapped",
+                        //     "AttachmentRef": {
+                        //         "Pass": "LightCullingPass",
+                        //         "Attachment": "LightListRemapped"
+                        //     }
+                        // },
+                        {
+                            "LocalSlot": "InputLinearDepth",
+                            "AttachmentRef": {
+                                "Pass": "DepthPrePass",
+                                "Attachment": "DepthLinear"
+                            }
+                        },
+                        {
+                            "LocalSlot": "DepthStencil",
+                            "AttachmentRef": {
+                                "Pass": "DepthPrePass",
+                                "Attachment": "Depth"
+                            }
+                        },
+                        {
+                            "LocalSlot": "InputOutput",
+                            "AttachmentRef": {
+                                "Pass": "MSAAResolvePass",
+                                "Attachment": "Output"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "LightAdaptation",
+                    "TemplateName": "LightAdaptationParentMultiviewTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "LightingInput",
+                            "AttachmentRef": {
+                                "Pass": "TransparentPass",
+                                "Attachment": "InputOutput"
+                            }
+                        },
+                        {
+                            "LocalSlot": "PipelineOutput",
+                            "AttachmentRef": {
+                                "Pass": "Parent",
+                                "Attachment": "PipelineOutput"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "AuxGeomPass",
+                    "TemplateName": "AuxGeomPassTemplate",
+                    "Enabled": true,
+                    "Connections": [
+                        {
+                            "LocalSlot": "ColorInputOutput",
+                            "AttachmentRef": {
+                                "Pass": "LightAdaptation",
+                                "Attachment": "Output"
+                                // "Pass": "TransparentPass",
+                                // "Attachment": "InputOutput"
+                            }
+                        },
+                        {
+                            "LocalSlot": "DepthInputOutput",
+                            "AttachmentRef": {
+                                "Pass": "DepthPrePass",
+                                "Attachment": "Depth"
+                            }
+                        }
+                    ],
+                    "PassData": {
+                        "$type": "RasterPassData",
+                        "DrawListTag": "multiviewAuxgeom",
+                        "MultiviewLayers": 2,
+                        "PipelineViewTag": "MainCamera"
+                    }
+                },
+                // {
+                //     "Name": "UIPass",
+                //     "TemplateName": "UIParentMultiviewTemplate",
+                //     "Connections": [  
+                //         {
+                //             "LocalSlot": "DepthInputOutput",
+                //             "AttachmentRef": {
+                //                 "Pass": "ForwardPass",
+                //                 "Attachment": "DepthStencilInputOutput"
+                //             }
+                //         },
+                //         {
+                //             "LocalSlot": "InputOutput",
+                //             "AttachmentRef": {
+                //                 "Pass": "AuxGeomPass",
+                //                 "Attachment": "ColorInputOutput"
+                //             }
+                //         }
+                //     ]
+                // },
+                {
+                    "Name": "CopyToSwapChain",
+                    "TemplateName": "FullscreenCopyMultiviewTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "Input",
+                            "AttachmentRef": {
+                                "Pass": "AuxGeomPass",
+                                "Attachment": "ColorInputOutput"
+                            }
+                        },
+                        {
+                            "LocalSlot": "Output",
+                            "AttachmentRef": {
+                                "Pass": "Parent",
+                                "Attachment": "PipelineOutput"
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
