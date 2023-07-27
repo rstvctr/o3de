@@ -7,7 +7,7 @@
  */
 
 #include <Atom/Features/SrgSemantics.azsli>
-#include <Atom/Features/PostProcessing/FullscreenVertex.azsli>
+#include <Atom/Features/PostProcessing/FullscreenVertexUtil.azsli>
 #include "NewDepthOfFieldCommon.azsli"
 
 ShaderResourceGroup PassSrg : SRG_PerPass
@@ -33,6 +33,27 @@ struct PSOutput
 {
     float2 m_color : SV_Target0;
 };
+
+struct VSInput
+{
+    uint m_vertexID : SV_VertexID;
+};
+
+struct VSOutput
+{
+    float4 m_position : SV_Position;
+};
+
+VSOutput MainVS(VSInput input)
+{
+    VSOutput OUT;
+
+    float4 posTex = GetVertexPositionAndTexCoords(input.m_vertexID);
+    
+    OUT.m_position = float4(posTex.x, posTex.y, 0.0, 1.0);
+
+    return OUT;
+}
 
 // Expands the min and max tiles so each tile contains the min and max of it's 3x3 neighborhood
 PSOutput MainPS(VSOutput IN)

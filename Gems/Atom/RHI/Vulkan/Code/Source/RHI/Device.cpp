@@ -240,6 +240,7 @@ namespace AZ
                 vulkan12Features.descriptorBindingStorageBufferUpdateAfterBind = physicalDevice.GetPhysicalDeviceVulkan12Features().descriptorBindingStorageBufferUpdateAfterBind;
                 vulkan12Features.descriptorBindingPartiallyBound = physicalDevice.GetPhysicalDeviceVulkan12Features().descriptorBindingPartiallyBound;
                 vulkan12Features.descriptorBindingUpdateUnusedWhilePending = physicalDevice.GetPhysicalDeviceVulkan12Features().descriptorBindingUpdateUnusedWhilePending;
+                vulkan12Features.scalarBlockLayout = physicalDevice.GetPhysicalDeviceVulkan12Features().scalarBlockLayout;
                 shaderImageAtomicInt64.pNext = &vulkan12Features;
                 deviceInfo.pNext = &depthClipEnabled;
             }
@@ -564,7 +565,7 @@ namespace AZ
             }
 
             return *m_asyncUploadQueue;
-        }        
+        }
 
         BindlessDescriptorPool& Device::GetBindlessDescriptorPool()
         {

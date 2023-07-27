@@ -19,7 +19,6 @@
 #include <Atom/Features/Debug.azsli>
 
 #include <Atom/Features/PostProcessing/FullscreenVertexUtil.azsli>
-#include <Atom/Features/PostProcessing/FullscreenVertexInfo.azsli>
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
 
 ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
@@ -27,13 +26,22 @@ ShaderResourceGroup PassSrg : SRG_PerPass_WithFallback
     Texture2DMS<float4>  m_reflection;
 }
 
+struct VSInput
+{
+    uint m_vertexID : SV_VertexID;
+};
+
+struct VSOutput
+{
+    float4 m_position : SV_Position;
+};
+
 // Vertex Shader
 VSOutput MainVS(VSInput input)
 {
     VSOutput OUT;
 
     float4 posTex = GetVertexPositionAndTexCoords(input.m_vertexID);
-    OUT.m_texCoord = float2(posTex.z, posTex.w);
     OUT.m_position = float4(posTex.x, posTex.y, 0.0, 1.0);
 
     return OUT;

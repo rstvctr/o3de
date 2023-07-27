@@ -7,7 +7,7 @@
  */
 
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
-#include <Atom/Features/PostProcessing/FullscreenVertex.azsli>
+#include <Atom/Features/PostProcessing/FullscreenVertexUtil.azsli>
 #include <Atom/RPI/Math.azsli>
 #include "NewDepthOfFieldCommon.azsli"
 #include "DepthOfField.azsli"
@@ -35,6 +35,27 @@ ShaderResourceGroup PassSrg : SRG_PerPass
         AddressV = Clamp;
         AddressW = Clamp;
     };
+}
+
+struct VSInput
+{
+    uint m_vertexID : SV_VertexID;
+};
+
+struct VSOutput
+{
+    float4 m_position : SV_Position;
+};
+
+VSOutput MainVS(VSInput input)
+{
+    VSOutput OUT;
+
+    float4 posTex = GetVertexPositionAndTexCoords(input.m_vertexID);
+    
+    OUT.m_position = float4(posTex.x, posTex.y, 0.0, 1.0);
+
+    return OUT;
 }
 
 PSOutput MainPS(VSOutput IN)

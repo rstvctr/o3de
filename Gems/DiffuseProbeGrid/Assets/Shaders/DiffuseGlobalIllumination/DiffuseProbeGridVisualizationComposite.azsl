@@ -10,7 +10,6 @@
 #include <viewsrg.srgi>
 
 #include <Atom/Features/PostProcessing/FullscreenVertexUtil.azsli>
-#include <Atom/Features/PostProcessing/FullscreenVertexInfo.azsli>
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
 #include <Atom/Features/PBR/LightingUtils.azsli>
 #include <Atom/RPI/Math.azsli>
@@ -30,6 +29,16 @@ ShaderResourceGroup PassSrg : SRG_PerPass
         AddressW = Clamp;
     };
 }
+
+struct VSInput
+{
+    uint m_vertexID : SV_VertexID;
+};
+
+struct VSOutput
+{
+    float4 m_position : SV_Position;
+};
 
 // Vertex Shader
 VSOutput MainVS(VSInput input)

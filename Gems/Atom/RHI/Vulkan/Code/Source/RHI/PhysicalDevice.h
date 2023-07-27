@@ -45,7 +45,7 @@ namespace AZ
             DepthClipEnable,
             ConservativeRasterization,
             DrawIndirectCount,
-            RelaxedBlockLayout,
+            ScalarBlockLayout,
             Robustness2,
             ShaderFloat16Int8,
             ShaderAtomicInt64,
