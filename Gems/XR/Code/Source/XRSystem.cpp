@@ -302,6 +302,7 @@ namespace XR
             AZ::RHI::ImageDescriptor imageDescriptor = vrsImageAsset->GetImageDescriptor();
             imageDescriptor.m_size.m_width = aznumeric_cast<uint32_t>(ceil(static_cast<float>(outputWidth) / tileSize.m_width));
             imageDescriptor.m_size.m_height = aznumeric_cast<uint32_t>(ceil(static_cast<float>(outputHeight) / tileSize.m_height));
+            imageDescriptor.m_arraySize = static_cast<uint16_t>(GetMultiviewLayers());
 
             // Find the appropiate format for the image
             for (uint32_t i = 0; i < static_cast<uint32_t>(AZ::RHI::Format::Count); ++i)
@@ -399,6 +400,7 @@ namespace XR
         uint32_t width = imageDescriptor.m_size.m_width;
         uint32_t height = imageDescriptor.m_size.m_height;
         uint32_t formatSize = GetFormatSize(imageDescriptor.m_format);
+        uint32_t arraySize = imageDescriptor.m_arraySize;
         uint32_t bufferSize = width * height * formatSize;
 
         // Get a list of supported shading rates so we always write a valid one
@@ -534,6 +536,15 @@ namespace XR
             AZ::RHI::ImageSubresourceLayout(AZ::RHI::Size(width, height, 1), height, width * formatSize, bufferSize, 1, 1);
 
         AZ::RHI::ImagePool* imagePool = azrtti_cast<AZ::RHI::ImagePool*>(image->GetPool());
-        return imagePool->UpdateImageContents(request);
+
+        for (uint32_t i = 0; i < arraySize; i++)
+        {
+            request.m_imageSubresource.m_arraySlice = static_cast<uint16_t>(i);
+            auto result = imagePool->UpdateImageContents(request);
+            if (result != AZ::RHI::ResultCode::Success)
+                return result;
+        }
+
+        return AZ::RHI::ResultCode::Success;
     }
 }
