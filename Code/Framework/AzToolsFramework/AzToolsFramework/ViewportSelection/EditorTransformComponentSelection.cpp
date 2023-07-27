@@ -4786,8 +4786,9 @@ namespace AzToolsFramework
     {
         if (m_entityIdManipulators.m_manipulators)
         {
+            auto manipulatorCommandState = CreateManipulatorCommandStateFromSelf();
             auto manipulatorCommand =
-                AZStd::make_unique<EntityManipulatorCommand>(CreateManipulatorCommandStateFromSelf(), ManipulatorUndoRedoName);
+                AZStd::make_unique<EntityManipulatorCommand>(manipulatorCommandState, ManipulatorUndoRedoName);
 
             manipulatorCommand->SetManipulatorAfter(EntityManipulatorCommand::State());
 
