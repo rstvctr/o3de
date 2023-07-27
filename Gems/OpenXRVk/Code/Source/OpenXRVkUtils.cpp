@@ -84,4 +84,15 @@ namespace OpenXRVk
             context.EXT_debug_utils = 0;
         }
     }
+
+    AZ::Quaternion ConvertToAzQuaternion(const XrQuaternionf& xrQuat)
+    {
+        return AZ::Quaternion{ xrQuat.x, -xrQuat.z, xrQuat.y, xrQuat.w };
+    }
+
+    AZ::Vector3 ConvertToAzVector3(const XrVector3f& xrVec3)
+    {
+        return AZ::Vector3{ xrVec3.x, -xrVec3.z, xrVec3.y };
+    }
+
 }

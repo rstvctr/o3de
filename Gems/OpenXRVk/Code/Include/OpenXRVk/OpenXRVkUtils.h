@@ -10,6 +10,8 @@
 
 #include <OpenXRVk_Platform.h>
 #include <XR/XRBase.h>
+#include <AzCore/Math/Quaternion.h>
+#include <AzCore/Math/Vector3.h>
 
 // Macro to generate stringify functions for OpenXR enumerations based data provided in openxr_reflection.h
 #define ENUM_CASE_STR(name, val) case name: return #name;
@@ -66,4 +68,9 @@ namespace OpenXRVk
 
     //! Disable certain extensions because function pointers didn't load correctly.
     void FilterAvailableExtensions(GladVulkanContext& context);
+
+    // Convert between OpenXR and AZ quaternions and vectors
+    // Also handles conversion from Y-up to Z-up
+    AZ::Quaternion ConvertToAzQuaternion(const XrQuaternionf& xrQuat);
+    AZ::Vector3 ConvertToAzVector3(const XrVector3f& xrVec);
 }
