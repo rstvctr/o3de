@@ -30,7 +30,7 @@ VsOutput EvaluateVertexGeometry_BasePBR(
     float4x4 objectToWorld = ObjectSrg::GetWorldMatrix();
     float4 worldPosition = mul(objectToWorld, float4(position, 1.0));
     output.worldPosition = worldPosition.xyz;
-    output.position = mul(ViewSrg::m_viewProjectionMatrix, worldPosition);
+    output.position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, worldPosition);
 
     // By design, only UV0 is allowed to apply transforms.
     output.uvs[0] = mul(MaterialSrg::m_uvMatrix, float3(uv0, 1.0)).xy;

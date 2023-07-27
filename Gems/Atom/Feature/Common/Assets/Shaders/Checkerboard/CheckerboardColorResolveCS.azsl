@@ -61,7 +61,7 @@ uint2 GetPreviousPixel(float2 currentPixelUV, float currentDepth, float2 screenR
     prevWorldPosition /= prevWorldPosition.w;
 
     // projected position to current frame's projection space
-    float4 prevProjectedPosition = mul(prevWorldPosition, ViewSrg::m_viewProjectionMatrix);
+    float4 prevProjectedPosition = mul(prevWorldPosition, VIEWSRG_VIEWPROJECTIONMATRIX);
     prevProjectedPosition = prevProjectedPosition / prevProjectedPosition.w;
 
     // convert projected to uv for previous pixel

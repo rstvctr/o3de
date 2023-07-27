@@ -125,12 +125,12 @@ float3 SampleGlobalIBL(uint sampleIndex, uint2 screenCoords, float depth, float3
     float x = UV.x * 2.0f - 1.0f;
     float y = (1.0f - UV.y) * 2.0f - 1.0f;
     float4 projectedPos = float4(x, y, depth, 1.0f);
-    float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+    float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
     positionVS /= positionVS.w;
-    float3 positionWS = mul(ViewSrg::m_viewMatrixInverse, positionVS).xyz;  
+    float3 positionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, positionVS).xyz;  
 
     // apply global IBL
-    float3 dirToCamera = normalize(ViewSrg::m_worldPosition.xyz - positionWS);
+    float3 dirToCamera = normalize(VIEWSRG_WORLDPOSITION.xyz - positionWS);
     float NdotV = dot(normal, dirToCamera);
     NdotV = max(NdotV, 0.01f);    // [GFX TODO][ATOM-4466] This is a current band-aid for specular noise at grazing angles.
 

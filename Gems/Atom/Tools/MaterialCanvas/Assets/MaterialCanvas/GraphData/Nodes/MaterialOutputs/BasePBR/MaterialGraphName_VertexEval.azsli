@@ -50,7 +50,7 @@ VsOutput EvaluateVertexGeometry_MaterialGraphName(
 
     VsOutput output;
     output.worldPosition = (float3)positionWS + (float3)inPositionOffset;
-    output.position = mul(ViewSrg::m_viewProjectionMatrix, float4(output.worldPosition, 1.0));
+    output.position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(output.worldPosition, 1.0));
     output.uvs[0] = uv0;
     output.uvs[1] = uv1;
     output.normal = normal;

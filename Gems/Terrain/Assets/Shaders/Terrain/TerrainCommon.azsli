@@ -73,5 +73,5 @@ void CalculateTerrainPosition(
     }
 
     normal.z = saturate(sqrt(1.0 - normal.x * normal.x - normal.y * normal.y));
-    position = mul(ViewSrg::m_viewProjectionMatrix, float4(worldPosition, 1.0));
+    position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(worldPosition, 1.0));
 }

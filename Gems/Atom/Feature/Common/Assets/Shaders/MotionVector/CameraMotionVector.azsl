@@ -46,9 +46,9 @@ PSOutput MainPS(VSOutput IN)
     }
 
     float2 clipPos = float2(mad(IN.m_texCoord.x, 2.0, -1.0), mad(IN.m_texCoord.y, -2.0, 1.0));
-    float4 worldPos = mul(ViewSrg::m_viewProjectionInverseMatrix, float4(clipPos, depth, 1.0));
+    float4 worldPos = mul(VIEWSRG_VIEWPROJECTIONINVERSEMATRIX, float4(clipPos, depth, 1.0));
 
-    float4 clipPosPrev = mul(ViewSrg::m_viewProjectionPrevMatrix, float4((worldPos / worldPos.w).xyz, 1.0));
+    float4 clipPosPrev = mul(VIEWSRG_VIEWPROJECTIONPREVMATRIX, float4((worldPos / worldPos.w).xyz, 1.0));
     clipPosPrev = (clipPosPrev / clipPosPrev.w);
 
     // Clip space is from -1.0 to 1.0, so the motion vectors are 2x as big as they should be

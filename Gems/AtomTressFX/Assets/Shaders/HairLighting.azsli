@@ -216,7 +216,7 @@ float3 CalculateLighting(
     //------- LightingData init -------
     LightingData lightingData;
 
-    float4 screenPositionForLighting = mul(ViewSrg::m_viewProjectionMatrix, float4(vPositionWS, 1.0));
+    float4 screenPositionForLighting = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(vPositionWS, 1.0));
     uint2 dimensions;
     PassSrg::m_linearDepth.GetDimensions(dimensions.x, dimensions.y);
     screenPositionForLighting.y = 1.0 - screenPositionForLighting.y;

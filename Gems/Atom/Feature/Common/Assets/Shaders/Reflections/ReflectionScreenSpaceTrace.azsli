@@ -59,8 +59,8 @@ bool TraceRayScreenSpace(float3 rayStartVS, float3 rayDirectionVS, uint2 dimensi
     }
 
     // project into homogeneous clip space
-    float4 H0 = mul(ViewSrg::m_projectionMatrix, float4(rayStartVS, 1.0f));
-    float4 H1 = mul(ViewSrg::m_projectionMatrix, float4(rayEndVS, 1.0f));
+    float4 H0 = mul(VIEWSRG_PROJECTIONMATRIX, float4(rayStartVS, 1.0f));
+    float4 H1 = mul(VIEWSRG_PROJECTIONMATRIX, float4(rayEndVS, 1.0f));
     float k0 = 1.0f / H0.w;
     float k1 = 1.0f / H1.w;
     

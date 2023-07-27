@@ -107,7 +107,7 @@ void UpdateLightingParameters(
     inout LightingData lightingData, 
     float3 positionWS, float3 normal, float roughnessLinear)
 {
-    lightingData.dirToCamera = normalize(ViewSrg::m_worldPosition.xyz - positionWS);
+    lightingData.dirToCamera = normalize(VIEWSRG_WORLDPOSITION.xyz - positionWS);
 
     // sample BRDF map (indexed by smoothness values rather than roughness)
     lightingData.NdotV = saturate(dot(normal, lightingData.dirToCamera));

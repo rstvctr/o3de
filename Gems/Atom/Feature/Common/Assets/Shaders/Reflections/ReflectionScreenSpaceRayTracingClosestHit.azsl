@@ -25,15 +25,15 @@ void ClosestHit(inout PayloadData payload, BuiltInTriangleIntersectionAttributes
     float3 positionWS = mul(ObjectToWorld3x4(), float4(vertexData.m_position, 1.0f));
 
     uint2 dimensions = DispatchRaysDimensions().xy;
-    float4 hitCoords = mul(ViewSrg::m_viewProjectionMatrix, float4(positionWS, 1.0f));
+    float4 hitCoords = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(positionWS, 1.0f));
     hitCoords /= hitCoords.w;
 
     // determine if hit position is off-screen
     bool offScreen = any(float4(hitCoords.x < -1.0f, hitCoords.x > 1.0f, hitCoords.y < -1.0f, hitCoords.y > 1.0f));
 
     // determine if hit position is behind the camera
-    float3 cameraToHit = normalize(positionWS - ViewSrg::m_worldPosition);
-    bool behindCamera = dot(cameraToHit, -ViewSrg::m_viewMatrix[2].xyz) <= 0.0f;
+    float3 cameraToHit = normalize(positionWS - VIEWSRG_WORLDPOSITION);
+    bool behindCamera = dot(cameraToHit, -VIEWSRG_VIEWMATRIX[2].xyz) <= 0.0f;
 
     payload.m_offScreen = offScreen || behindCamera;
     if (payload.m_offScreen && !RayTracingGlobalSrg::m_rayTraceFallbackData)
@@ -80,7 +80,7 @@ void ClosestHit(inout PayloadData payload, BuiltInTriangleIntersectionAttributes
         normalWS = vertexNormalWS;
     }
   
-    float3 hitToCamera = ViewSrg::m_worldPosition.xyz - positionWS;
+    float3 hitToCamera = VIEWSRG_WORLDPOSITION.xyz - positionWS;
     float distanceToCamera = length(hitToCamera);
     hitToCamera = normalize(hitToCamera);
 

@@ -32,7 +32,7 @@ bool ComputeProbeSpecular(float2 screenCoords, float3 positionWS, float4x4 obbTr
     }
 
     bool multiScatterCompensationEnabled = DecodeUnorm2BitFlag2(encodedNormal.a);
-    float3 dirToCamera = normalize(ViewSrg::m_worldPosition.xyz - positionWS);
+    float3 dirToCamera = normalize(VIEWSRG_WORLDPOSITION.xyz - positionWS);
     float NdotV = dot(normal, dirToCamera);
     NdotV = max(NdotV, 0.01f);    // [GFX TODO][ATOM-4466] This is a current band-aid for specular noise at grazing angles.
 

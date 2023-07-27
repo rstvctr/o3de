@@ -22,13 +22,13 @@ float4 GetSkyVolumeAtPosition(uint3 position)
     float2 uv = float2(position.x, position.y) / lutSize;
     float2 ndcPos = float2(uv.x , 1.0 - uv.y) * 2.0 - 1.0;
     float4 projectedPos = float4(ndcPos, 0.0, 1.0);
-    float4 positionWS = mul(ViewSrg::m_viewProjectionInverseMatrix, projectedPos);
-    float3 viewToPosition =  positionWS.xyz / positionWS.w - ViewSrg::m_worldPosition;
+    float4 positionWS = mul(VIEWSRG_VIEWPROJECTIONINVERSEMATRIX, projectedPos);
+    float3 viewToPosition =  positionWS.xyz / positionWS.w - VIEWSRG_WORLDPOSITION;
     float3 worldDir = normalize(viewToPosition);
 
     // Atmosphere.PlanetOrigin is in KM already
     // cameraPlanetPosKm is relative to the planet origin
-    float3 cameraPlanetPosKm = ViewSrg::m_worldPosition * worldScale - Atmosphere.PlanetOrigin;
+    float3 cameraPlanetPosKm = VIEWSRG_WORLDPOSITION * worldScale - Atmosphere.PlanetOrigin;
 
     float slice = (float(position.z) + 0.5f) / SKY_VOLUME_SLICE_COUNT;
     slice *= slice;    // squared distribution

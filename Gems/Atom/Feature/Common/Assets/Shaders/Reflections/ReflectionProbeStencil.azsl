@@ -53,7 +53,7 @@ VSOutput MainVS(VSInput vsInput)
     VSOutput OUT;
 
     float3 worldPosition = mul(ObjectSrg::GetWorldMatrix(), float4(vsInput.m_position, 1.0)).xyz;
-    OUT.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(worldPosition, 1.0));
+    OUT.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(worldPosition, 1.0));
 
     return OUT;
 }

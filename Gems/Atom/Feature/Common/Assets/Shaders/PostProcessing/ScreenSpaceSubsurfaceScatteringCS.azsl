@@ -233,10 +233,10 @@ void MainCS(
     
     // Map radius sampled from profile (in millimeter) to distance on view plane (in pixel), consists of three steps
     // 'MILLIMETER_TO_METER' converts unit of radius on diffusion profile from millimeter to meter
-    // '(ViewSrg::m_projectionMatrix[0][0] / depthX)' projects radius on profile to distance on viewing plane
+    // '(VIEWSRG_PROJECTIONMATRIX[0][0] / depthX)' projects radius on profile to distance on viewing plane
     // 'texelSize' maps viewing plane distance to distance in pixel
-    float profileToScreenX = (ViewSrg::m_projectionMatrix[0][0] / depthX) * MILLIMETER_TO_METER / texelSize.x;
-    float profileToScreenY = (ViewSrg::m_projectionMatrix[1][1] / depthX) * MILLIMETER_TO_METER / texelSize.y;
+    float profileToScreenX = (VIEWSRG_PROJECTIONMATRIX[0][0] / depthX) * MILLIMETER_TO_METER / texelSize.x;
+    float profileToScreenY = (VIEWSRG_PROJECTIONMATRIX[1][1] / depthX) * MILLIMETER_TO_METER / texelSize.y;
 
     // This quantity controls the strength of depth based lod mechanism
     // 90% confidence interval, gives a roughly linear response with respect to input minS which more stable than true maximum radius

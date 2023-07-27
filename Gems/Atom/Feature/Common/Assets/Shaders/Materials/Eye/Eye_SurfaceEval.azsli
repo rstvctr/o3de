@@ -54,7 +54,7 @@ Surface EvaluateSurface_Eye(
 
     //--------------------- Eye refraction UV offset ----------------------
 
-    float3 viewDir = normalize(surface.position - ViewSrg::m_worldPosition.xyz);
+    float3 viewDir = normalize(surface.position - VIEWSRG_WORLDPOSITION.xyz);
 
     // Get refracted vector
     const float airIOR = 1.0;

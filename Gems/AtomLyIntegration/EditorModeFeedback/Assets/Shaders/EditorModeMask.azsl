@@ -63,7 +63,7 @@ VSOutput MainVS(VSInput IN)
     VSOutput OUT;
 
     const float3 worldPosition = mul(ObjectSrg::GetWorldMatrix(), float4(IN.m_position, 1.0)).xyz;
-    OUT.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(worldPosition, 1.0));
+    OUT.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(worldPosition, 1.0));
     
     // The existing depth buffer contents are the result of the resolved MSAA depth buffer so contain depth contributions
     // from surrounding sub-fragments so we need to pull the current fragment towards the viewer slightly in order to reduce

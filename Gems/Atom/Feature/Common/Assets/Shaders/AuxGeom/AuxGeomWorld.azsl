@@ -35,7 +35,7 @@ VSOutput MainVS(VSInput vsInput)
     VSOutput OUT;
     if (o_viewProjMode == ViewProjectionMode::ViewProjection)
     {
-        OUT.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(vsInput.m_position.xyz, 1.0));
+        OUT.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(vsInput.m_position.xyz, 1.0));
     }
     else if (o_viewProjMode == ViewProjectionMode::ManualOverride)
     {

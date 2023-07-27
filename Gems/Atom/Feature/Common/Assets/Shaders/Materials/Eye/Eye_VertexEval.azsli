@@ -30,7 +30,7 @@ VsOutput EvaluateVertexGeometry_Eye(
     float4x4 objectToWorld = ObjectSrg::GetWorldMatrix();
     float4 worldPosition = mul(objectToWorld, float4(position, 1.0));
     output.worldPosition = worldPosition.xyz;
-    output.position = mul(ViewSrg::m_viewProjectionMatrix, worldPosition);
+    output.position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, worldPosition);
 
     output.uvs[0] = uv0;
     output.uvs[1] = uv1;

@@ -111,7 +111,7 @@ PSOutput MainPS(VSOutput IN)
     // compute view space surface position
     float2 ndcPos = float2(UV.x, 1.0f - UV.y) * 2.0f - 1.0f;
     float4 projectedPos = float4(ndcPos, depth, 1.0f);
-    float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+    float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
     positionVS /= positionVS.w;
 
     // normalize the viewspace position to get the camera-to-position vector
@@ -120,7 +120,7 @@ PSOutput MainPS(VSOutput IN)
     // retrieve surface normal
     float4 encodedNormal = PassSrg::m_normal.Load(fullScreenCoords, 0);
     float3 normalWS = DecodeNormalSignedOctahedron(encodedNormal.rgb);
-    float3 normalVS = normalize(mul(ViewSrg::m_viewMatrix, float4(normalWS, 0.0f)).xyz);
+    float3 normalVS = normalize(mul(VIEWSRG_VIEWMATRIX, float4(normalWS, 0.0f)).xyz);
 
     // reflect view ray around surface normal
     float3 reflectDirVS = normalize(reflect(cameraToPositionVS, normalVS));
@@ -157,12 +157,12 @@ PSOutput MainPS(VSOutput IN)
             float traceDepth = PassSrg::m_depth.Load(hitCoords, 0).r;
             float2 traceNDC = float2(traceUV.x, 1.0f - traceUV.y) * 2.0f - 1.0f;
             float4 traceProjectedPos = float4(traceNDC, traceDepth, 1.0f);
-            float4 tracePositionVS = mul(ViewSrg::m_projectionMatrixInverse, traceProjectedPos);
+            float4 tracePositionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, traceProjectedPos);
             tracePositionVS /= tracePositionVS.w;
-            float4 tracePositionWS = mul(ViewSrg::m_viewMatrixInverse, tracePositionVS);
+            float4 tracePositionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, tracePositionVS);
         
             // reproject to the previous frame image coordinates
-            float4 tracePrevNDC = mul(ViewSrg::m_viewProjectionPrevMatrix, tracePositionWS);
+            float4 tracePrevNDC = mul(VIEWSRG_VIEWPROJECTIONPREVMATRIX, tracePositionWS);
             tracePrevNDC /= tracePrevNDC.w;
             float2 tracePrevUV = float2(tracePrevNDC.x, -1.0f * tracePrevNDC.y) * 0.5f + 0.5f;
 

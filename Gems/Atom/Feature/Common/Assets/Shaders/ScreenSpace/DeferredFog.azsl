@@ -91,9 +91,9 @@ PSOutput MainPS(VSOutput IN)
 
     // Fog layer deltas
     const float layerThickness = PassSrg::m_fogMaxHeight - PassSrg::m_fogMinHeight;
-    const float dViewMax = ViewSrg::m_worldPosition.z - PassSrg::m_fogMaxHeight;
-    const float dViewMin = ViewSrg::m_worldPosition.z - PassSrg::m_fogMinHeight;
-    const float3 surfaceViewVec = surfacePosWS - ViewSrg::m_worldPosition;
+    const float dViewMax = VIEWSRG_WORLDPOSITION.z - PassSrg::m_fogMaxHeight;
+    const float dViewMin = VIEWSRG_WORLDPOSITION.z - PassSrg::m_fogMinHeight;
+    const float3 surfaceViewVec = surfacePosWS - VIEWSRG_WORLDPOSITION;
     const float3 surfaceViewDir = normalize(surfaceViewVec);
     float dSurfaceView = surfaceViewVec.z;
 
@@ -143,7 +143,7 @@ PSOutput MainPS(VSOutput IN)
                 [unroll]
                 for (int i = 0; i < steps ; i++ )
                 {
-                    float3 fogHitPnt = ViewSrg::m_worldPosition + locationAlongRay * surfaceViewVec;
+                    float3 fogHitPnt = VIEWSRG_WORLDPOSITION + locationAlongRay * surfaceViewVec;
                     fogDensity += CalculateFogDensity(fogHitPnt, locationWithinLayer);
                     locationWithinLayer += relIntervalSize;
                     locationAlongRay += stepSize;

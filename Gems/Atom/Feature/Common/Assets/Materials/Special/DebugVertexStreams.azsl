@@ -52,7 +52,7 @@ VSOutput MainVS(VSInput IN)
 {
     VSOutput OUT;    
     OUT.m_worldPosition = mul(ObjectSrg::GetWorldMatrix(), float4(IN.m_position, 1.0)).xyz;
-    OUT.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(OUT.m_worldPosition, 1.0));
+    OUT.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(OUT.m_worldPosition, 1.0));
 
     // Only UV0 is supported
     OUT.m_uv[0] = IN.m_uv0;

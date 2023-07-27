@@ -34,12 +34,12 @@ void RayGeneration()
     float depth = RayTracingGlobalSrg::m_depth.Load(fullScreenCoords, 0);
     float2 ndcPos = float2(UV.x, 1.0f - UV.y) * 2.0f - 1.0f;
     float4 projectedPos = float4(ndcPos, depth, 1.0f);
-    float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+    float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
     positionVS /= positionVS.w;
-    float4 positionWS = mul(ViewSrg::m_viewMatrixInverse, positionVS);
+    float4 positionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, positionVS);
 
     // compute camera-to-position vector
-    float3 cameraToPositionWS = normalize(positionWS.xyz - ViewSrg::m_worldPosition);
+    float3 cameraToPositionWS = normalize(positionWS.xyz - VIEWSRG_WORLDPOSITION);
 
     // load normal
     float4 encodedNormal = RayTracingGlobalSrg::m_normal.Load(fullScreenCoords, 0);
@@ -87,7 +87,7 @@ void RayGeneration()
     float3 hitPositionWS = positionWS.xyz + (reflectDirWS * hitDistance);
 
     // convert hit position to screenspace
-    float4 hitCoords = mul(ViewSrg::m_viewProjectionMatrix, float4(hitPositionWS, 1.0f));
+    float4 hitCoords = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(hitPositionWS, 1.0f));
     hitCoords /= hitCoords.w;
     hitCoords.y = -hitCoords.y;
     hitCoords.xy = (hitCoords.xy * 0.5f + 0.5f) * fullScreenDimensions;

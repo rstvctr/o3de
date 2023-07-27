@@ -107,7 +107,7 @@ ForwardPassOutput TerrainPBR_MainPassPS(VSOutput input)
     Surface surface;
     surface.position = input.m_worldPosition.xyz;
     surface.vertexNormal = normalize(input.m_normal);
-    float viewDistance = length(ViewSrg::m_worldPosition - input.m_worldPosition.xyz);
+    float viewDistance = length(VIEWSRG_WORLDPOSITION - input.m_worldPosition.xyz);
 
     // Surface data to be gathered from clipmaps or materials.
     float3 macroNormal = surface.vertexNormal;

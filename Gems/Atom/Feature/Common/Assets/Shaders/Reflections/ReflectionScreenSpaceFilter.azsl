@@ -115,11 +115,11 @@ PSOutput MainPS(VSOutput IN)
         float depth = PassSrg::m_depth.Load(fullScreenCoords, 0).r;
         float2 ndc = float2(UV.x, 1.0f - UV.y) * 2.0f - 1.0f;
         float4 projectedPos = float4(ndc, depth, 1.0f);
-        float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+        float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
         positionVS /= positionVS.w;
-        float4 positionWS = mul(ViewSrg::m_viewMatrixInverse, positionVS);
+        float4 positionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, positionVS);
         
-        float4 prevNDC = mul(ViewSrg::m_viewProjectionPrevMatrix, positionWS);
+        float4 prevNDC = mul(VIEWSRG_VIEWPROJECTIONPREVMATRIX, positionWS);
         prevNDC /= prevNDC.w;
         float2 prevUV = float2(prevNDC.x, -1.0f * prevNDC.y) * 0.5f + 0.5f;
 

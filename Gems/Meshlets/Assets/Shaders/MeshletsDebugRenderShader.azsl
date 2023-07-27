@@ -87,7 +87,7 @@ void VertexHelper(uint vertexIndex, inout VSOutput OUT, float3 worldPosition)
     float dummyVariableToForceSrg = 0.000001 * (float)PassSrg::m_meshletsSharedBuffer[vertexIndex];
     OUT.m_worldPosition.z += (abs(dummyVariableToForceSrg) < 0.001) ? dummyVariableToForceSrg : 0;
 
-    OUT.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(OUT.m_worldPosition, 1.0));
+    OUT.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(OUT.m_worldPosition, 1.0));
 
     float4x4 objectToWorld = MeshletsObjectRenderSrg::GetWorldMatrix();
     float3x3 objectToWorldIT = MeshletsObjectRenderSrg::GetWorldMatrixInverseTranspose();

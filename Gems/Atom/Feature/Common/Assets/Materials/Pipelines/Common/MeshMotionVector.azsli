@@ -37,10 +37,10 @@ PsOutput PixelShader(VsOutput IN)
     PsOutput OUT;
 
     // Current clip position
-    float4 clipPos = mul(ViewSrg::m_viewProjectionMatrix, float4(IN.m_worldPos, 1.0));
+    float4 clipPos = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(IN.m_worldPos, 1.0));
     
     // Reprojected last frame's clip position, for skinned mesh it also implies last key frame
-    float4 clipPosPrev = mul(ViewSrg::m_viewProjectionPrevMatrix, float4(IN.m_worldPosPrev, 1.0));
+    float4 clipPosPrev = mul(VIEWSRG_VIEWPROJECTIONPREVMATRIX, float4(IN.m_worldPosPrev, 1.0));
 
     float2 motion = (clipPos.xy / clipPos.w - clipPosPrev.xy / clipPosPrev.w) * 0.5;
 

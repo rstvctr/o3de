@@ -10,6 +10,17 @@
 #error Do not include this file directly. Include the main .srgi file instead.
 #endif
 
+#define VIEWSRG_VIEWPROJECTIONMATRIX ViewSrg::m_viewProjectionMatrix
+#define VIEWSRG_VIEWMATRIX ViewSrg::m_viewMatrix
+#define VIEWSRG_VIEWMATRIXINVERSE ViewSrg::m_viewMatrixInverse
+#define VIEWSRG_PROJECTIONMATRIX ViewSrg::m_projectionMatrix
+#define VIEWSRG_PROJECTIONMATRIXINVERSE ViewSrg::m_projectionMatrixInverse
+#define VIEWSRG_VIEWPROJECTIONINVERSEMATRIX ViewSrg::m_viewProjectionInverseMatrix
+#define VIEWSRG_VIEWPROJECTIONPREVMATRIX ViewSrg::m_viewProjectionPrevMatrix
+#define VIEWSRG_WORLDPOSITION ViewSrg::m_worldPosition
+#define VIEWSRG_LINEARIZEDEPTHCONSTANTS m_linearizeDepthConstants
+#define VIEWSRG_UNPROJECTIONCONSTANTS m_unprojectionConstants
+
 partial ShaderResourceGroup ViewSrg
 {
     row_major float4x4 m_viewProjectionMatrix;          // World -> Projection
@@ -38,31 +49,31 @@ partial ShaderResourceGroup ViewSrg
 
     // Specifies what should be output to the view (i.e. normals, lighting, albedo, etc.)
     uint m_renderDebugViewMode;
-
+    
     float GetNearZ()
     {
-        return m_linearizeDepthConstants.x;
+        return VIEWSRG_LINEARIZEDEPTHCONSTANTS.x;
     }
 
     float GetFarZ()
     {
-        return m_linearizeDepthConstants.y;
+        return VIEWSRG_LINEARIZEDEPTHCONSTANTS.y;
     }
 
     float GetFarZTimesNearZ()
     {
-        return m_linearizeDepthConstants.z;
+        return VIEWSRG_LINEARIZEDEPTHCONSTANTS.z;
     }
 
     float GetFarZMinusNearZ()
     {
-        return m_linearizeDepthConstants.w;
+        return VIEWSRG_LINEARIZEDEPTHCONSTANTS.w;
     }
 
     // Uses linearDepth value at screenUV to reconstruct view-space position (Z-forward & Y-up)
     float3 GetViewSpacePosition(float2 screenUV, float linearDepth)
     {
-        float2 screenRay = (screenUV * m_unprojectionConstants.xy + m_unprojectionConstants.zw);
+        float2 screenRay = (screenUV * VIEWSRG_UNPROJECTIONCONSTANTS.xy + VIEWSRG_UNPROJECTIONCONSTANTS.zw);
         return float3(screenRay * linearDepth, linearDepth);
     }
 }

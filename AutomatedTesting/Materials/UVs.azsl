@@ -28,7 +28,7 @@ VertexOutput MainVS(VertexInput input)
 {
     VertexOutput output;
     float3 worldPosition = mul(ObjectSrg::GetWorldMatrix(), float4(input.m_position, 1)).xyz;
-    output.m_position = mul(ViewSrg::m_viewProjectionMatrix, float4(worldPosition, 1.0));
+    output.m_position = mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(worldPosition, 1.0));
 
     output.m_uv = input.m_uv;
         

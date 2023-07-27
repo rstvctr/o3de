@@ -32,15 +32,15 @@ void GetParallaxInput(float3 normal, float3 tangent, float3 bitangent, float hei
     if(o_parallax_feature_enabled)
     {
         float3 dirToCamera;
-        if(ViewSrg::m_projectionMatrix[3].w == 1)
+        if(VIEWSRG_PROJECTIONMATRIX[3].w == 1)
         {
             // orthographic projection (directional light)
             // No view position, use light direction
-            dirToCamera = ViewSrg::m_viewMatrix[2].xyz;
+            dirToCamera = VIEWSRG_VIEWMATRIX[2].xyz;
         }
         else
         {
-            dirToCamera = ViewSrg::m_worldPosition.xyz - worldPosition;
+            dirToCamera = VIEWSRG_WORLDPOSITION.xyz - worldPosition;
         }
     
         ParallaxOffset tangentOffset = GetParallaxOffset( heightmapScale,
@@ -65,7 +65,7 @@ void GetParallaxInput(float3 normal, float3 tangent, float3 bitangent, float hei
                                                         normal,
                                                         uvMatrixInverse,
                                                         objectWorldMatrix,
-                                                        ViewSrg::m_viewProjectionMatrix);
+                                                        VIEWSRG_VIEWPROJECTIONMATRIX);
 
             depthCS = pdo.m_depthCS;
             depthNDC = pdo.m_depthNDC;

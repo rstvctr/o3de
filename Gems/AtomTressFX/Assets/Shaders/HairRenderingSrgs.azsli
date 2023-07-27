@@ -37,10 +37,10 @@
 #include <viewsrg.srgi>
 
 //------------------------------------------------------------------------------
-#define g_mVP               ViewSrg::m_viewProjectionMatrix
-#define g_vEye              ViewSrg::m_worldPosition.xyz
-#define g_vViewport         ViewSrg::m_unprojectionConstants    // xy = normaliz scale, zw = offset in 0..1 scale
-#define cInvViewProjMatrix  ViewSrg::m_viewProjectionInverseMatrix
+#define g_mVP               VIEWSRG_VIEWPROJECTIONMATRIX
+#define g_vEye              VIEWSRG::M_WORLDPOSITION.xyz
+#define g_vViewport         VIEWSRG::M_UNPROJECTIONCONSTANTS    // xy = normaliz scale, zw = offset in 0..1 scale
+#define cInvViewProjMatrix  VIEWSRG::M_VIEWPROJECTIONINVERSEMATRIX
 //------------------------------------------------------------------------------
 
 #define AMD_PI 3.1415926

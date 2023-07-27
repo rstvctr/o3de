@@ -19,6 +19,6 @@ float3 LocalSpaceToWorldSpace(float3 position)
 
 float4 WorldSpaceToClipSpace(float3 position)
 {
-    return mul(ViewSrg::m_viewProjectionMatrix, float4(position, 1.0));
+    return mul(VIEWSRG_VIEWPROJECTIONMATRIX, float4(position, 1.0));
 }
 

@@ -16,7 +16,7 @@ void ApplyDirectionalLights(Surface surface, inout LightingData lightingData, fl
     // Shadowed check
     const uint shadowIndex = ViewSrg::m_shadowIndexDirectionalLight;
     float litRatio = 1.0f;
-    float camToSurfDist = distance(ViewSrg::m_worldPosition, surface.position);
+    float camToSurfDist = distance(VIEWSRG_WORLDPOSITION, surface.position);
 
     // Distance travelled by the light inside the object. If not redefined to a non-negative value, it will take the following behavior:
     // - If transmission mode is thick object -> use transmission thickness parameter instead

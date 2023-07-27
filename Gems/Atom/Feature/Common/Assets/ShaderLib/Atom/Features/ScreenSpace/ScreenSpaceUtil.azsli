@@ -18,10 +18,10 @@ float4 WorldPositionFromDepthBuffer(const float2 UV, const float zDepth )
     float x = UV.x * 2.0f - 1.0f;
     float y = (1.0f - UV.y) * 2.0f - 1.0f;
     float4 projectedPos = float4(x, y, zDepth, 1.0f);    // warped projected space [0..1]
-    float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+    float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
 
     positionVS /= positionVS.w;
-    float4 positionWS = mul(ViewSrg::m_viewMatrixInverse, positionVS);
+    float4 positionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, positionVS);
     return positionWS;
 }
 

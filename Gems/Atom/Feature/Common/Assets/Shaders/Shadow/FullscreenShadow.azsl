@@ -145,8 +145,8 @@ option enum class MsaaMode { MsaaNone, Msaa2x, Msaa4x, Msaa8x, Msaa16x } o_msaaM
     positionVS.z = -positionVS.z;
     normalVS.z = -normalVS.z;
 
-    outPositionWS = mul(ViewSrg::m_viewMatrixInverse, float4(positionVS, 1) ).xyz;
-    outNormalWS   = mul(ViewSrg::m_viewMatrixInverse, float4(normalVS, 0) ).xyz;
+    outPositionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, float4(positionVS, 1) ).xyz;
+    outNormalWS   = mul(VIEWSRG_VIEWMATRIXINVERSE, float4(normalVS, 0) ).xyz;
 }
 
 #if USING_COMPUTE_SHADER_DIRECTIONAL_LIGHT

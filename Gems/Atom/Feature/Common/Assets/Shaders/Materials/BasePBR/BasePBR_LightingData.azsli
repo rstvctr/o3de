@@ -75,7 +75,7 @@ void LightingData_BasePBR::Init(float3 positionWS, float3 normal, float roughnes
     diffuseAmbientOcclusion = 1.0f;
     specularOcclusion = 1.0f;
 
-    dirToCamera = normalize(ViewSrg::m_worldPosition.xyz - positionWS);
+    dirToCamera = normalize(VIEWSRG_WORLDPOSITION.xyz - positionWS);
 
     // sample BRDF map (indexed by smoothness values rather than roughness)
     NdotV = saturate(dot(normal, dirToCamera));

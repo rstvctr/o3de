@@ -52,9 +52,9 @@ float3 ScreenPosToWorldPos(
 { 
     screenPosNDC = ScreenPosToNDC(screenTexture, screenCoords, depth);
     float4 projectedPos = float4(screenPosNDC, 1.0f);    // warped projected space [0..1]
-    float4 positionVS = mul(ViewSrg::m_projectionMatrixInverse, projectedPos);
+    float4 positionVS = mul(VIEWSRG_PROJECTIONMATRIXINVERSE, projectedPos);
     positionVS /= positionVS.w; // notice the normalization factor - crucial! 
-    float4 positionWS = mul(ViewSrg::m_viewMatrixInverse, positionVS);
+    float4 positionWS = mul(VIEWSRG_VIEWMATRIXINVERSE, positionVS);
 
     return positionWS.xyz;
 }

@@ -104,7 +104,7 @@ PSOutput MainPS(VSOutput IN, in uint sampleIndex : SV_SampleIndex)
     float3 specularF0 = PassSrg::m_specularF0.Load(IN.m_position.xy, sampleIndex).rgb;
     float roughness = PassSrg::m_specularF0.Load(IN.m_position.xy, sampleIndex).a;
 
-    float3 dirToCamera = normalize(ViewSrg::m_worldPosition.xyz - positionWS);
+    float3 dirToCamera = normalize(VIEWSRG_WORLDPOSITION.xyz - positionWS);
     float3 reflectDir = reflect(-dirToCamera, normal);
     reflectDir = MultiplyVectorQuaternion(reflectDir, SceneSrg::m_iblOrientation);
     float3 globalSpecular = SceneSrg::m_specularEnvMap.SampleLevel(SceneSrg::m_samplerEnv, GetCubemapCoords(reflectDir), GetRoughnessMip(roughness)).rgb;
