@@ -52,6 +52,9 @@ namespace XR
         //! Init the XR device.
         AZ::RHI::ResultCode Init(Descriptor descriptor);
 
+        //! Throttle rendering to the correct rate and get initial information to run the simulation
+        void WaitFrame();
+
         //! Signal Begin frame to the underlying back end.
         //! @note This function is called from the thread related to the presentation queue.
         bool BeginFrame();
@@ -91,6 +94,10 @@ namespace XR
     protected:
         //! Called when the device is being shutdown.
         virtual void ShutdownInternal() = 0;
+
+        //! Actual implementation of WaitFrame
+        //! @note This function is called from the main thread.
+        virtual void WaitFrameInternal() = 0;
 
         //! Called when the device is beginning a frame for processing.
         //! @note This function is called from the thread related to the presentation queue.

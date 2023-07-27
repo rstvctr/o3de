@@ -27,6 +27,11 @@ namespace XR
         return m_session;
     }
 
+    void Device::WaitFrame()
+    {
+        return WaitFrameInternal();
+    }
+
     bool Device::BeginFrame()
     {
         return BeginFrameInternal();

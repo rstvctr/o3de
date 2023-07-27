@@ -27,6 +27,7 @@ namespace XR
         : public AZ::RPI::XRRenderingInterface
         , public AZ::RHI::XRRenderingInterface
         , public AZ::SystemTickBus::Handler
+        , public AZ::TickBus::Handler
         , public AZStd::intrusive_base
     {
     public:
@@ -50,6 +51,13 @@ namespace XR
 
         //! Handle XR events and actions
         void OnSystemTick() override;
+
+        ///////////////////////////////////////////////////////////////////
+        // AZ::TickBus::Handler overrides
+        void OnTick(float deltaTime, AZ::ScriptTimePoint time) override;
+        int GetTickOrder() override { return AZ::TICK_FIRST; } 
+        ///////////////////////////////////////////////////////////////////
+        void WaitFrame();
 
         ///////////////////////////////////////////////////////////////////
         // AZ::RPI::XRRenderingInterface overrides
@@ -99,5 +107,6 @@ namespace XR
         Ptr<Device> m_device;
         AZ::RHI::ValidationMode m_validationMode = AZ::RHI::ValidationMode::Disabled;
         bool m_isInFrame = false;
+        bool m_isWaitingFrame = false;
     };
 } // namespace XR

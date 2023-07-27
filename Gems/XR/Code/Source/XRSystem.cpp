@@ -42,6 +42,7 @@ namespace XR
     {
         m_validationMode = descriptor.m_validationMode;
         AZ::SystemTickBus::Handler::BusConnect();
+        AZ::TickBus::Handler::BusConnect();
     }
 
     AZ::RHI::ResultCode System::InitInstance()
@@ -163,11 +164,26 @@ namespace XR
             m_session->PollEvents();
         }
     }
-    
-    void System::BeginFrame()
+
+    void System::OnTick([[maybe_unused]] float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint time)
+    {
+        WaitFrame();
+    }
+
+    void System::WaitFrame()
     {
         if (m_device && m_session && m_session->IsSessionRunning())
         {
+            m_device->WaitFrame();
+            m_isWaitingFrame = true;
+        }
+    }
+    
+    void System::BeginFrame()
+    {
+        if (m_isWaitingFrame)
+        {
+            m_isWaitingFrame = false;
             m_isInFrame = m_device->BeginFrame();
         }
     }
@@ -191,7 +207,7 @@ namespace XR
 
     void System::AcquireSwapChainImage(AZ::u32 viewIndex)
     {
-        if (m_isInFrame && m_device->ShouldRender())
+        if (m_isInFrame)
         {
             m_device->AcquireSwapChainImage(viewIndex, m_swapChain.get());
         }
@@ -351,6 +367,7 @@ namespace XR
     void System::Shutdown()
     {
         AZ::SystemTickBus::Handler::BusDisconnect();
+        AZ::TickBus::Handler::BusDisconnect();
         m_instance = nullptr;
         m_device = nullptr;
     }

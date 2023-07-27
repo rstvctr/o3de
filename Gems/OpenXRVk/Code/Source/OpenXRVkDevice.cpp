@@ -126,6 +126,52 @@ namespace OpenXRVk
         return AZ::RHI::ResultCode::Success;
     }
 
+    void Device::WaitFrameInternal()
+    {
+        Session* session = static_cast<Session*>(GetSession().get());
+        XrSession xrSession = session->GetXrSession();
+
+        XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
+        XrResult result = xrWaitFrame(xrSession, &frameWaitInfo, &m_frameState);
+        WARN_IF_UNSUCCESSFUL(result);
+
+        UpdatePredictedViewPoses(xrSession);
+    }
+
+    bool Device::UpdatePredictedViewPoses(XrSession xrSession)
+    {
+        Space* xrSpace = static_cast<Space*>(GetSession()->GetSpace());
+        Instance* instance = static_cast<Instance*>(GetDescriptor().m_instance.get());
+
+        XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
+        viewLocateInfo.viewConfigurationType = instance->GetViewConfigType(); 
+        viewLocateInfo.displayTime = m_frameState.predictedDisplayTime;
+        viewLocateInfo.space = xrSpace->GetXrSpace(OpenXRVk::SpaceType::Stage);
+
+        XrViewState viewState{ XR_TYPE_VIEW_STATE };
+        uint32_t viewCapacityInput = aznumeric_cast<uint32_t>(m_views.size());
+
+        XrResult result = xrLocateViews(xrSession, &viewLocateInfo, &viewState, viewCapacityInput, &m_viewCountOutput, m_views.data());
+        ASSERT_IF_UNSUCCESSFUL(result);
+        if ((viewState.viewStateFlags & XR_VIEW_STATE_POSITION_VALID_BIT) == 0 ||
+            (viewState.viewStateFlags & XR_VIEW_STATE_ORIENTATION_VALID_BIT) == 0)
+        {
+            //There is no valid tracking poses for the views
+            return false;
+        }
+
+        AZ_Assert(m_viewCountOutput == viewCapacityInput, "Size mismatch between xrLocateViews %i and xrEnumerateViewConfigurationViews %i", m_viewCountOutput, viewCapacityInput);
+        // AZ_Assert(m_viewCountOutput == static_cast<SwapChain*>(baseSwapChain)->GetViewConfigs().size(), "Size mismatch between xrLocateViews %i and xrEnumerateViewConfigurationViews %i", m_viewCountOutput, static_cast<SwapChain*>(baseSwapChain)->GetViewConfigs().size());
+
+        for (uint32_t viewIndex = 0; viewIndex < m_viewCountOutput; viewIndex++)
+        {
+            m_projectionLayerViews[viewIndex].pose = m_views[viewIndex].pose;
+            m_projectionLayerViews[viewIndex].fov = m_views[viewIndex].fov;
+        }
+
+        return true;
+    }
+
     bool Device::BeginFrameInternal()
     {
         Platform::OpenXRBeginFrameInternal();
@@ -134,7 +180,9 @@ namespace OpenXRVk
         XrSession xrSession = session->GetXrSession();
 
         m_xrLayers.clear();
-        m_projectionLayerViews.clear();
+
+        // Call this again before actually rendering so we have a more accurate position
+        UpdatePredictedViewPoses(xrSession);
 
         XrFrameBeginInfo frameBeginInfo{ XR_TYPE_FRAME_BEGIN_INFO };
         XrResult result = xrBeginFrame(xrSession, &frameBeginInfo);
@@ -193,9 +241,6 @@ namespace OpenXRVk
             WARN_IF_UNSUCCESSFUL(result);
         }
 
-        XrFrameWaitInfo frameWaitInfo{ XR_TYPE_FRAME_WAIT_INFO };
-        result = xrWaitFrame(xrSession, &frameWaitInfo, &m_frameState);
-        WARN_IF_UNSUCCESSFUL(result);
     }
 
     void Device::PostFrameInternal()
@@ -207,19 +252,16 @@ namespace OpenXRVk
     {
         XR::SwapChain::View* baseSwapChainView = baseSwapChain->GetView(viewIndex);
         SwapChain::View* swapChainView = static_cast<SwapChain::View*>(baseSwapChainView);
-        Space* xrSpace = static_cast<Space*>(GetSession()->GetSpace());
-        Instance* instance = static_cast<Instance*>(GetDescriptor().m_instance.get());
-        Session* session = static_cast<Session*>(GetSession().get());
-        XrSession xrSession = session->GetXrSession();
         XrSwapchain swapChainHandle = swapChainView->GetSwapChainHandle();
 
+#if 0
         XrViewState viewState{ XR_TYPE_VIEW_STATE };
         uint32_t viewCapacityInput = aznumeric_cast<uint32_t>(m_views.size());
 
         XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
         viewLocateInfo.viewConfigurationType = instance->GetViewConfigType(); 
         viewLocateInfo.displayTime = m_frameState.predictedDisplayTime;
-        viewLocateInfo.space = xrSpace->GetXrSpace(OpenXRVk::SpaceType::View);
+        viewLocateInfo.space = xrSpace->GetXrSpace(OpenXRVk::SpaceType::Stage);
 
         XrResult result = xrLocateViews(xrSession, &viewLocateInfo, &viewState, viewCapacityInput, &m_viewCountOutput, m_views.data());
         ASSERT_IF_UNSUCCESSFUL(result);
@@ -231,12 +273,13 @@ namespace OpenXRVk
             return false;
         }
 
+
         AZ_Assert(m_viewCountOutput == viewCapacityInput, "Size mismatch between xrLocateViews %i and xrEnumerateViewConfigurationViews %i", m_viewCountOutput, viewCapacityInput);
         AZ_Assert(m_viewCountOutput == static_cast<SwapChain*>(baseSwapChain)->GetViewConfigs().size(), "Size mismatch between xrLocateViews %i and xrEnumerateViewConfigurationViews %i", m_viewCountOutput, static_cast<SwapChain*>(baseSwapChain)->GetViewConfigs().size());
+#endif
 
-        m_projectionLayerViews.resize(m_viewCountOutput);
         XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-        result = xrAcquireSwapchainImage(swapChainHandle, &acquireInfo, &baseSwapChainView->m_activeImageIndex);
+        XrResult result = xrAcquireSwapchainImage(swapChainHandle, &acquireInfo, &baseSwapChainView->m_activeImageIndex);
         baseSwapChainView->m_isImageAcquired = (result == XR_SUCCESS);
         WARN_IF_UNSUCCESSFUL(result);
         
@@ -245,9 +288,6 @@ namespace OpenXRVk
         result = xrWaitSwapchainImage(swapChainHandle, &waitInfo);
         ASSERT_IF_UNSUCCESSFUL(result);
 
-        m_projectionLayerViews[viewIndex] = { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW };
-        m_projectionLayerViews[viewIndex].pose = m_views[viewIndex].pose;
-        m_projectionLayerViews[viewIndex].fov = m_views[viewIndex].fov;
         m_projectionLayerViews[viewIndex].subImage.swapchain = swapChainHandle;
         m_projectionLayerViews[viewIndex].subImage.imageRect.offset = { 0, 0 };
         m_projectionLayerViews[viewIndex].subImage.imageRect.extent = { static_cast<int>(swapChainView->GetWidth()),
@@ -275,6 +315,7 @@ namespace OpenXRVk
         // Create and cache view buffer for xrLocateViews later.
         m_views.clear();
         m_views.resize(numViews, { XR_TYPE_VIEW });
+        m_projectionLayerViews.resize(numViews, { XR_TYPE_COMPOSITION_LAYER_PROJECTION_VIEW });
     }
 
     VkDevice Device::GetNativeDevice() const
