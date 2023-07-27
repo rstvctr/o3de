@@ -117,6 +117,14 @@
                 "Path": "Passes/Multiview/MultiViewTransparentParent.pass"
             },
             {
+                "Name": "MultiViewXRLeftPipelineTemplate",
+                "Path": "Passes/Multiview/MultiViewXRLeftPipeline.pass"
+            },
+            {
+                "Name": "MultiViewXRRightPipelineTemplate",
+                "Path": "Passes/Multiview/MultiViewXRRightPipeline.pass"
+            },
+            {
                 "Name": "ShadowParentMultiviewTemplate",
                 "Path": "Passes/Multiview/ShadowParentMultiview.pass"
             },
@@ -640,14 +648,6 @@
             {
                 "Name": "LowEndPipelineTemplate",
                 "Path": "Passes/LowEndPipeline.pass"
-            },
-            {
-                "Name": "MultiViewXRLeftPipelineTemplate",
-                "Path": "Passes/MultiViewXRLeftPipeline.pass"
-            },
-            {
-                "Name": "MultiViewXRRightPipelineTemplate",
-                "Path": "Passes/MultiViewXRRightPipeline.pass"
             },
             {
                 "Name": "KawaseShadowBlurTemplate",

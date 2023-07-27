@@ -56,6 +56,8 @@ set(FILES
     Passes/Multiview/MultiViewSkyBox.pass
     Passes/Multiview/MultiViewTransparent.pass
     Passes/Multiview/MultiViewTransparentParent.pass
+    Passes/Multiview/MultiViewXRLeftPipeline.pass
+    Passes/Multiview/MultiViewXRRightPipeline.pass
     Passes/Multiview/ShadowParentMultiview.pass
     Passes/Multiview/UIParentMultiview.pass
     Passes/AuxGeom.pass
@@ -137,8 +139,6 @@ set(FILES
     Passes/MSAAResolveColor.pass
     Passes/MSAAResolveCustom.pass
     Passes/MSAAResolveDepth.pass
-    Passes/MultiViewXRLeftPipeline.pass
-    Passes/MultiViewXRRightPipeline.pass
     Passes/NewDepthOfField.pass
     Passes/NewDepthOfFieldComposite.pass
     Passes/NewDepthOfFieldDownsample.pass
