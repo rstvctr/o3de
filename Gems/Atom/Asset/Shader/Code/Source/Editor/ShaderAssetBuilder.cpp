@@ -401,6 +401,7 @@ namespace AZ
 
             shaderAssetCreator.SetName(AZ::Name{shaderFileName});
             shaderAssetCreator.SetDrawListName(shaderSourceData.m_drawListName);
+            shaderAssetCreator.SetMultiviewLayers(shaderSourceData.m_multiviewLayers);
             shaderAssetCreator.SetShaderAssetBuildTimestamp(shaderAssetBuildTimestamp);
 
             // The ShaderOptionGroupLayout must be the same across all supervariants because

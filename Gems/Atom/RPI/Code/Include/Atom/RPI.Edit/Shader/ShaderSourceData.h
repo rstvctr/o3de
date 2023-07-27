@@ -86,6 +86,8 @@ namespace AZ
             //! List of RHI Backends (aka ShaderPlatformInterface) for which this shader should not be compiled.
             AZStd::vector<AZStd::string> m_disabledRhiBackends;
 
+            uint32_t m_multiviewLayers = 0;
+
             struct SupervariantInfo
             {
                 AZ_TYPE_INFO(AZ::RPI::ShaderSourceData::SupervariantInfo, "{1132CF2A-C8AB-4DD2-AA90-3021D49AB955}");

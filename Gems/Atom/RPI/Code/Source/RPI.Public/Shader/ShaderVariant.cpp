@@ -53,6 +53,7 @@ namespace AZ
                 descriptorForDraw.m_tessellationFunction = m_shaderVariantAsset->GetShaderStageFunction(RHI::ShaderStage::Tessellation);
                 descriptorForDraw.m_fragmentFunction = m_shaderVariantAsset->GetShaderStageFunction(RHI::ShaderStage::Fragment);
                 descriptorForDraw.m_renderStates = *m_renderStates;
+                descriptorForDraw.m_multiviewLayers = m_shaderAsset->GetMultiviewLayers();
                 break;
             }
 

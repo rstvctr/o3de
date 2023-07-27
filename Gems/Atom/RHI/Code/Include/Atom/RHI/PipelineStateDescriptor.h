@@ -120,6 +120,8 @@ namespace AZ
 
             /// Various render states for the pipeline.
             RenderStates m_renderStates;
+
+            uint32_t m_multiviewLayers = 0;
         };
 
         //! Describes state necessary to build a ray tracing pipeline state object. 

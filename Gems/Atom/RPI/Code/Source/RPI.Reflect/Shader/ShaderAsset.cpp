@@ -105,6 +105,7 @@ namespace AZ
                     ->Field("drawListName", &ShaderAsset::m_drawListName)
                     ->Field("shaderAssetBuildTimestamp", &ShaderAsset::m_buildTimestamp)
                     ->Field("perAPIShaderData", &ShaderAsset::m_perAPIShaderData)
+                    ->Field("multiviewLayers", &ShaderAsset::m_multiviewLayers)
                     ;
             }
         }

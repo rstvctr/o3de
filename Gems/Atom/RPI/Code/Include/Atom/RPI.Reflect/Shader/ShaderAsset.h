@@ -96,6 +96,8 @@ namespace AZ
             //! ShaderAsset.
             const Name& GetDrawListName() const;
 
+            uint32_t GetMultiviewLayers() const { return m_multiviewLayers; }
+
             //! Return the timestamp when the shader asset was built.
             //! This is used to synchronize versions of the ShaderAsset and ShaderVariantTreeAsset, especially during hot-reload.
             AZStd::sys_time_t GetBuildTimestamp() const;
@@ -300,6 +302,8 @@ namespace AZ
             AZStd::vector<ShaderApiDataContainer> m_perAPIShaderData;
 
             Name m_drawListName;
+
+            uint32_t m_multiviewLayers = 0;
 
             //! Use to synchronize versions of the ShaderAsset and ShaderVariantTreeAsset, especially during hot-reload.
             AZ::u64 m_buildTimestamp = 0; 

@@ -41,6 +41,14 @@ namespace AZ
                 m_asset->m_drawListName = name;
             }
         }
+    
+        void ShaderAssetCreator::SetMultiviewLayers(uint32_t val)
+        {
+            if (ValidateIsReady())
+            {
+                m_asset->m_multiviewLayers = val;
+            }
+        }
 
         void ShaderAssetCreator::SetShaderOptionGroupLayout(const Ptr<ShaderOptionGroupLayout>& shaderOptionGroupLayout)
         {
@@ -408,6 +416,7 @@ namespace AZ
             m_asset->m_name = sourceShaderAsset.m_name;
             m_asset->m_pipelineStateType = sourceShaderAsset.m_pipelineStateType;
             m_asset->m_drawListName = sourceShaderAsset.m_drawListName;
+            m_asset->m_multiviewLayers = sourceShaderAsset.m_multiviewLayers;
             m_asset->m_shaderOptionGroupLayout = sourceShaderAsset.m_shaderOptionGroupLayout;
             m_asset->m_buildTimestamp = sourceShaderAsset.m_buildTimestamp;
 

@@ -74,6 +74,7 @@ namespace AZ
             seed = TypeHash64(m_pipelineLayoutDescriptor->GetHash(), seed);
             seed = TypeHash64(m_inputStreamLayout.GetHash(), seed);
             seed = TypeHash64(m_renderAttachmentConfiguration.GetHash(), seed);
+            seed = TypeHash64(m_multiviewLayers, seed);
 
             seed = m_renderStates.GetHash(seed);
 

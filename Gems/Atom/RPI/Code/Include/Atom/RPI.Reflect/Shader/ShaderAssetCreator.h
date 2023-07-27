@@ -38,6 +38,8 @@ namespace AZ
             //! [Optional] Sets the DrawListTag name associated with this shader.
             void SetDrawListName(const Name& name);
 
+            void SetMultiviewLayers(uint32_t val);
+
             //! [Required] Assigns the layout used to construct and parse shader options packed into shader variant keys.
             //! Requires that the keys assigned to shader variants were constructed using the same layout.
             void SetShaderOptionGroupLayout(const Ptr<ShaderOptionGroupLayout>& shaderOptionGroupLayout);
