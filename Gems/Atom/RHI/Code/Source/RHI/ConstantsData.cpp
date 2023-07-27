@@ -168,6 +168,19 @@ namespace AZ
         }
 
         template <>
+        bool ConstantsData::SetConstantArray<Vector3>(ShaderInputConstantIndex inputIndex, AZStd::span<const Vector3> values)
+        {
+            const size_t elementSize = 4 * sizeof(float);
+            const size_t elementActualSize = 3 * sizeof(float);
+            const size_t sizeInBytes = (values.size() - 1) * elementSize + elementActualSize;
+            if (ValidateConstantAccess(inputIndex, ValidateConstantAccessExpect::Complete, 0, sizeInBytes))
+            {
+                return SetConstantRaw(inputIndex, &values, 0, sizeInBytes);
+            }
+            return false;
+        }
+
+        template <>
         bool ConstantsData::SetConstant<Matrix3x3>(ShaderInputConstantIndex inputIndex, const Matrix3x3& value)
         {
             // DirectX packing rules pack a float3x3 as such:
@@ -255,6 +268,19 @@ namespace AZ
                 value.StoreToFloat3(vectorValue);
 
                 return true;
+            }
+            return false;
+        }
+
+        template <>
+        bool ConstantsData::SetConstant<Vector3>(ShaderInputConstantIndex inputIndex, const Vector3& value, uint32_t arrayIndex)
+        {
+            const size_t elementSize = 4 * sizeof(float);
+            const size_t elementActualSize = 3 * sizeof(float);
+            const size_t offsetInBytes = arrayIndex * elementSize;
+            if (ValidateConstantAccess(inputIndex, ValidateConstantAccessExpect::LessThan, offsetInBytes, elementActualSize))
+            {
+                return SetConstantRaw(inputIndex, &value, offsetInBytes, elementActualSize);
             }
             return false;
         }

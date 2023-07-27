@@ -146,6 +146,9 @@ namespace AZ
         bool ConstantsData::SetConstant<Vector3>(ShaderInputConstantIndex inputIndex, const Vector3& value);
 
         template <>
+        bool ConstantsData::SetConstant<Vector3>(ShaderInputConstantIndex inputIndex, const Vector3& value, uint32_t arrayIndex);
+
+        template <>
         bool ConstantsData::SetConstant<Vector4>(ShaderInputConstantIndex inputIndex, const Vector4& value);
 
         template <>
@@ -153,6 +156,9 @@ namespace AZ
 
         template <>
         bool ConstantsData::SetConstantArray<bool>(ShaderInputConstantIndex inputIndex, AZStd::span<const bool> values);
+
+        template <>
+        bool ConstantsData::SetConstantArray<Vector3>(ShaderInputConstantIndex inputIndex, AZStd::span<const Vector3> values);
 
         template <>
         bool ConstantsData::GetConstant<bool>(ShaderInputConstantIndex inputIndex) const;
