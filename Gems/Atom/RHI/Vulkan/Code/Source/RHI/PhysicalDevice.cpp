@@ -316,6 +316,8 @@ namespace AZ
                 VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
                 VK_EXT_FRAGMENT_DENSITY_MAP_EXTENSION_NAME,
                 VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+
+                VK_KHR_MULTIVIEW_EXTENSION_NAME,
             } };
 
             [[maybe_unused]] uint32_t optionalExtensionCount = aznumeric_cast<uint32_t>(optionalExtensions.size());

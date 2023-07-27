@@ -101,6 +101,9 @@ namespace AZ
             imageDescriptor.m_size.m_width = m_descriptor.m_dimensions.m_imageWidth;
             imageDescriptor.m_size.m_height = m_descriptor.m_dimensions.m_imageHeight;
             imageDescriptor.m_format = m_descriptor.m_dimensions.m_imageFormat;
+            if (m_xrSystem) {
+                imageDescriptor.m_arraySize = static_cast<uint16_t>(m_xrSystem->GetMultiviewLayers());
+            }
 
             for (uint32_t imageIdx = 0; imageIdx < m_descriptor.m_dimensions.m_imageCount; ++imageIdx)
             {

@@ -80,6 +80,19 @@ namespace OpenXRVk
         deviceInfo.enabledExtensionCount = aznumeric_cast<AZ::u32>(extensions.size());
         deviceInfo.ppEnabledExtensionNames = extensions.empty() ? nullptr : extensions.data();
 
+        // TODO: if (multiviewExtSupported)
+        VkBaseOutStructure* endOfChain = reinterpret_cast<VkBaseOutStructure*>(&deviceInfo);
+        while (endOfChain->pNext)
+        {
+            endOfChain = endOfChain->pNext;
+        }
+
+        VkPhysicalDeviceMultiviewFeatures physicalDeviceMultiviewFeatures{
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES
+        };
+        physicalDeviceMultiviewFeatures.multiview = VK_TRUE; 
+        endOfChain->pNext = reinterpret_cast<VkBaseOutStructure*>(&physicalDeviceMultiviewFeatures);
+
         //Create VkDevice
         auto pfnCreateDevice = (PFN_vkCreateDevice)xrDeviceCreateInfo.pfnGetInstanceProcAddr(xrVkInstance->GetNativeInstance(), "vkCreateDevice");
         VkResult vulkanResult = pfnCreateDevice(xrDeviceCreateInfo.vulkanPhysicalDevice, &deviceInfo, xrDeviceCreateInfo.vulkanAllocator, &m_xrVkDevice);
@@ -144,7 +157,7 @@ namespace OpenXRVk
         Space* xrSpace = static_cast<Space*>(GetSession()->GetSpace());
         XrSession xrSession = session->GetXrSession();
 
-        for(uint32_t i = 0; i < swapChain->GetNumViews(); i++)
+        for(uint32_t i = 0; i < swapChain->GetNumSwapchains(); i++)
         { 
             XR::SwapChain::View* baseSwapChainView = baseSwapChain->GetView(i);
             SwapChain::View* viewSwapChain = static_cast<SwapChain::View*>(baseSwapChainView);
@@ -239,6 +252,16 @@ namespace OpenXRVk
         m_projectionLayerViews[viewIndex].subImage.imageRect.offset = { 0, 0 };
         m_projectionLayerViews[viewIndex].subImage.imageRect.extent = { static_cast<int>(swapChainView->GetWidth()),
                                                                         static_cast<int>(swapChainView->GetHeight()) };
+        m_projectionLayerViews[viewIndex].subImage.imageArrayIndex = 0;
+
+        AZ_Assert(viewIndex == 0 || !(GetMultiviewLayers() > 1), "viewIndex must be zero if multiview is in use");
+
+        for (uint32_t i = 1; i < GetMultiviewLayers(); i++)
+        {
+            m_projectionLayerViews[i].subImage = m_projectionLayerViews[0].subImage;
+            m_projectionLayerViews[i].subImage.imageArrayIndex = i;
+        }
+
         return true;
     }
 

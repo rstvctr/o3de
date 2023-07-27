@@ -56,6 +56,8 @@ namespace OpenXRVk
         // XR::Device overrides
         //! Clean native objects.
         void ShutdownInternal() override;
+        //! Throttle rendering to the correct rate and get initial information to run the simulation
+        void WaitFrameInternal() override;
         //! Inform the drivers that the frame is beginning
         bool BeginFrameInternal() override;
         //! Release the oldest swapchain image and inform the drivers that the frame is ending 
@@ -64,7 +66,13 @@ namespace OpenXRVk
         void PostFrameInternal() override;
         //! Locate views, acquire swapchain image and synchronize gpu with cpu
         bool AcquireSwapChainImageInternal(AZ::u32 viewIndex, XR::SwapChain* baseSwapChain) override;
+        //! Get whether or not multiview is supported
+        bool IsMultiviewSupportedInternal() const override { return true; /* TODO actually check for support */}
+        uint32_t GetMultiviewLayersInternal() const override { return m_multiviewLayers; }
+        void SetMultiviewLayersInternal(uint32_t val) override { m_multiviewLayers = val; }
         //////////////////////////////////////////////////////////////////////////
+
+        bool UpdatePredictedViewPoses(XrSession xrSession);
 
         VkDevice m_xrVkDevice = VK_NULL_HANDLE;
         XrFrameState m_frameState{ XR_TYPE_FRAME_STATE };
@@ -74,5 +82,6 @@ namespace OpenXRVk
         AZStd::vector<XrView> m_views;
         uint32_t m_viewCountOutput = 0;
         GladVulkanContext m_context = {};
+        uint32_t m_multiviewLayers = 1;
     };
 }

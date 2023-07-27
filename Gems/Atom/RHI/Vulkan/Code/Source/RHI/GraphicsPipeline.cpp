@@ -33,6 +33,7 @@ namespace AZ
             const RHI::RenderAttachmentLayout& renderAttachmentLayout = drawDescriptor->m_renderAttachmentConfiguration.m_renderAttachmentLayout;            
             auto renderpassDescriptor = RenderPass::ConvertRenderAttachmentLayout(
                 *descriptor.m_device, renderAttachmentLayout, drawDescriptor->m_renderStates.m_multisampleState);            
+            renderpassDescriptor.m_multiviewCount = drawDescriptor->m_multiviewLayers;
             m_renderPass = descriptor.m_device->AcquireRenderPass(renderpassDescriptor);
 
             return BuildNativePipeline(descriptor, pipelineLayout);

@@ -101,6 +101,7 @@ namespace AZ
                 AZStd::array<SubpassDescriptor, RHI::Limits::Pipeline::SubpassCountMax> m_subpassDescriptors;
                 //! Dependencies of the resources between the subpasses.
                 AZStd::vector<VkSubpassDependency> m_subpassDependencies;
+                uint32_t m_multiviewCount = 0;
             };
 
             RHI::ResultCode Init(const Descriptor& descriptor);

@@ -97,6 +97,28 @@ namespace AZ
                     createInfo.dependencyCount = static_cast<uint32_t>(subpassDependencies.size());
                     createInfo.pDependencies = subpassDependencies.empty() ? nullptr : subpassDependencies.data();
 
+                    uint32_t correlationMask = ~(0xffffffff << descriptor.m_multiviewCount);
+                    uint32_t viewMask = ~(0xffffffff << descriptor.m_multiviewCount);
+                    VkRenderPassMultiviewCreateInfo mvCreateInfo{VK_STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO};
+
+                    if (descriptor.m_multiviewCount > 1)
+                    {
+                        if constexpr (VkRenderPassCreateInfoTraits::struct_type == VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO) 
+                        {
+                            mvCreateInfo.subpassCount = descriptor.m_subpassCount;
+                            mvCreateInfo.pViewMasks = &viewMask;
+                            mvCreateInfo.pCorrelationMasks = &correlationMask;
+                            mvCreateInfo.correlationMaskCount = 1;
+
+                            createInfo.pNext = &mvCreateInfo;
+                        }
+                        else
+                        {
+                            createInfo.correlatedViewMaskCount = 1;
+                            createInfo.pCorrelatedViewMasks = &correlationMask;
+                        }
+                    }
+
                     // Fragment shade attachments are declared at a renderpass level (same for all subpasses), so we need to
                     // check if we have one as part of the renderpass declaration. We check if the first subpass contains the shading rate attachment,
                     // and use that one for the whole renderpass. If more than one is found, we raise an assert because
@@ -282,6 +304,12 @@ namespace AZ
                         desc.preserveAttachmentCount = static_cast<uint32_t>(preserveAttachmentList.size());
                         desc.pPreserveAttachments = preserveAttachmentList.empty() ? nullptr : preserveAttachmentList.data();
 
+                        if constexpr (VkSubpassDescriptionTraits::struct_type == VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2)
+                        {
+                            if (m_descriptor->m_multiviewCount > 1)
+                                desc.viewMask = ~(0xffffffff << m_descriptor->m_multiviewCount);
+                        }
+
                         // Shading rate attachments are declared at subpass level.
                         // Check if the subpass has a shading rate attachemnt and st the proper information.
                         if (!shadingRateAttachmentRefList.empty() &&
@@ -424,6 +452,7 @@ namespace AZ
             AZStd::hash_combine(hash, attachmentsHash);
             AZStd::hash_combine(hash, subpassHash);
             AZStd::hash_combine(hash, subpassDependenciesHash);
+            AZStd::hash_combine(hash, m_multiviewCount);
             return hash;
         }
 

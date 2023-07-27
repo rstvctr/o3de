@@ -205,7 +205,7 @@ namespace AZ
             XRRenderingInterface* xrSystem = RPISystemInterface::Get()->GetXRSystem();
             if (xrSystem)
             {
-                const AZ::u32 numXrViews = xrSystem->GetNumViews();
+                const AZ::u32 numXrViews = xrSystem->GetRHIXRRenderingInterface()->IsMultiviewSupported() ? 1 : xrSystem->GetNumViews();
                 AZ_Assert(numXrViews <= 2, "Atom only supports two XR views");
                 for (AZ::u32 i = 0; i < numXrViews; i++)
                 {

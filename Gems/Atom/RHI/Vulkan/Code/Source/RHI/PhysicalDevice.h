@@ -61,6 +61,7 @@ namespace AZ
             FragmentShadingRate,
             FragmentDensityMap,
             Renderpass2,
+            Multiview,
             Count
         };
 

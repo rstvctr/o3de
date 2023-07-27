@@ -79,6 +79,15 @@ namespace XR
         //! Get the xr session registered with the device
         Ptr<Session> GetSession() const;
 
+        //! Get whether or not multiview is supported
+        virtual bool IsMultiviewSupported() const { return IsMultiviewSupportedInternal(); }
+
+        //! Get number of multiview layers
+        virtual uint32_t GetMultiviewLayers() const { return GetMultiviewLayersInternal(); }
+
+        //! Set number of multiview layers
+        virtual void SetMultiviewLayers(uint32_t val) { return SetMultiviewLayersInternal(val); }
+
     protected:
         //! Called when the device is being shutdown.
         virtual void ShutdownInternal() = 0;
@@ -99,6 +108,9 @@ namespace XR
         //! Called when the device is beginning a frame for processing.
         virtual bool AcquireSwapChainImageInternal(AZ::u32 viewIndex, XR::SwapChain* baseSwapChain) = 0;
 
+        virtual bool IsMultiviewSupportedInternal() const = 0;
+        virtual uint32_t GetMultiviewLayersInternal() const = 0;
+        virtual void SetMultiviewLayersInternal(uint32_t val) = 0;
     private:
         ///////////////////////////////////////////////////////////////////
         // XR::Object

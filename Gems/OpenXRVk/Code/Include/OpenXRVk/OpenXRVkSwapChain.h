@@ -60,7 +60,6 @@ namespace OpenXRVk
             AZ::u32 GetCurrentImageIndex() const override;
 
             //! Native swapChain image data
-            AZStd::vector<XrSwapchainImageBaseHeader*> m_swapChainImageHeaders;
             AZStd::vector<XrSwapchainImageVulkan2KHR> m_swapchainImages;
         private:
             XrSwapchain m_handle = XR_NULL_HANDLE;

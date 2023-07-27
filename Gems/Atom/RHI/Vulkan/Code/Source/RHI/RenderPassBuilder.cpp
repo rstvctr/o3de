@@ -48,6 +48,8 @@ namespace AZ
                     loadStoreAction.m_storeActionStencil : attachmentLoadStoreAction.m_storeActionStencil;
             };
 
+            m_renderpassDesc.m_multiviewCount = scope.GetMultiviewLayers();
+
             // Add a new subpass
 
             const uint32_t subpassIndex = m_renderpassDesc.m_subpassCount++;

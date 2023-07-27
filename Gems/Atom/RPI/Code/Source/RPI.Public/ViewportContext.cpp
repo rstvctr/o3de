@@ -165,10 +165,18 @@ namespace AZ
                 }
 
                 // Render XR pipelines
-                for (AZ::u32 i = 0; i < xrSystem->GetNumViews(); i++)
+                if (xrSystem->GetRHIXRRenderingInterface()->IsMultiviewSupported())
                 {
-                    const AZ::RPI::ViewType viewType = (i == 0) ? AZ::RPI::ViewType::XrLeft : AZ::RPI::ViewType::XrRight;
-                    renderPipelineOnce(m_currentPipelines[static_cast<size_t>(viewType)]);
+                    // The "left eye" pipeline does all the work for multiview
+                    renderPipelineOnce(m_currentPipelines[static_cast<size_t>(AZ::RPI::ViewType::XrLeft)]);
+                }
+                else
+                {
+                    for (AZ::u32 i = 0; i < xrSystem->GetNumViews(); i++)
+                    {
+                        const AZ::RPI::ViewType viewType = (i == 0) ? AZ::RPI::ViewType::XrLeft : AZ::RPI::ViewType::XrRight;
+                        renderPipelineOnce(m_currentPipelines[static_cast<size_t>(viewType)]);
+                    }
                 }
             }
             else

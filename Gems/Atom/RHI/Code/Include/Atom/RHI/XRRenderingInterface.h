@@ -143,5 +143,11 @@ namespace AZ::RHI
         //! on the requested level of foveted rendering. The image must have the proper format and size for using
         //! as a shading rate attachment.
         virtual AZ::RHI::ResultCode InitVariableRateShadingImageContent(AZ::RHI::Image* image, XRFoveatedLevel level) const = 0;
+
+        //! Returns whether or not multiview is supported
+        virtual bool IsMultiviewSupported() const = 0;
+
+        //! Returns the number of layers used by multiview
+        virtual uint32_t GetMultiviewLayers() const = 0;
     };
 }

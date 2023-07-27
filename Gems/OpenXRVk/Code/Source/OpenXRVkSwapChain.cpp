@@ -168,18 +168,25 @@ namespace OpenXRVk
                     "/O3DE/Atom/OpenXR", "ViewResolutionScale");
             }
 
+            uint32_t numSwapchains = m_numViews;
+            if (xrDevice->IsMultiviewSupported())
+            {
+                AZ_Info("OpenXRVkSwapChain", "Multiview is supported, setting numViews to 1 and multiviewLayers to %u", m_numViews);
+                xrDevice->SetMultiviewLayers(m_numViews);
+                numSwapchains = 1; 
+            }
             // Create a swapchain for each view.
-            for (uint32_t i = 0; i < m_numViews; i++)
+            for (uint32_t i = 0; i < numSwapchains; i++)
             {
                 XrViewConfigurationView& configView = m_configViews[i];
 
                 configView.recommendedImageRectWidth = static_cast<uint32_t>(static_cast<double>(configView.recommendedImageRectWidth) * xrViewResolutionScale);
                 configView.recommendedImageRectHeight = static_cast<uint32_t>(static_cast<double>(configView.recommendedImageRectHeight) * xrViewResolutionScale);
 
-                if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+                if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
                 {
                     AZ_Printf("OpenXRVk",
-                          "Creating swapchain for view %d with dimensions Width=%d Height=%d SampleCount=%d\n", i,
+                          "Creating swapchain for views with dimensions Width=%d Height=%d SampleCount=%d\n",
                         configView.recommendedImageRectWidth, configView.recommendedImageRectHeight, configView.recommendedSwapchainSampleCount);
                 }
 
@@ -189,7 +196,7 @@ namespace OpenXRVk
                 {
                     // Create the xr swapchain.
                     XrSwapchainCreateInfo swapchainCreateInfo{ XR_TYPE_SWAPCHAIN_CREATE_INFO };
-                    swapchainCreateInfo.arraySize = m_arraySize;
+                    swapchainCreateInfo.arraySize = xrDevice->GetMultiviewLayers();
                     swapchainCreateInfo.format = static_cast<int64_t>(m_colorSwapChainFormat);
                     swapchainCreateInfo.width = configView.recommendedImageRectWidth;
                     swapchainCreateInfo.height = configView.recommendedImageRectHeight;
@@ -212,15 +219,13 @@ namespace OpenXRVk
                 result = xrEnumerateSwapchainImages(viewSwapChain->GetSwapChainHandle(), 0, &viewSwapChain->m_numImages, nullptr);
                 WARN_IF_UNSUCCESSFUL(result);
 
-                viewSwapChain->m_swapChainImageHeaders.resize(viewSwapChain->m_numImages);
                 viewSwapChain->m_swapchainImages.resize(viewSwapChain->m_numImages);
                 for (AZ::u32 j = 0; j < viewSwapChain->m_numImages; ++j)
                 {
                     viewSwapChain->m_swapchainImages[j] = { XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR };
-                    viewSwapChain->m_swapChainImageHeaders[j] = reinterpret_cast<XrSwapchainImageBaseHeader*>(&viewSwapChain->m_swapchainImages[j]);
                 }
 
-                result = xrEnumerateSwapchainImages(viewSwapChain->GetSwapChainHandle(), viewSwapChain->m_numImages, &viewSwapChain->m_numImages, viewSwapChain->m_swapChainImageHeaders[0]);
+                result = xrEnumerateSwapchainImages(viewSwapChain->GetSwapChainHandle(), viewSwapChain->m_numImages, &viewSwapChain->m_numImages, reinterpret_cast<XrSwapchainImageBaseHeader*>(viewSwapChain->m_swapchainImages.data()));
                 WARN_IF_UNSUCCESSFUL(result);
                 for (uint32_t j = 0; j < viewSwapChain->m_numImages; ++j)
                 {

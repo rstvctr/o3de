@@ -96,6 +96,8 @@ namespace XR
         //! Get the number of Xr views
         AZ::u32 GetNumViews() const;
 
+        AZ::u32 GetNumSwapchains() const { return static_cast<AZ::u32>(m_viewSwapchains.size()); }
+
         //! Api to allow the back end object to return the requested native swapchain image
         virtual AZ::RHI::ResultCode GetSwapChainImage(AZ::RHI::XRSwapChainDescriptor* swapchainDescriptor) const = 0;
 
