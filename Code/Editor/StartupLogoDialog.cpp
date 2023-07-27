@@ -94,9 +94,9 @@ void CStartupLogoDialog::SetText(const char* text)
     }
 }
 
-void CStartupLogoDialog::SetInfoText(const char* text)
+void CStartupLogoDialog::SetInfoText([[maybe_unused]] const char* text)
 {
-    m_ui->m_TransparentText->setText(text);
+    //m_ui->m_TransparentText->setText(text);
 
     if (QThread::currentThread() == thread())
     {
