@@ -284,7 +284,7 @@ namespace OpenXRVk
     
     AZ::RHI::ResultCode Session::GetViewLocalPose(AZ::RPI::PoseData& outPoseData) const
     {
-        return GetNativeInput()->GetVisualizedSpacePose(OpenXRVk::SpaceType::Local, outPoseData);
+        return GetNativeInput()->GetVisualizedSpacePose(OpenXRVk::SpaceType::View, outPoseData);
     }
 
     float Session::GetControllerScale(AZ::u32 handIndex) const

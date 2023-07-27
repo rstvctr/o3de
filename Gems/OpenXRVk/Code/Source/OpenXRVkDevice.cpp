@@ -220,7 +220,7 @@ namespace OpenXRVk
             }
         }
 
-        m_xrLayer.space = xrSpace->GetXrSpace(OpenXRVk::SpaceType::View);
+        m_xrLayer.space = xrSpace->GetXrSpace(OpenXRVk::SpaceType::Stage);
         m_xrLayer.viewCount = aznumeric_cast<uint32_t>(m_projectionLayerViews.size());
         m_xrLayer.views = m_projectionLayerViews.data();
 
@@ -345,15 +345,8 @@ namespace OpenXRVk
     { 
         if (viewIndex < m_projectionLayerViews.size())
         {
-            const XrQuaternionf& orientation = m_projectionLayerViews[viewIndex].pose.orientation;
-            const XrVector3f& position = m_projectionLayerViews[viewIndex].pose.position;
-            outPoseData.m_orientation.Set(orientation.x,
-                                          orientation.y, 
-                                          orientation.z, 
-                                          orientation.w);
-            outPoseData.m_position.Set(position.x,
-                                       position.y, 
-                                       position.z);
+            outPoseData.m_orientation = ConvertToAzQuaternion(m_projectionLayerViews[viewIndex].pose.orientation);
+            outPoseData.m_position = ConvertToAzVector3(m_projectionLayerViews[viewIndex].pose.position);
             return AZ::RHI::ResultCode::Success;
         }
         return AZ::RHI::ResultCode::Fail;
