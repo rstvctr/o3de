@@ -54,7 +54,7 @@ namespace OpenXRVk
             extensions.push_back(xrDeviceCreateInfo.vulkanCreateInfo->ppEnabledExtensionNames[i]);
         }
 
-        if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Printf("OpenXRVk", "Vulkan device extensions to enable: (%i)\n", extensions.size());
             for (const AZStd::string& extension : extensions)

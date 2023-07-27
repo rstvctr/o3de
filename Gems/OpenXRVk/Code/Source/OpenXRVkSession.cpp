@@ -59,7 +59,7 @@ namespace OpenXRVk
 
     void Session::LogReferenceSpaces()
     {
-        if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Warning("OpenXrVK", m_session != XR_NULL_HANDLE, "Session is not initialized");
 
@@ -88,7 +88,7 @@ namespace OpenXRVk
         const XrSessionState oldState = m_sessionState;
         m_sessionState = stateChangedEvent.state;
 
-        if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Printf(
                 "OpenXRVk",
@@ -153,7 +153,7 @@ namespace OpenXRVk
             if (baseHeader->type == XR_TYPE_EVENT_DATA_EVENTS_LOST)
             {
                 [[maybe_unused]] const XrEventDataEventsLost* const eventsLost = reinterpret_cast<const XrEventDataEventsLost*>(baseHeader);
-                if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+                if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
                 {
                     AZ_Printf("OpenXrVK", "%d events lost\n", eventsLost->lostEventCount);
                 }
@@ -179,7 +179,7 @@ namespace OpenXRVk
             {
                 case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
                 {
-                    if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+                    if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
                     {
                         [[maybe_unused]] const auto& instanceLossPending = *reinterpret_cast<const XrEventDataInstanceLossPending*>(event);
                         AZ_Printf("OpenXRVk", "XrEventDataInstanceLossPending by %lld\n", instanceLossPending.lossTime);
@@ -196,7 +196,7 @@ namespace OpenXRVk
                 }
                 case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
                 {
-                    if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+                    if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
                     {
                         Input* xrVkInput = GetNativeInput();
                         LogActionSourceName(xrVkInput->GetSqueezeAction(static_cast<AZ::u32>(XR::Side::Left)), "Squeeze Left");
@@ -212,7 +212,7 @@ namespace OpenXRVk
                     [[fallthrough]];
                 default:
                 {
-                    if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+                    if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
                     {
                         AZ_Printf("OpenXRVk", "Ignoring event type %d\n", event->type);
                     }
@@ -224,6 +224,9 @@ namespace OpenXRVk
 
     void Session::LogActionSourceName(XrAction action, const AZStd::string_view actionName) const
     {
+        if (!action)
+            return;
+
         XrBoundSourcesForActionEnumerateInfo getInfo = { XR_TYPE_BOUND_SOURCES_FOR_ACTION_ENUMERATE_INFO };
         getInfo.action = action;
         uint32_t pathCount = 0;

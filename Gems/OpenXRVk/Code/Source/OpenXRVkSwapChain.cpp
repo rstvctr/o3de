@@ -96,7 +96,7 @@ namespace OpenXRVk
         XrResult result = xrGetSystemProperties(xrInstance, xrSystemId, &systemProperties);
         WARN_IF_UNSUCCESSFUL(result);
 
-        if(GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if(GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             // Log system properties.
             AZ_Printf("OpenXRVk", "System Properties: Name=%s VendorId=%d\n", systemProperties.systemName, systemProperties.vendorId);
@@ -140,7 +140,7 @@ namespace OpenXRVk
             m_colorSwapChainFormat = SelectColorSwapChainFormat(swapChainFormats);
 
             // Print swapchain formats and the selected one.
-            if (GetDescriptor().m_validationMode == AZ::RHI::ValidationMode::Enabled)
+            if (GetDescriptor().m_validationMode != AZ::RHI::ValidationMode::Disabled)
             {
                 AZStd::string swapchainFormatsString;
                 for (int64_t format : swapChainFormats)

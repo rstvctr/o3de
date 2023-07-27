@@ -102,7 +102,7 @@ namespace OpenXRVk
         XR::RawStringList supportedExtensions = FilterList(optionalExtensions, instanceExtensions);
         m_requiredExtensions.insert(m_requiredExtensions.end(), supportedExtensions.begin(), supportedExtensions.end());
 
-        if (m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Printf("OpenXRVk", "Available Extensions: (%i)\n", instanceExtensions.size());
             for (const AZStd::string& extension : instanceExtensions)
@@ -142,7 +142,7 @@ namespace OpenXRVk
             return AZ::RHI::ResultCode::Fail;
         }
 
-        if (m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             XrInstanceProperties instanceProperties{ XR_TYPE_INSTANCE_PROPERTIES };
             result = xrGetInstanceProperties(m_xrInstance, &instanceProperties);
@@ -190,7 +190,7 @@ namespace OpenXRVk
         graphicsRequirements.maxApiVersionSupported = legacyRequirements.maxApiVersionSupported;
         graphicsRequirements.minApiVersionSupported = legacyRequirements.minApiVersionSupported;
 
-        if (m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Printf("OpenXRVk", "graphicsRequirements.maxApiVersionSupported %d.%d.%d\n",
             XR_VERSION_MAJOR(graphicsRequirements.maxApiVersionSupported),
@@ -324,7 +324,7 @@ namespace OpenXRVk
             extensions.push_back(createInfo.vulkanCreateInfo->ppEnabledExtensionNames[i]);
         }
 
-        if (m_validationMode == AZ::RHI::ValidationMode::Enabled)
+        if (m_validationMode != AZ::RHI::ValidationMode::Disabled)
         {
             AZ_Printf("OpenXRVk", "Vulkan instance extensions to enable: (%i)\n", extensions.size());
             for (const AZStd::string& extension : extensions)
