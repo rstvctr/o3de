@@ -25,12 +25,13 @@ namespace AZ
             return m_isActive;
         }
 
-        void Scope::Init(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass)
+        void Scope::Init(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass, uint32_t multiviewLayers)
         {
             AZ_Assert(!scopeId.IsEmpty(), "Scope id is not valid.");
             AZ_Assert(IsInitialized() == false, "Scope was previously initialized.");
             SetName(scopeId);
             m_id = scopeId;
+            m_multiviewLayers = multiviewLayers;
 
             if (Validation::IsEnabled())
             {

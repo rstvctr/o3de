@@ -31,6 +31,8 @@ namespace AZ
             RHI::ShaderDataMappings m_mappings;
 
             Name m_pipelineViewTag;
+
+            uint32_t m_multiviewLayers = 1;
         };
     } // namespace RPI
 } // namespace AZ

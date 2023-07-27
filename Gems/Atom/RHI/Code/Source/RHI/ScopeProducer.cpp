@@ -51,7 +51,7 @@ namespace AZ
             InitScope(scopeId);
         }
 
-        void ScopeProducer::InitScope(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass)
+        void ScopeProducer::InitScope(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass, uint32_t multiviewLayers)
         {
             m_scopeId = scopeId;
             
@@ -60,7 +60,7 @@ namespace AZ
                 m_scope->Shutdown();
             }
             
-            m_scope->Init(scopeId, hardwareQueueClass);
+            m_scope->Init(scopeId, hardwareQueueClass, multiviewLayers);
         }
     }
 }

@@ -107,6 +107,9 @@ namespace AZ
             // If the View bound to the tag exists,the view's srg will be collected to pass' srg bind list
             void SetPipelineViewTag(const PipelineViewTag& viewTag);
 
+            // Set the number of layers for multiview rendering
+            void SetMultiviewLayers(uint32_t multiviewLayers);
+
             // Add the ScopeQuery's QueryPool to the FrameGraph
             void AddScopeQueryToFrameGraph(RHI::FrameGraphInterface frameGraph);
 
@@ -157,6 +160,9 @@ namespace AZ
             
             // View tag used to associate a pipeline view for this pass.
             PipelineViewTag m_viewTag;
+
+            // Number of layers for multiview rendering
+            uint32_t m_multiviewLayers = 0;
         };
     }   // namespace RPI
 }   // namespace AZ

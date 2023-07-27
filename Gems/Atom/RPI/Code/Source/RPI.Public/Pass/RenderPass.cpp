@@ -39,6 +39,10 @@ namespace AZ
             {
                 SetPipelineViewTag(passData->m_pipelineViewTag);
             }
+            if (passData)
+            {
+                SetMultiviewLayers(passData->m_multiviewLayers);
+            }
         }
 
         RenderPass::~RenderPass()
@@ -190,7 +194,7 @@ namespace AZ
         {
             if (GetScopeId().IsEmpty())
             {
-                InitScope(RHI::ScopeId(GetPathName()), m_hardwareQueueClass);
+                InitScope(RHI::ScopeId(GetPathName()), m_hardwareQueueClass, m_multiviewLayers);
             }
 
             params.m_frameGraphBuilder->ImportScopeProducer(*this);
@@ -436,6 +440,18 @@ namespace AZ
                 if (m_pipeline)
                 {
                     m_pipeline->MarkPipelinePassChanges(PipelinePassChanges::PipelineViewTagChanged);
+                }
+            }
+        }
+
+        void RenderPass::SetMultiviewLayers(uint32_t multiviewLayers)
+        {
+            if (m_multiviewLayers != multiviewLayers)
+            {
+                m_multiviewLayers = multiviewLayers;
+                if (m_pipeline)
+                {
+                    m_pipeline->MarkPipelinePassChanges(PipelinePassChanges::MultiviewLayersChanged);
                 }
             }
         }

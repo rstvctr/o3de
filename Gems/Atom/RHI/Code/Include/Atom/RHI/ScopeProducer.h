@@ -100,7 +100,7 @@ namespace AZ
              *  Initializes the scope with a ScopeId and HardwareQueueClass. 
              *  Used by classes that inherit from ScopeProducer but can't supply a ScopeId at construction.
              */
-            void InitScope(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass = HardwareQueueClass::Graphics);
+            void InitScope(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass = HardwareQueueClass::Graphics, uint32_t multiviewLayers = 0);
 
         private:
             //////////////////////////////////////////////////////////////////////////

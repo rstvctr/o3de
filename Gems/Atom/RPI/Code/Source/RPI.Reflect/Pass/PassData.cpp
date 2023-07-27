@@ -53,6 +53,7 @@ namespace AZ
                 serializeContext->Class<RenderPassData, PassData>()
                     ->Version(1)
                     ->Field("PipelineViewTag", &RenderPassData::m_pipelineViewTag)
+                    ->Field("MultiviewLayers", &RenderPassData::m_multiviewLayers)
                     ->Field("ShaderDataMappings", &RenderPassData::m_mappings);
             }
         }

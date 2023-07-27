@@ -126,7 +126,7 @@ namespace AZ
             const AZStd::vector<Ptr<Fence>>& GetFencesToSignal() const;
 
             /// Initializes the scope.
-            void Init(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass = HardwareQueueClass::Graphics);
+            void Init(const ScopeId& scopeId, HardwareQueueClass hardwareQueueClass = HardwareQueueClass::Graphics, uint32_t multiviewLayers = 0);
 
             /// Activates the scope for the current frame.
             void Activate(const FrameGraph* frameGraph, uint32_t index, const GraphGroupId& groupId);
@@ -161,6 +161,9 @@ namespace AZ
 
             /// Adds a fence that will be signaled at the end of the scope.
             void AddFenceToSignal(Ptr<Fence> fence);
+
+            /// Get the number of layers for multiview rendering
+            uint32_t GetMultiviewLayers() const { return m_multiviewLayers; }
 
         protected:
             /// Called when the scope will use a query pool during it's execution. Some platforms need this information.
@@ -220,6 +223,9 @@ namespace AZ
 
             /// Tracks whether the scope is active, which happens once per frame.
             bool m_isActive = false;
+
+            /// Number of layers for multiview rendering
+            uint32_t m_multiviewLayers = 0;
 
             /// The cross-queue producers / consumers, indexed by hardware queue.
             AZStd::array<Scope*, HardwareQueueClassCount> m_producersByQueueLast = {{nullptr}};

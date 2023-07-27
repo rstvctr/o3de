@@ -24,6 +24,7 @@ namespace AZ::RPI
         PassAssetHotReloaded                = 1 << 3,
         PipelineChangedByFeatureProcessor   = 1 << 4,
         PipelineViewTagChanged              = 1 << 5,
+        MultiviewLayersChanged              = 1 << 6,
 
     };
 
