@@ -406,7 +406,7 @@ namespace AZ
                         ComponentApplicationBus::Broadcast(&AZ::ComponentApplicationBus::Events::QueryApplicationType, appType);
                         if (appType.IsGame())
                         {
-                            pipelineName = "passes/MultiViewRenderPipeline.azasset";
+                            pipelineName = "passes/VRMirrorRenderPipeline.azasset";
                         }
                     }
 
@@ -446,18 +446,29 @@ namespace AZ
                 // Load XR pipelines if applicable
                 if (xrSystem)
                 {
-                    for (AZ::u32 i = 0; i < xrSystem->GetNumViews(); i++)
+                    if (xrSystem->GetRHIXRRenderingInterface()->IsMultiviewSupported())
                     {
-                        const AZ::RPI::ViewType viewType = (i == 0)
-                            ? AZ::RPI::ViewType::XrLeft
-                            : AZ::RPI::ViewType::XrRight;
-                        const AZStd::string_view xrPipelineAssetName = (viewType == AZ::RPI::ViewType::XrLeft)
-                            ? "passes/XRLeftRenderPipeline.azasset"
-                            : "passes/XRRightRenderPipeline.azasset";
-
-                        if (!LoadPipeline(scene, viewportContext, xrPipelineAssetName, viewType, multisampleState))
+                        const AZStd::string_view xrPipelineAssetName = "passes/MultiViewRenderPipeline.azasset";
+                        if (!LoadPipeline(scene, viewportContext, xrPipelineAssetName, AZ::RPI::ViewType::XrLeft, multisampleState))
                         {
                             return false;
+                        }
+                    }
+                    else
+                    {
+                        for (AZ::u32 i = 0; i < xrSystem->GetNumViews(); i++)
+                        {
+                            const AZ::RPI::ViewType viewType = (i == 0)
+                                ? AZ::RPI::ViewType::XrLeft
+                                : AZ::RPI::ViewType::XrRight;
+                            const AZStd::string_view xrPipelineAssetName = (viewType == AZ::RPI::ViewType::XrLeft)
+                                ? "passes/XRLeftRenderPipeline.azasset"
+                                : "passes/XRRightRenderPipeline.azasset";
+
+                            if (!LoadPipeline(scene, viewportContext, xrPipelineAssetName, viewType, multisampleState))
+                            {
+                                return false;
+                            }
                         }
                     }
                 }
