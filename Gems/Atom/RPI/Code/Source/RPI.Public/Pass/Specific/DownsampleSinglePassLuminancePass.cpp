@@ -63,12 +63,6 @@ namespace AZ::RPI
         }
         ShaderResourceGroup& srg = *m_shaderResourceGroup;
 
-        static constexpr uint32_t ThreadGroupSizeX = 256;
-        static constexpr uint32_t ArraySliceCount = 1;
-        SetTargetThreadCounts(m_targetThreadCountWidth * ThreadGroupSizeX,
-            m_targetThreadCountHeight,
-            ArraySliceCount);
-
         // Input/Output Mip Slices
         PassAttachmentBinding& outBinding = GetOutputBinding(0);
         PassAttachment* attachment = outBinding.GetAttachment().get();
@@ -76,6 +70,13 @@ namespace AZ::RPI
         {
             return;
         }
+
+        static constexpr uint32_t ThreadGroupSizeX = 256;
+        SetTargetThreadCounts(m_targetThreadCountWidth * ThreadGroupSizeX,
+            m_targetThreadCountHeight,
+            attachment->m_descriptor.m_image.m_arraySize);
+
+
         const uint32_t mipLevelCount = attachment->m_descriptor.m_image.m_mipLevels;
         RHI::AttachmentId attachmentId = attachment->GetAttachmentId();
         const RHI::Image* rhiImage = context.GetImage(attachmentId);
@@ -182,6 +183,8 @@ namespace AZ::RPI
 
     void DownsampleSinglePassLuminancePass::BuildPassAttachment()
     {
+        auto arraySize = GetPassDescriptor().m_passTemplate->m_imageAttachments[0].m_imageDescriptor.m_arraySize;
+
         // Build "Mip6" image attachment.
         {
             // SPD stores each mip level value into groupshared float arrays except mip 6,
@@ -193,6 +196,7 @@ namespace AZ::RPI
                     m_targetThreadCountWidth,
                     m_targetThreadCountHeight,
                     RHI::Format::R32G32B32A32_FLOAT);
+            m_mip6ImageDescriptor.m_arraySize = arraySize;
 
             m_mip6PassAttachment = aznew PassAttachment();
             m_mip6PassAttachment->m_name = "Mip6";
@@ -216,7 +220,7 @@ namespace AZ::RPI
 
         // Build "GlobalAtomic" buffer attachment.
         {
-            auto bufferDescriptor = RHI::BufferDescriptor(RHI::BufferBindFlags::ShaderReadWrite, 4);
+            auto bufferDescriptor = RHI::BufferDescriptor(RHI::BufferBindFlags::ShaderReadWrite, 4 * arraySize);
             bufferDescriptor.m_alignment = 4;
 
             m_counterPassAttachment = aznew PassAttachment();

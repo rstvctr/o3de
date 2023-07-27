@@ -148,8 +148,15 @@ float3 SampleGlobalIBL(uint sampleIndex, uint2 screenCoords, float depth, float3
 }
 
 // Pixel Shader
+#if MULTIVIEW
+PSOutput MainPS(VSOutput IN, in uint sampleIndex : SV_SampleIndex, uint viewIndex : SV_ViewID)
+#else
 PSOutput MainPS(VSOutput IN, in uint sampleIndex : SV_SampleIndex)
+#endif
 {
+#if MULTIVIEW
+    g_viewIndex = viewIndex;
+#endif
     if(!IsDiffuseLightingEnabled() || !IsIndirectLightingEnabled())
     {
         PSOutput OUT;

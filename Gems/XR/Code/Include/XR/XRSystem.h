@@ -96,6 +96,8 @@ namespace XR
         bool IsDefaultRenderPipelineNeeded() const override;
         bool IsDefaultRenderPipelineEnabledOnHost() const override;
         AZ::RHI::ResultCode InitVariableRateShadingImageContent(AZ::RHI::Image* image, AZ::RHI::XRFoveatedLevel type) const override;
+        bool IsMultiviewSupported() const override { return m_device->IsMultiviewSupported(); }
+        uint32_t GetMultiviewLayers() const override { return m_device->GetMultiviewLayers(); }
         ///////////////////////////////////////////////////////////////////
 
         Session* GetSession() { return m_session.get(); }
