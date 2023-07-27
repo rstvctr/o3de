@@ -417,6 +417,8 @@ set(FILES
     Shaders/PostProcessing/BloomDownsampleCS.shader
     Shaders/PostProcessing/ChromaticAberration.azsl
     Shaders/PostProcessing/ChromaticAberration.shader
+    Shaders/PostProcessing/ClearBuffers.azsl
+    Shaders/PostProcessing/ClearBuffers.shader
     Shaders/PostProcessing/ContrastAdaptiveSharpening.azsl
     Shaders/PostProcessing/ContrastAdaptiveSharpening.shader
     Shaders/PostProcessing/ConvertToAcescg.azsl

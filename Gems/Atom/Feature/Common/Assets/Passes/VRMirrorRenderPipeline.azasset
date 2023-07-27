@@ -1,0 +1,17 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "RenderPipelineDescriptor",
+    "ClassData": {
+        "Name": "VRMirrorPipeline",
+        "MainViewTag": "MainCamera",
+        "MaterialPipelineTag": "NullPipeline",
+        "RootPassTemplate": "VRMirrorPipelineTemplate",
+        "AllowModification": true,
+        "RenderSettings": {
+            "MultisampleState": {
+                "samples": 1
+            }
+        }
+    }
+}

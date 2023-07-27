@@ -1,0 +1,99 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 0,
+    "ClassName": "PassAsset",
+    "ClassData": {
+        "PassTemplate": {
+            "Name": "VRMirrorPipelineTemplate",
+            "PassClass": "ParentPass",
+            "Slots": [
+                {
+                    "Name": "PipelineOutput",
+                    "SlotType": "InputOutput"
+                }
+            ],
+            "PassData": {
+                "$type": "PassData",
+                "PipelineGlobalConnections": [
+                    {
+                        "GlobalName": "PipelineOutput",
+                        "Slot": "PipelineOutput"
+                    }
+                ]
+            },
+            "PassRequests": [
+                {
+                    "Name": "ClearBuffersPass",
+                    "TemplateName": "ClearBuffersTemplate",
+                    "Connections": [
+                        {
+                            "LocalSlot": "InputOutput",
+                            "AttachmentRef": {
+                                "Pass": "Parent",
+                                "Attachment": "PipelineOutput"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "Name": "2DPass",
+                    "TemplateName": "UIPassTemplate",
+                    "Enabled": true,
+                    "Connections": [
+                        {
+                            "LocalSlot": "InputOutput",
+                            "AttachmentRef": {
+                                "Pass": "ClearBuffersPass",
+                                "Attachment": "InputOutput"
+                            }
+                        }
+                    ],
+                    "PassData": {
+                        "$type": "RasterPassData",
+                        "DrawListTag": "2dpass",
+                        "PipelineViewTag": "MainCamera",
+                        "DrawListSortType": "KeyThenReverseDepth"
+                    }
+                },
+                {
+                    "Name": "ImGuiPass",
+                    "TemplateName": "ImGuiPassTemplate",
+                    "Enabled": true,
+                    "Connections": [
+                        {
+                            "LocalSlot": "InputOutput",
+                            "AttachmentRef": {
+                                "Pass": "2DPass",
+                                "Attachment": "InputOutput"
+                            }
+                        }
+                    ],
+                    "PassData": {
+                        "$type": "ImGuiPassData",
+                        "isDefaultImGui": true
+                    }
+                }
+                // {
+                //     "Name": "CopyToSwapChain",
+                //     "TemplateName": "FullscreenCopyTemplate",
+                //     "Connections": [
+                //         {
+                //             "LocalSlot": "Input",
+                //             "AttachmentRef": {
+                //                 "Pass": "ImGuiPass",
+                //                 "Attachment": "InputOutput"
+                //             }
+                //         },
+                //         {
+                //             "LocalSlot": "Output",
+                //             "AttachmentRef": {
+                //                 "Pass": "Parent",
+                //                 "Attachment": "PipelineOutput"
+                //             }
+                //         }
+                //     ]
+                // }
+            ]
+        }
+    }
+}

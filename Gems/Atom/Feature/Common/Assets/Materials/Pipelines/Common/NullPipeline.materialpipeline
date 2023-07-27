@@ -1,0 +1,8 @@
+{
+    "shaderTemplates": [],
+    "runtime": {
+        "properties": [],
+        "functors": []
+    },
+    "pipelineScript": "./NullPipelineScript.lua"
+}

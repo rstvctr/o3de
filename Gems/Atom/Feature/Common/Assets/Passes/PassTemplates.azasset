@@ -124,6 +124,14 @@
                 "Name": "UIParentMultiviewTemplate",
                 "Path": "Passes/Multiview/UIParentMultiview.pass"
             },
+            {
+                "Name": "VRMirrorPipelineTemplate",
+                "Path": "Passes/VRMirrorPipeline.pass"
+            },
+            {
+                "Name": "ClearBuffersTemplate",
+                "Path": "Passes/ClearBuffers.pass"
+            },
 
             {
                 "Name": "MSAAResolveColorTemplate",
