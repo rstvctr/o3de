@@ -119,7 +119,7 @@ namespace AZ
 
         int ImGuiPass::TickHandlerFrameStart::GetTickOrder()
         {
-            return AZ::ComponentTickBus::TICK_PRE_RENDER;
+            return AZ::ComponentTickBus::TICK_FIRST;
         }
 
         void ImGuiPass::TickHandlerFrameStart::OnTick(float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint timePoint)
@@ -139,25 +139,9 @@ namespace AZ
 
         int ImGuiPass::TickHandlerFrameEnd::GetTickOrder()
         {
-            // ImGui::NewFrame() must be called (see ImGuiPass::TickHandlerFrameStart::OnTick) after populating
-            // ImGui::GetIO().NavInputs (see ImGuiPass::OnInputChannelEventFiltered), and paired with a call to
-            // ImGui::EndFrame() (see ImGuiPass::TickHandlerFrameEnd::OnTick); if this is not called explicitly
-            // then it will be called from inside ImGui::Render() (see ImGuiPass::SetupFrameGraphDependencies).
-            //
-            // ImGui::Render() gets called (indirectly) from OnSystemTick, so we cannot rely on it being paired
-            // with a matching call to ImGui::NewFrame() that gets called from OnTick, because OnSystemTick and
-            // OnTick can be called at different frequencies under some circumstances (namely from the editor).
-            //
-            // To account for this we must explicitly call ImGui::EndFrame() once a frame from OnTick to ensure
-            // that every call to ImGui::NewFrame() has been matched with a call to ImGui::EndFrame(), but only
-            // after ImGui::Render() has had the chance first (if so calling ImGui::EndFrame() again is benign).
-            //
-            // Because ImGui::Render() gets called (indirectly) from OnSystemTick, which usually happens at the
-            // start of every frame, we give TickHandlerFrameEnd::OnTick() the order of TICK_FIRST such that it
-            // will be called first on the regular tick bus, which is invoked immediately after the system tick.
-            //
-            // So while returning TICK_FIRST is incredibly counter-intuitive, hopefully that all explains why.
-            return AZ::ComponentTickBus::TICK_FIRST;
+            // FIXME: we currently start rendering on TICK_LAST but it will probably end up TICK_RENDER at some point
+            // when that happens move this to TICK_RENDER-1 so we wrap up immediately before rendering the frame
+            return AZ::ComponentTickBus::TICK_UI + 100;
         }
 
         void ImGuiPass::TickHandlerFrameEnd::OnTick([[maybe_unused]] float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint timePoint)
