@@ -107,6 +107,8 @@ set(FILES
     Source/RagdollInstance.h
     Source/RagdollVelocityEvaluators.cpp
     Source/RagdollVelocityEvaluators.h
+    Source/RangeLimitedFABRIK.cpp
+    Source/RangeLimitedFABRIK.h
     Source/Recorder.cpp
     Source/Recorder.h
     Source/RecorderBus.h
@@ -256,12 +258,16 @@ set(FILES
     Source/BlendTreeRagdollNode.h
     Source/BlendTreeRagdollStrengthModifierNode.cpp
     Source/BlendTreeRagdollStrengthModifierNode.h
+    Source/BlendTreeRangeLimitedFABRIKNode.cpp
+    Source/BlendTreeRangeLimitedFABRIKNode.h
     Source/BlendTreeRangeRemapperNode.cpp
     Source/BlendTreeRangeRemapperNode.h
     Source/BlendTreeSimulatedObjectNode.cpp
     Source/BlendTreeSimulatedObjectNode.h
     Source/BlendTreeSmoothingNode.cpp
     Source/BlendTreeSmoothingNode.h
+    Source/BlendTreeSwingTwistNode.cpp
+    Source/BlendTreeSwingTwistNode.h
     Source/BlendTreeTransformNode.cpp
     Source/BlendTreeTransformNode.h
     Source/BlendTreeTwoLinkIKNode.cpp
@@ -345,6 +351,8 @@ set(FILES
     Source/EventInfo.h
     Source/EventManager.cpp
     Source/EventManager.h
+    Source/IK.cpp
+    Source/IK.h
     Source/MotionData/MotionData.cpp
     Source/MotionData/MotionData.h
     Source/MotionData/MotionDataFactory.cpp

@@ -34,6 +34,7 @@
 #include <EMotionFX/Source/BlendTreeGetTransformNode.h>
 #include <EMotionFX/Source/BlendTreeBoolLogicNode.h>
 #include <EMotionFX/Source/BlendTreeSmoothingNode.h>
+#include <EMotionFX/Source/BlendTreeSwingTwistNode.h>
 #include <EMotionFX/Source/BlendTreeMaskNode.h>
 #include <EMotionFX/Source/BlendTreeMaskLegacyNode.h>
 #include <EMotionFX/Source/BlendTreeMorphTargetNode.h>
@@ -53,6 +54,7 @@
 #include <EMotionFX/Source/BlendTreeTransformNode.h>
 #include <EMotionFX/Source/BlendTreeAccumTransformNode.h>
 #include <EMotionFX/Source/BlendTreeRangeRemapperNode.h>
+#include <EMotionFX/Source/BlendTreeRangeLimitedFABRIKNode.h>
 #include <EMotionFX/Source/BlendTreeSetTransformNode.h>
 #include <EMotionFX/Source/BlendTreeDirectionToWeightNode.h>
 #include <EMotionFX/Source/BlendTreeMirrorPoseNode.h>
@@ -178,6 +180,7 @@ namespace EMotionFX
         BlendTreeRotationLimitNode::Reflect(context);
         BlendTreeVector4ComposeNode::Reflect(context);
         BlendTreeSmoothingNode::Reflect(context);
+        BlendTreeSwingTwistNode::Reflect(context);
         BlendTreeRangeRemapperNode::Reflect(context);
         BlendTreeDirectionToWeightNode::Reflect(context);
         BlendTreeMirrorPoseNode::Reflect(context);
@@ -190,6 +193,7 @@ namespace EMotionFX
         BlendTreePoseSubtractNode::Reflect(context);
         BlendTreeRagdollNode::Reflect(context);
         BlendTreeRagdollStrenghModifierNode::Reflect(context);
+        BlendTreeRangeLimitedFABRIKNode::Reflect(context);
         BlendTreeFootIKNode::Reflect(context);
         BlendTreeRaycastNode::Reflect(context);
         BlendTreeSimulatedObjectNode::Reflect(context);
@@ -234,6 +238,7 @@ namespace EMotionFX
             azrtti_typeid<BlendTreeVector3ComposeNode>(),
             azrtti_typeid<BlendTreeVector4ComposeNode>(),
             azrtti_typeid<BlendTreeSmoothingNode>(),
+            azrtti_typeid<BlendTreeSwingTwistNode>(),
             azrtti_typeid<BlendTreeRangeRemapperNode>(),
             azrtti_typeid<BlendTreeDirectionToWeightNode>(),
             azrtti_typeid<BlendTreeMirrorPoseNode>(),
@@ -246,6 +251,7 @@ namespace EMotionFX
             azrtti_typeid<BlendTreePoseSubtractNode>(),
             azrtti_typeid<BlendTreeRagdollNode>(),
             azrtti_typeid<BlendTreeRagdollStrenghModifierNode>(),
+            azrtti_typeid<BlendTreeRangeLimitedFABRIKNode>(),
             azrtti_typeid<BlendTreeRotationLimitNode>(),
             azrtti_typeid<BlendTreeRotationMath2Node>(),
             azrtti_typeid<BlendTreeFootIKNode>(),
