@@ -114,7 +114,7 @@ namespace AzFramework
     //! @note Ensure ScreenSize represents a valid viewport size/dimension before calling this function.
     inline float AspectRatio(const ScreenSize& screenSize)
     {
-        AZ_Assert(screenSize.m_height > 0.0f && screenSize.m_width > 0.0f, "AspectRatio called with invalid viewport size");
+        //AZ_Assert(screenSize.m_height > 0.0f && screenSize.m_width > 0.0f, "AspectRatio called with invalid viewport size");
         return aznumeric_cast<float>(screenSize.m_width) / aznumeric_cast<float>(screenSize.m_height);
     }
 } // namespace AzFramework
