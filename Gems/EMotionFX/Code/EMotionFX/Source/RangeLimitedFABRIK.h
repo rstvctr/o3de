@@ -135,10 +135,10 @@ public:
     // @return - True if any transforms in OutTransforms were updated; otherwise, false. If false, the contents of OutTransforms is
     // identical to InTransforms.
     static bool SolveRangeLimitedFABRIK(
-        const AZStd::vector<Transform>& inTransforms,
+        const AZStd::vector<AZ::Vector3>& inPositions,
         const AZStd::vector<IKBoneConstraint*>& constraints,
         const AZ::Vector3& effectorTargetLocation,
-        AZStd::vector<Transform>& outTransforms,
+        AZStd::vector<AZ::Vector3>& outPositions,
         float maxRootDragDistance = 0.0f,
         float rootDragStiffness = 1.0f,
         float precision = 0.01f,
@@ -172,6 +172,7 @@ public:
     // @param Character - Character pointer whcih may be used for debug drawing. May safely be set to nullptr or ignored.
     // @return - True if any transforms in OutTransforms were updated; otherwise, false. If false, the contents of OutTransforms is
     // identical to InTransforms.
+#if 0
     static bool SolveClosedLoopFABRIK(
         const AZStd::vector<Transform>& inTransforms,
         const AZStd::vector<IKBoneConstraint*>& constraints,
@@ -181,6 +182,7 @@ public:
         float rootDragStiffness = 1.0f,
         float precision = 0.01f,
         int32_t maxIterations = 20);
+#endif
 
     // Runs closed-loop FABRIK multiple times, attempting to move both 'noisy effectors' to their targets.
     // See www.andreasaristidou.com/publications/papers/Extending_FABRIK_with_Model_Cοnstraints.pdf
@@ -196,6 +198,7 @@ public:
     // @param MaxIterations - The maximum number of iterations the solver may run
     // @param Character - Optional character pointer, used for debug drawing.
     // @result True if at least on transform changed. This algorithm always changes the transforms, so it always returns true.
+#if 0
     static bool SolveNoisyThreePoint(
         const NoisyThreePointClosedLoop& inClosedLoop,
         const Transform& effectorATarget,
@@ -205,12 +208,12 @@ public:
         float rootDragStiffness = 1.0f,
         float precision = 0.01f,
         int32_t maxIterations = 20);
+#endif
 
     static void UpdateRotations(
         const AZStd::vector<Transform>& inTransforms,
         AZStd::vector<Transform>& outTransforms);
 
-protected:
     // Updates the rotation of the parent to point toward the child, using the shortest rotation
     static void UpdateParentRotation(
         Transform& newParentTransform,
@@ -218,25 +221,26 @@ protected:
         const Transform& newChildTransform,
         const Transform& oldChildTransform);
 
+protected:
     // Iterate from effector to root
     static void FABRIKForwardPass(
-        const AZStd::vector<Transform>& inTransforms,
+        const AZStd::vector<AZ::Vector3>& inPositions,
         const AZStd::vector<IKBoneConstraint*>& constraints,
         const AZStd::vector<float>& boneLengths,
-        AZStd::vector<Transform>& outTransforms);
+        AZStd::vector<AZ::Vector3>& outPositions);
 
     // Iterate from root to effector
     static void FABRIKBackwardPass(
-        const AZStd::vector<Transform>& inTransforms,
+        const AZStd::vector<AZ::Vector3>& inPositions,
         const AZStd::vector<IKBoneConstraint*>& constraints,
         const AZStd::vector<float>& boneLengths,
-        AZStd::vector<Transform>& outTransforms);
+        AZStd::vector<AZ::Vector3>& outPositions);
 
     // The core FABRIK method. Projects PointToMove onto the vector between itself and MaintainDistancePoint,
     // such that the distance between them is BoneLength. This enforces the core FABRIK constraint, that inter-point
     // distances don't change. Thus, PointToMove is 'dragged' toward MaintainDistancePoint and the original interpoint
     // distance is maintained.
-    static void DragPoint(const Transform& maintainDistancePoint, float boneLength, Transform& pointToMove);
+    static void DragPoint(const AZ::Vector3& maintainDistancePoint, float boneLength, AZ::Vector3& pointToMove);
 
     // Drags PointToDrag relative to MaintainDistancePoint; that is, PointToDrag is moved so that it attempts
     // to maintain the distance BoneLength between itself and MaintainDistancePoint. However, PointToDrag is 'tethered'
@@ -247,18 +251,18 @@ protected:
     // Basically, this is like EnforcePointDistance, but with the additional stronger constraint that PointToDrag
     // can never be moved father than MaxDragDistance from StartingTransform.
     static void DragPointTethered(
-        const Transform& tetherPoint,
-        const Transform& maintainDistancePoint,
+        const AZ::Vector3& tetherPoint,
+        const AZ::Vector3& maintainDistancePoint,
         float boneLength,
         float maxDragDistance,
         float dragStiffness,
-        Transform& pointToDrag);
+        AZ::Vector3& pointToDrag);
 
     // Compute bone lengths and store in BoneLengths. BoneLengths will be emptied and refilled.
     // Each entry contains the length of bone ending at point i, i.e., OutBoneLengths[i] contains the starting distance
     // between point i and point i-1.
     // Returns the maximum reach.
-    static void ComputeBoneLengths(const AZStd::vector<Transform>& inTransforms, AZStd::vector<float>& outBoneLengths);
+    static void ComputeBoneLengths(const AZStd::vector<AZ::Vector3>& inPositions, AZStd::vector<float>& outBoneLengths);
 };
 
 } // namespace VRGame::IK

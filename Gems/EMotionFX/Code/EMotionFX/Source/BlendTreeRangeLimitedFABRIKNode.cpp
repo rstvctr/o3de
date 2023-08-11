@@ -174,52 +174,47 @@ namespace EMotionFX
         //------------------------------------
         // perform the main calculation part
         //------------------------------------
-        Pose& outTransformPose = outputPose->GetPose();
-        AZStd::vector<Transform> inputTransforms;
+        const Pose& inTransformPose = inputPose->GetPose();
+        AZStd::vector<AZ::Vector3> inputPositions;
+        inputPositions.reserve(uniqueData->m_nodeIndices.size());
+        AZStd::vector<Transform> transforms;
+        transforms.reserve(uniqueData->m_nodeIndices.size());
         for (const auto& nodeIndex : uniqueData->m_nodeIndices)
         {
-            inputTransforms.push_back(outTransformPose.GetModelSpaceTransform(nodeIndex));
+            const Transform& transform = inTransformPose.GetModelSpaceTransform(nodeIndex);
+            inputPositions.push_back(transform.m_position);
+            transforms.push_back(transform);
         }
 
         // perform IK, try to find a solution by calculating the new middle node position
-        AZStd::vector<Transform> outputTransforms;
-        outputTransforms.resize(inputTransforms.size());
+        AZStd::vector<AZ::Vector3> outputPositions;
+        outputPositions.resize(inputPositions.size());
         AZStd::vector<IK::IKBoneConstraint*> constraints;
-        constraints.resize(inputTransforms.size());
+        constraints.resize(inputPositions.size());
         IK::RangeLimitedFABRIK::SolveRangeLimitedFABRIK(
-            inputTransforms,
+            inputPositions,
             constraints,
             goal,
-            outputTransforms,
+            outputPositions,
             m_maxRootDragDist,
             m_rootDragStiffness,
             m_precision,
             m_maxIterations
         );
 
-        for (int i = 0; i < outputTransforms.size(); i++)
+        if (m_enableKneeCorrection && inputPositions.size() == 3 && uniqueData->m_jointToeIndex != InvalidIndex)
         {
-            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[i], outputTransforms[i]);
-        }
-
-        if (m_enableKneeCorrection && inputTransforms.size() == 3 && uniqueData->m_jointToeIndex != InvalidIndex)
-        {
-            const Pose& inputTransformPose = inputPose->GetPose();
-
             // Pre-IK positions
-            AZ::Vector3 hipCSPre      = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[0]).m_position;
-            AZ::Vector3 kneeCSPre     = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[1]).m_position;
-            AZ::Vector3 footCSPre     = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[2]).m_position;
-            AZ::Vector3 toeCSPre      = inputTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
+            AZ::Vector3 hipCSPre      = inputPositions[0];
+            AZ::Vector3 kneeCSPre     = inputPositions[1];
+            AZ::Vector3 footCSPre     = inputPositions[2];
+            AZ::Vector3 toeCSPre      = inTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
 
             // Post-IK positions
-            Transform newHipTransform   = outTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[0]);
-            Transform newThighTransform = outTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[1]);
-            Transform newShinTransform  = outTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[2]);
-            AZ::Vector3 hipCSPost       = newHipTransform.m_position;
-            AZ::Vector3 kneeCSPost      = newThighTransform.m_position;
-            AZ::Vector3 footCSPost      = newShinTransform.m_position;
-            AZ::Vector3 toeCSPost       = outTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
+            AZ::Vector3 hipCSPost       = outputPositions[0];
+            AZ::Vector3 kneeCSPost      = outputPositions[1];
+            AZ::Vector3 footCSPost      = outputPositions[2];
+            AZ::Vector3 toeCSPost       = toeCSPre - footCSPre + footCSPost;
 
             // Thigh and shin before correction
             AZ::Vector3 oldThighVec = (kneeCSPost - hipCSPost).GetNormalized();
@@ -336,21 +331,30 @@ namespace EMotionFX
             // Transform back to component space
             AZ::Vector3 newKneeCS = centerPost + (newKneeDirection * (kneeCSPost - centerPost).GetLength());
 
-            // Update rotations for thigh and shin bones
-            AZ::Vector3 newThighVec          = (newKneeCS - hipCSPost).GetNormalized();
-            AZ::Vector3 newShinVec           = (footCSPost - newKneeCS).GetNormalized();
-            
-            AZ::Quaternion newHipRotation         = AZ::Quaternion::CreateShortestArc(oldThighVec, newThighVec);
-            AZ::Quaternion newThighRotation       = AZ::Quaternion::CreateShortestArc(oldShinVec, newShinVec);
+            outputPositions[1] = newKneeCS;
+        }
 
-            newHipTransform.m_rotation = (newHipRotation * newHipTransform.m_rotation).GetNormalized();
-            newThighTransform.m_rotation = (newThighRotation * newThighTransform.m_rotation).GetNormalized();
-            newThighTransform.m_position = newKneeCS;
+        // Update the rotations to match the new positions
+        for (int i = 0; i < transforms.size() - 1; i++)
+        {
+            AZ::Vector3 oldDir = (inputPositions[i + 1] - inputPositions[i]).GetNormalized();
+            AZ::Vector3 newDir = (outputPositions[i + 1] - outputPositions[i]).GetNormalized();
 
-            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[0], newHipTransform);
-            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[1], newThighTransform);
-            // Update the shin transform, otherwise its component space rotation will change (messing up rotation of the foot)
-            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[2], newShinTransform);
+            AZ::Vector3 rotationAxis = oldDir.Cross(newDir).GetNormalizedSafe();
+            float rotationAngle = AZ::Acos(oldDir.Dot(newDir));
+            AZ::Quaternion deltaRotation = AZ::Quaternion::CreateFromAxisAngle(rotationAxis, rotationAngle);
+
+            transforms[i].m_rotation = (deltaRotation * transforms[i].m_rotation).GetNormalized(); 
+            transforms[i].m_position = outputPositions[i];
+        }
+        // set last position
+        transforms[transforms.size() - 1].m_position = outputPositions[transforms.size() - 1];
+
+        Pose& outTransformPose = outputPose->GetPose();
+
+        for (int i = 0; i < transforms.size(); i++)
+        {
+            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[i], transforms[i]);
         }
 
         // only blend when needed

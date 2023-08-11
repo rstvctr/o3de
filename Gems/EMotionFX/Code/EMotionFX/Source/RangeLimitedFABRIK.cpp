@@ -29,25 +29,25 @@ namespace EMotionFX::IK
 {
 
 bool RangeLimitedFABRIK::SolveRangeLimitedFABRIK(
-    const AZStd::vector<Transform>& inTransforms,
+    const AZStd::vector<AZ::Vector3>& inPositions,
     const AZStd::vector<IKBoneConstraint*>& constraints,
     const AZ::Vector3& effectorTargetLocation,
-    AZStd::vector<Transform>& outTransforms,
+    AZStd::vector<AZ::Vector3>& outPositions,
     float maxRootDragDistance,
     float rootDragStiffness,
     float precision,
     int32_t maxIterations)
 {
-    outTransforms.clear();
+    outPositions.clear();
 
     // Number of points in the chain. Number of bones = NumPoints - 1
-    size_t numPoints = inTransforms.size();
+    size_t numPoints = inPositions.size();
 
     // Gather bone transforms
-    outTransforms.reserve(numPoints);
-    for (const Transform& transform : inTransforms)
+    outPositions.reserve(numPoints);
+    for (const AZ::Vector3& position : inPositions)
     {
-        outTransforms.push_back(transform);
+        outPositions.push_back(position);
     }
 
     if (numPoints < 2)
@@ -59,44 +59,45 @@ bool RangeLimitedFABRIK::SolveRangeLimitedFABRIK(
     // Gather bone lengths. BoneLengths contains the length of the bone ENDING at this point,
     // i.e., BoneLengths[i] contains the distance between point i-1 and point i
     AZStd::vector<float> boneLengths;
-    ComputeBoneLengths(inTransforms, boneLengths);
+    ComputeBoneLengths(inPositions, boneLengths);
 
     bool boneLocationUpdated = false;
     size_t effectorIndex = numPoints - 1;
 
     // Check distance between tip location and effector location
-    float slop = outTransforms[effectorIndex].m_position.GetDistance(effectorTargetLocation);
+    float slop = outPositions[effectorIndex].GetDistance(effectorTargetLocation);
     if (slop > precision)
     {
         // Set tip bone at end effector location.
-        outTransforms[effectorIndex].m_position = effectorTargetLocation;
+        outPositions[effectorIndex] = effectorTargetLocation;
 
         int32_t iterationCount = 0;
         while ((slop > precision) && (iterationCount++ < maxIterations))
         {
             // "Forward Reaching" stage - adjust bones from end effector.
-            FABRIKForwardPass(inTransforms, constraints, boneLengths, outTransforms);
+            FABRIKForwardPass(inPositions, constraints, boneLengths, outPositions);
 
             // Drag the root if enabled
-            DragPointTethered(inTransforms[0], outTransforms[1], boneLengths[1], maxRootDragDistance, rootDragStiffness, outTransforms[0]);
+            DragPointTethered(inPositions[0], outPositions[1], boneLengths[1], maxRootDragDistance, rootDragStiffness, outPositions[0]);
 
             // "Backward Reaching" stage - adjust bones from root.
-            FABRIKBackwardPass(inTransforms, constraints, boneLengths, outTransforms);
+            FABRIKBackwardPass(inPositions, constraints, boneLengths, outPositions);
 
             slop =
-                AZ::Abs(boneLengths[effectorIndex] - outTransforms[effectorIndex - 1].m_position.GetDistance(effectorTargetLocation));
+                AZ::Abs(boneLengths[effectorIndex] - outPositions[effectorIndex - 1].GetDistance(effectorTargetLocation));
         }
 
         // Place effector based on how close we got to the target
-        AZ::Vector3 effectorLocation = outTransforms[effectorIndex].m_position;
-        AZ::Vector3 effectorParentLocation = outTransforms[effectorIndex - 1].m_position;
+        AZ::Vector3 effectorLocation = outPositions[effectorIndex];
+        AZ::Vector3 effectorParentLocation = outPositions[effectorIndex - 1];
         effectorLocation =
             effectorParentLocation + (effectorLocation - effectorParentLocation).GetNormalized() * boneLengths[effectorIndex];
-        outTransforms[effectorIndex].m_position = effectorLocation;
+        outPositions[effectorIndex] = effectorLocation;
 
         boneLocationUpdated = true;
     }
 
+#if 0
     // Update bone rotations
     if (boneLocationUpdated)
     {
@@ -109,10 +110,12 @@ bool RangeLimitedFABRIK::SolveRangeLimitedFABRIK(
             }
         }
     }
+#endif
 
     return boneLocationUpdated;
 }
 
+#if 0
 bool RangeLimitedFABRIK::SolveClosedLoopFABRIK(
     const AZStd::vector<Transform>& inTransforms,
     const AZStd::vector<IKBoneConstraint*>& constraints,
@@ -209,7 +212,9 @@ bool RangeLimitedFABRIK::SolveClosedLoopFABRIK(
 
     return boneLocationUpdated;
 };
+#endif
 
+#if 0
 bool RangeLimitedFABRIK::SolveNoisyThreePoint(
     const NoisyThreePointClosedLoop& inClosedLoop,
     const Transform& effectorAReference,
@@ -323,6 +328,7 @@ bool RangeLimitedFABRIK::SolveNoisyThreePoint(
 
     return true;
 }
+#endif
 
 void RangeLimitedFABRIK::UpdateRotations(
     const AZStd::vector<Transform>& inTransforms,
@@ -339,18 +345,18 @@ void RangeLimitedFABRIK::UpdateRotations(
 }
 
 void RangeLimitedFABRIK::FABRIKForwardPass(
-    const AZStd::vector<Transform>& inTransforms,
+    const AZStd::vector<AZ::Vector3>& inPositions,
     const AZStd::vector<IKBoneConstraint*>& constraints,
     const AZStd::vector<float>& boneLengths,
-    AZStd::vector<Transform>& outTransforms)
+    AZStd::vector<AZ::Vector3>& outPositions)
 {
-    size_t numPoints = inTransforms.size();
+    size_t numPoints = inPositions.size();
     size_t effectorIndex = numPoints - 1;
 
     for (size_t pointIndex = effectorIndex - 1; pointIndex > 0; --pointIndex)
     {
-        Transform& currentPoint = outTransforms[pointIndex];
-        Transform& childPoint = outTransforms[pointIndex + 1];
+        AZ::Vector3& currentPoint = outPositions[pointIndex];
+        AZ::Vector3& childPoint = outPositions[pointIndex + 1];
 
         // Move the parent to maintain starting bone lengths
         DragPoint(childPoint, boneLengths[pointIndex + 1], currentPoint);
@@ -359,26 +365,26 @@ void RangeLimitedFABRIK::FABRIKForwardPass(
         IKBoneConstraint* currentConstraint = constraints[pointIndex - 1];
         if (currentConstraint != nullptr && currentConstraint->m_enabled)
         {
-            currentConstraint->SetupFn(pointIndex - 1, inTransforms, constraints, outTransforms);
+            currentConstraint->SetupFn(pointIndex - 1, inPositions, constraints, outPositions);
 
-            currentConstraint->EnforceConstraint(pointIndex - 1, inTransforms, constraints, outTransforms);
+            currentConstraint->EnforceConstraint(pointIndex - 1, inPositions, constraints, outPositions);
         }
     }
 }
 
 void RangeLimitedFABRIK::FABRIKBackwardPass(
-    const AZStd::vector<Transform>& inTransforms,
+    const AZStd::vector<AZ::Vector3>& inPositions,
     const AZStd::vector<IKBoneConstraint*>& constraints,
     const AZStd::vector<float>& boneLengths,
-    AZStd::vector<Transform>& outTransforms)
+    AZStd::vector<AZ::Vector3>& outPositions)
 {
-    size_t numPoints = inTransforms.size();
+    size_t numPoints = inPositions.size();
     size_t effectorIndex = numPoints - 1;
 
     for (int32_t pointIndex = 1; pointIndex < effectorIndex; pointIndex++)
     {
-        Transform& parentPoint = outTransforms[pointIndex - 1];
-        Transform& currentPoint = outTransforms[pointIndex];
+        AZ::Vector3& parentPoint = outPositions[pointIndex - 1];
+        AZ::Vector3& currentPoint = outPositions[pointIndex];
 
         // Move the child to maintain starting bone lengths
         DragPoint(parentPoint, boneLengths[pointIndex], currentPoint);
@@ -387,27 +393,27 @@ void RangeLimitedFABRIK::FABRIKBackwardPass(
         IKBoneConstraint* currentConstraint = constraints[pointIndex - 1];
         if (currentConstraint != nullptr && currentConstraint->m_enabled)
         {
-            currentConstraint->SetupFn(pointIndex - 1, inTransforms, constraints, outTransforms);
+            currentConstraint->SetupFn(pointIndex - 0, inPositions, constraints, outPositions);
 
-            currentConstraint->EnforceConstraint(pointIndex - 1, inTransforms, constraints, outTransforms);
+            currentConstraint->EnforceConstraint(pointIndex - 1, inPositions, constraints, outPositions);
         }
     }
 }
 
-void RangeLimitedFABRIK::DragPoint(const Transform& maintainDistancePoint, float boneLength, Transform& pointToMove)
+void RangeLimitedFABRIK::DragPoint(const AZ::Vector3& maintainDistancePoint, float boneLength, AZ::Vector3& pointToMove)
 {
-    pointToMove.m_position =
-        maintainDistancePoint.m_position +
-        (pointToMove.m_position - maintainDistancePoint.m_position).GetNormalized() * boneLength;
+    pointToMove =
+        maintainDistancePoint +
+        (pointToMove - maintainDistancePoint).GetNormalized() * boneLength;
 }
 
 void RangeLimitedFABRIK::DragPointTethered(
-    const Transform& startingTransform,
-    const Transform& maintainDistancePoint,
+    const AZ::Vector3& startingTransform,
+    const AZ::Vector3& maintainDistancePoint,
     float boneLength,
     float maxDragDistance,
     float dragStiffness,
-    Transform& pointToDrag)
+    AZ::Vector3& pointToDrag)
 {
     if (maxDragDistance < AZ::Constants::Tolerance || dragStiffness < AZ::Constants::Tolerance)
     {
@@ -418,15 +424,15 @@ void RangeLimitedFABRIK::DragPointTethered(
     AZ::Vector3 target;
     if (AZ::IsClose(boneLength, 0))
     {
-        target = maintainDistancePoint.m_position;
+        target = maintainDistancePoint;
     }
     else
     {
-        target = maintainDistancePoint.m_position +
-            (pointToDrag.m_position - maintainDistancePoint.m_position).GetNormalized() * boneLength;
+        target = maintainDistancePoint +
+            (pointToDrag - maintainDistancePoint).GetNormalized() * boneLength;
     }
 
-    AZ::Vector3 displacement = target - startingTransform.m_position;
+    AZ::Vector3 displacement = target - startingTransform;
 
     // Root drag stiffness 'pulls' the root back (set to 1.0 to disable)
     displacement /= dragStiffness;
@@ -434,7 +440,7 @@ void RangeLimitedFABRIK::DragPointTethered(
     // limit root displacement to drag length
     AZ::Vector3 limitedDisplacement = displacement;
     limitedDisplacement.SetLength(AZStd::min(limitedDisplacement.GetLength(), maxDragDistance));
-    pointToDrag.m_position = startingTransform.m_position + limitedDisplacement;
+    pointToDrag = startingTransform + limitedDisplacement;
 }
 
 void RangeLimitedFABRIK::UpdateParentRotation(
@@ -453,9 +459,9 @@ void RangeLimitedFABRIK::UpdateParentRotation(
     newParentTransform.m_rotation = (deltaRotation * oldParentTransform.m_rotation).GetNormalized();
 }
 
-void RangeLimitedFABRIK::ComputeBoneLengths(const AZStd::vector<Transform>& inTransforms, AZStd::vector<float>& outBoneLengths)
+void RangeLimitedFABRIK::ComputeBoneLengths(const AZStd::vector<AZ::Vector3>& inPositions, AZStd::vector<float>& outBoneLengths)
 {
-    size_t numPoints = inTransforms.size();
+    size_t numPoints = inPositions.size();
     outBoneLengths.clear();
     outBoneLengths.reserve(numPoints);
 
@@ -464,7 +470,7 @@ void RangeLimitedFABRIK::ComputeBoneLengths(const AZStd::vector<Transform>& inTr
 
     for (size_t i = 1; i < numPoints; ++i)
     {
-        outBoneLengths.push_back(inTransforms[i - 1].m_position.GetDistance(inTransforms[i].m_position));
+        outBoneLengths.push_back(inPositions[i - 1].GetDistance(inPositions[i]));
     }
 }
 

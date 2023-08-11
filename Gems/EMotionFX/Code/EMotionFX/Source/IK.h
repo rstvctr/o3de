@@ -150,9 +150,9 @@ public:
     // @param Character - Optional owning Character; may to left to nullptr, but is required for debug drawing.
     virtual void EnforceConstraint(
         [[maybe_unused]] size_t index,
-        [[maybe_unused]] const AZStd::vector<Transform>& referenceCSTransforms,
+        [[maybe_unused]] const AZStd::vector<AZ::Vector3>& referencePositions,
         [[maybe_unused]] const AZStd::vector<IKBoneConstraint*>& constraints,
-        [[maybe_unused]] AZStd::vector<Transform>& csTransforms)
+        [[maybe_unused]] AZStd::vector<AZ::Vector3>& positions)
     {
     }
 
@@ -160,13 +160,13 @@ public:
     // things up appropriately. Returns a bool; the constraint should only be enforced if it returns true.
     AZStd::function<void(
         size_t,
-        const AZStd::vector<Transform>&,
+        const AZStd::vector<AZ::Vector3>&,
         const AZStd::vector<IKBoneConstraint*>&,
-        AZStd::vector<Transform>&)>
+        AZStd::vector<AZ::Vector3>&)>
         SetupFn = []([[maybe_unused]] size_t index,
-                     [[maybe_unused]] const AZStd::vector<Transform>& referenceCSTransforms,
+                     [[maybe_unused]] const AZStd::vector<AZ::Vector3>& referencePositions,
                      [[maybe_unused]] const AZStd::vector<IKBoneConstraint*>& constraints,
-                     [[maybe_unused]] AZStd::vector<Transform>& csTransforms)
+                     [[maybe_unused]] AZStd::vector<AZ::Vector3>& positions)
     {
     };
 };
