@@ -46,11 +46,18 @@ namespace EMotionFX
             const Node* joint = skeleton->FindNodeByName(jointName);
             if (!joint)
             {
-                m_nodeIndices.clear();
                 return;
             }
             m_nodeIndices.push_back(joint->GetNodeIndex());
         }
+
+        const AZStd::string& jointToeName = ikNode->GetJointToeName();
+        const Node* jointToe = skeleton->FindNodeByName(jointToeName);
+        if (!jointToe)
+        {
+            return;
+        }
+        m_jointToeIndex = jointToe->GetNodeIndex();
 
         SetHasError(false);
     }
@@ -171,8 +178,7 @@ namespace EMotionFX
         AZStd::vector<Transform> inputTransforms;
         for (const auto& nodeIndex : uniqueData->m_nodeIndices)
         {
-            // FIXME: Model space?
-            inputTransforms.push_back(outTransformPose.GetWorldSpaceTransform(nodeIndex));
+            inputTransforms.push_back(outTransformPose.GetModelSpaceTransform(nodeIndex));
         }
 
         // perform IK, try to find a solution by calculating the new middle node position
@@ -193,10 +199,10 @@ namespace EMotionFX
 
         for (int i = 0; i < outputTransforms.size(); i++)
         {
-            outTransformPose.SetWorldSpaceTransform(uniqueData->m_nodeIndices[i], outputTransforms[i]);
+            outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[i], outputTransforms[i]);
         }
 
-        if (m_enableKneeCorrection && uniqueData->m_nodeIndices.size() == 4)
+        if (m_enableKneeCorrection && inputTransforms.size() == 3 && uniqueData->m_jointToeIndex != InvalidIndex)
         {
             const Pose& inputTransformPose = inputPose->GetPose();
 
@@ -204,7 +210,7 @@ namespace EMotionFX
             AZ::Vector3 hipCSPre      = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[0]).m_position;
             AZ::Vector3 kneeCSPre     = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[1]).m_position;
             AZ::Vector3 footCSPre     = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[2]).m_position;
-            AZ::Vector3 toeCSPre      = inputTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[3]).m_position;
+            AZ::Vector3 toeCSPre      = inputTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
 
             // Post-IK positions
             Transform newHipTransform   = outTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[0]);
@@ -213,7 +219,7 @@ namespace EMotionFX
             AZ::Vector3 hipCSPost       = newHipTransform.m_position;
             AZ::Vector3 kneeCSPost      = newThighTransform.m_position;
             AZ::Vector3 footCSPost      = newShinTransform.m_position;
-            AZ::Vector3 toeCSPost       = outTransformPose.GetModelSpaceTransform(uniqueData->m_nodeIndices[3]).m_position;
+            AZ::Vector3 toeCSPost       = outTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
 
             // Thigh and shin before correction
             AZ::Vector3 oldThighVec = (kneeCSPost - hipCSPost).GetNormalized();
@@ -314,7 +320,7 @@ namespace EMotionFX
                 {
                     // Knee and foot point in opposite directions
                     rotationAxis  = hipFootAxisPost;
-                    footKneeRad = 180.0f;
+                    footKneeRad = AZ::Constants::Pi;
                 }
                 else
                 {
@@ -337,8 +343,8 @@ namespace EMotionFX
             AZ::Quaternion newHipRotation         = AZ::Quaternion::CreateShortestArc(oldThighVec, newThighVec);
             AZ::Quaternion newThighRotation       = AZ::Quaternion::CreateShortestArc(oldShinVec, newShinVec);
 
-            newHipTransform.m_rotation *= newHipTransform.m_rotation;
-            newThighTransform.m_rotation *= newThighTransform.m_rotation;
+            newHipTransform.m_rotation = (newHipRotation * newHipTransform.m_rotation).GetNormalized();
+            newThighTransform.m_rotation = (newThighRotation * newThighTransform.m_rotation).GetNormalized();
             newThighTransform.m_position = newKneeCS;
 
             outTransformPose.SetModelSpaceTransform(uniqueData->m_nodeIndices[0], newHipTransform);
@@ -382,6 +388,7 @@ namespace EMotionFX
             ->Field("Precision", &BlendTreeRangeLimitedFABRIKNode::m_precision)
             ->Field("MaxIterations", &BlendTreeRangeLimitedFABRIKNode::m_maxIterations)
             ->Field("EnableKneeCorrection", &BlendTreeRangeLimitedFABRIKNode::m_enableKneeCorrection)
+            ->Field("JointToeName", &BlendTreeRangeLimitedFABRIKNode::m_jointToeName)
             ->Version(1);
 
         AZ::EditContext* editContext = serializeContext->GetEditContext();
@@ -401,6 +408,7 @@ namespace EMotionFX
             ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_rootDragStiffness, "Root Drag Stiffness", "")
             ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_precision, "Precision", "")
             ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_maxIterations, "Max Iteration", "")
-            ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_enableKneeCorrection, "Knee Correction", "Apply knee correction (Requires 4 joints selected, thigh, shin, foot, toe)");
+            ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_enableKneeCorrection, "Knee Correction", "Apply knee correction. Requires 3 joints selected (thigh, shin and foot) and toe joint specified.")
+            ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeRangeLimitedFABRIKNode::m_jointToeName, "Toe Joint", "Toe joint for knee correction, optional otherwise.");
     }
 } // namespace EMotionFX

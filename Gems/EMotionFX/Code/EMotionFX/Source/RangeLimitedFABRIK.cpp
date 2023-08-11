@@ -324,6 +324,20 @@ bool RangeLimitedFABRIK::SolveNoisyThreePoint(
     return true;
 }
 
+void RangeLimitedFABRIK::UpdateRotations(
+    const AZStd::vector<Transform>& inTransforms,
+    AZStd::vector<Transform>& outTransforms)
+{
+    // Number of points in the chain. Number of bones = NumPoints - 1
+    size_t numPoints = inTransforms.size();
+
+    for (size_t pointIndex = 0; pointIndex < numPoints - 1; ++pointIndex)
+    {
+        UpdateParentRotation(
+            outTransforms[pointIndex], inTransforms[pointIndex], outTransforms[pointIndex + 1], inTransforms[pointIndex + 1]);
+    }
+}
+
 void RangeLimitedFABRIK::FABRIKForwardPass(
     const AZStd::vector<Transform>& inTransforms,
     const AZStd::vector<IKBoneConstraint*>& constraints,
@@ -434,7 +448,7 @@ void RangeLimitedFABRIK::UpdateParentRotation(
 
     AZ::Vector3 rotationAxis = oldDir.Cross(newDir).GetNormalizedSafe();
     float rotationAngle = AZ::Acos(oldDir.Dot(newDir));
-    AZ::Quaternion deltaRotation(rotationAxis, rotationAngle);
+    AZ::Quaternion deltaRotation = AZ::Quaternion::CreateFromAxisAngle(rotationAxis, rotationAngle);
 
     newParentTransform.m_rotation = (deltaRotation * oldParentTransform.m_rotation).GetNormalized();
 }

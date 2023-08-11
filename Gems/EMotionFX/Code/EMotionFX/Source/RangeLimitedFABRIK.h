@@ -206,6 +206,10 @@ public:
         float precision = 0.01f,
         int32_t maxIterations = 20);
 
+    static void UpdateRotations(
+        const AZStd::vector<Transform>& inTransforms,
+        AZStd::vector<Transform>& outTransforms);
+
 protected:
     // Updates the rotation of the parent to point toward the child, using the shortest rotation
     static void UpdateParentRotation(

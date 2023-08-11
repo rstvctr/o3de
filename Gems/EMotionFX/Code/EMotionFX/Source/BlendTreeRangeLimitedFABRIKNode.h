@@ -4,11 +4,10 @@
 #include "EMotionFXConfig.h"
 #include "AnimGraphNode.h"
 
-
 namespace EMotionFX
 {
     /**
-     *
+     * Perform range-limited FABRIK on the pose for the given set of joints
      */
     class EMFX_API BlendTreeRangeLimitedFABRIKNode
         : public AnimGraphNode
@@ -39,6 +38,7 @@ namespace EMotionFX
 
         public:
             AZStd::vector<size_t> m_nodeIndices;
+            size_t m_jointToeIndex;
         };
 
         BlendTreeRangeLimitedFABRIKNode();
@@ -57,6 +57,7 @@ namespace EMotionFX
         AnimGraphObject::ECategory GetPaletteCategory() const override;
 
         const AZStd::vector<AZStd::string>& GetJointNames() const { return m_jointNames; }
+        const AZStd::string& GetJointToeName() const { return m_jointToeName; }
 
         static void Reflect(AZ::ReflectContext* context);
 
@@ -69,5 +70,6 @@ namespace EMotionFX
         float                           m_precision = 0.001f;
         int32_t                         m_maxIterations = 10;
         bool                            m_enableKneeCorrection = true;
+        AZStd::string                   m_jointToeName;
     };
 } // namespace EMotionFX
