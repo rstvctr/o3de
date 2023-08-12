@@ -79,17 +79,17 @@ namespace EMotionFX
         const char* GetPaletteName() const override;
         AnimGraphObject::ECategory GetPaletteCategory() const override;
 
-        void SetJointName(const AZStd::string& jointName) { m_actorNode.first = jointName; }
-        const AZStd::string& GetNodeName() const { return m_actorNode.first; }
-        int GetActorInstanceParentDepth() const { return m_actorNode.second; }
+        void SetJointName(const AZStd::string& jointName) { m_nodeName = jointName; }
+        const AZStd::string& GetNodeName() const { return m_nodeName; }
+        int GetActorInstanceParentDepth() const { return m_actorInstance; }
 
         static void Reflect(AZ::ReflectContext* context);
 
     private:
         void Output(AnimGraphInstance* animGraphInstance) override;
 
-        using ActorNode = AZStd::pair<AZStd::string, int>;
-        ActorNode           m_actorNode;
+        AZStd::string m_nodeName;
+        int m_actorInstance = 0;
         ETransformSpace     m_transformSpace;
     };
 }   // namespace EMotionFX

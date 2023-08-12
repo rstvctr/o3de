@@ -56,8 +56,6 @@ namespace EMotionFX
         : AnimGraphNode()
         , m_transformSpace(TRANSFORM_SPACE_LOCAL)
     {
-        m_actorNode.second = 0;
-
         // setup the input ports
         InitInputPorts(1);
         SetupInputPort("Input Pose", INPUTPORT_POSE, AttributePose::TYPE_ID, PORTID_INPUT_POSE);
@@ -119,7 +117,7 @@ namespace EMotionFX
         Pose* pose = nullptr;
         if (uniqueData->m_nodeIndex != InvalidIndex)
         {
-            if (m_actorNode.second == 0)
+            if (m_actorInstance == 0)
             {
                 // We operate over the input pose
                 if (inputPose)
@@ -129,7 +127,7 @@ namespace EMotionFX
             }
             else
             {
-                const ActorInstance* alignInstance = animGraphInstance->FindActorInstanceFromParentDepth(m_actorNode.second);
+                const ActorInstance* alignInstance = animGraphInstance->FindActorInstanceFromParentDepth(m_actorInstance);
                 if (alignInstance)
                 {
                     pose = alignInstance->GetTransformData()->GetCurrentPose();
@@ -182,7 +180,8 @@ namespace EMotionFX
 
         serializeContext->Class<BlendTreeGetTransformNode, AnimGraphNode>()
             ->Version(1)
-            ->Field("actorNode", &BlendTreeGetTransformNode::m_actorNode)
+            ->Field("nodeName", &BlendTreeGetTransformNode::m_nodeName)
+            ->Field("actorInstance", &BlendTreeGetTransformNode::m_actorInstance)
             ->Field("transformSpace", &BlendTreeGetTransformNode::m_transformSpace)
         ;
 
@@ -196,10 +195,11 @@ namespace EMotionFX
             ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
             ->Attribute(AZ::Edit::Attributes::AutoExpand, "")
             ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::ShowChildrenOnly)
-            ->DataElement(AZ_CRC("ActorGoalNode", 0xaf1e8a3a), &BlendTreeGetTransformNode::m_actorNode, "Node", "The node to get the transform from.")
+            ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeGetTransformNode::m_nodeName, "Node", "The node to get the transform from.")
             ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::HideChildren)
             ->Attribute(AZ::Edit::Attributes::ChangeNotify, &BlendTreeGetTransformNode::InvalidateUniqueDatas)
             ->Attribute(AZ::Edit::Attributes::ChangeNotify, AZ::Edit::PropertyRefreshLevels::EntireTree)
+            ->DataElement(AZ::Edit::UIHandlers::Default, &BlendTreeGetTransformNode::m_actorInstance, "Actor Instance", "")
             ->DataElement(AZ::Edit::UIHandlers::ComboBox, &BlendTreeGetTransformNode::m_transformSpace)
         ;
     }
