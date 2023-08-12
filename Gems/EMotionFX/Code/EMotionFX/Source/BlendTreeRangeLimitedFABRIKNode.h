@@ -64,6 +64,12 @@ namespace EMotionFX
     private:
         void Output(AnimGraphInstance* animGraphInstance) override;
 
+        static void CalcKneeCorrection(
+            const AZStd::vector<AZ::Vector3>& inputPositions,
+            AZStd::vector<AZ::Vector3>& outputPositions,
+            const AZ::Vector3& toePosition
+        );
+
         AZStd::vector<AZStd::string>    m_jointNames;
         float                           m_maxRootDragDist = 0.0f;
         float                           m_rootDragStiffness = 1.0f;

@@ -204,134 +204,11 @@ namespace EMotionFX
 
         if (m_enableKneeCorrection && inputPositions.size() == 3 && uniqueData->m_jointToeIndex != InvalidIndex)
         {
-            // Pre-IK positions
-            AZ::Vector3 hipCSPre      = inputPositions[0];
-            AZ::Vector3 kneeCSPre     = inputPositions[1];
-            AZ::Vector3 footCSPre     = inputPositions[2];
-            AZ::Vector3 toeCSPre      = inTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position;
-
-            // Post-IK positions
-            AZ::Vector3 hipCSPost       = outputPositions[0];
-            AZ::Vector3 kneeCSPost      = outputPositions[1];
-            AZ::Vector3 footCSPost      = outputPositions[2];
-            AZ::Vector3 toeCSPost       = toeCSPre - footCSPre + footCSPost;
-
-            // Thigh and shin before correction
-            AZ::Vector3 oldThighVec = (kneeCSPost - hipCSPost).GetNormalized();
-            AZ::Vector3 oldShinVec  = (footCSPost - kneeCSPost).GetNormalized();
-	
-            // If the leg is fully extended or fully folded, early out (correction is never needed)
-            if (AZ::IsClose(AZ::Abs(oldThighVec.Dot(oldShinVec)), 1.0f))
-            {
-                return;
-            }
-        
-            // To correct the knee:
-            // - Project everything onto the plane normal to the vector from thigh to foot
-            // - Find the angle, in the base pose, between the direction of the foot and the direction of the knee. If the leg is fully extended, assume this angle is 0.	
-            // - Rotate the IKed knee angle so that it maintains the same angle with the IKed foot	
-
-            // Project everything onto the plane defined by the axis between the hip and the foot. The knee can be rotated
-            // around this axis without changing the position of the effector (the foot).	
-	
-            // Define each plane	
-            AZ::Vector3 hipFootAxisPre    = footCSPre - hipCSPre;
-            hipFootAxisPre.NormalizeSafe();
-            if (hipFootAxisPre.IsZero())
-            {
-#if ENABLE_IK_DEBUG
-                AZ_Warning("LogRTIK", false, "Knee Correction - HipFootAxisPre Normalization Failure");
-#endif // ENABLE_IK_DEBUG_VERBOSE
-                hipFootAxisPre        = AZ::Vector3(0.0f, 0.0f, 1.0f);
-            }
-            AZ::Vector3 centerPre         = hipCSPre + (kneeCSPre - hipCSPre).GetProjectedOnNormal(hipFootAxisPre);
-            AZ::Vector3 kneeDirectionPre  = (kneeCSPre - centerPre).GetNormalized();
-
-            AZ::Vector3 hipFootAxisPost   = footCSPost - hipCSPost;
-            hipFootAxisPost.NormalizeSafe();
-            if (hipFootAxisPost.IsZero())
-            {
-#if ENABLE_IK_DEBUG
-                AZ_Warning("LogRTIK", false, "Knee Correction - HipFootAxisPost Normalization Failure");
-#endif // ENABLE_IK_DEBUG_VERBOSE
-                hipFootAxisPost       = AZ::Vector3(0.0f, 0.0f, 1.0f);
-            }
-            AZ::Vector3 centerPost        = hipCSPost + (kneeCSPost - hipCSPost).GetProjectedOnNormal(hipFootAxisPost);
-            AZ::Vector3 kneeDirectionPost = (kneeCSPost - centerPost).GetNormalized();
-	
-            // Get the projected foot-toe vectors
-            AZ::Vector3 footToePre = AZ::Plane::CreateFromNormalAndDistance(hipFootAxisPre, 0.0f).GetProjected(toeCSPre - footCSPre);
-            footToePre.NormalizeSafe();
-            if (footToePre.IsZero())
-            {
-#if ENABLE_IK_DEBUG
-                AZ_Warning("LogRTIK", false, "Knee Correction - FootToePre Normalization Failure");
-#endif // ENABLE_IK_DEBUG_VERBOSE
-                footToePre = kneeDirectionPre;
-            }
-
-            // Rotate the foot according to how the hip-foot axis is changed. Without this, the foot direction
-            // may be reversed when projected onto the rotation plane	
-            float hipAxisRad = AZ::Acos(hipFootAxisPre.Dot(hipFootAxisPost));
-            AZ::Vector3 footToeRotationAxis = hipFootAxisPre.Cross(hipFootAxisPost);
-            AZ::Vector3 footCSPostRotated = footCSPost;
-            AZ::Vector3 toeCSPostRotated = toeCSPost;
-            footToeRotationAxis.Normalize();
-            if (!footToeRotationAxis.IsZero())
-            {
-                AZ::Quaternion footToeRotation = AZ::Quaternion::CreateFromAxisAngle(footToeRotationAxis, hipAxisRad);
-                AZ::Vector3 footDirection = footCSPost - hipCSPost;
-                AZ::Vector3 toeDirection = toeCSPost - hipCSPost;
-                footCSPostRotated = hipCSPost + footToeRotation.TransformVector(footDirection);
-                toeCSPostRotated = hipCSPost + footToeRotation.TransformVector(toeDirection);
-            }
-   	
-            AZ::Vector3 footToePost = AZ::Plane::CreateFromNormalAndDistance(hipFootAxisPost, 0.0f).GetProjected(toeCSPostRotated - footCSPostRotated);
-            footToePost.NormalizeSafe();
-            if (footToePost.IsZero())
-            {
-#if ENABLE_IK_DEBUG_VERBOSE
-                AZ_Warning("LogRTIK", false, "Knee Correction - FootToePost Normalization Failure");
-#endif // ENABLE_IK_DEBUG_VERBOSE
-                footToePost = kneeDirectionPost;
-            }
-
-            // No need to failsafe -- we've already checked that the leg isn't completely straight
-            AZ::Vector3 kneePre = (kneeCSPre - centerPre).GetNormalized();
-	
-            // Rotate the post-IK foot to find the corrected knee direction (on the hip-foot plane)
-            float footKneeRad  = AZ::Acos(footToePre.Dot(kneePre));
-            AZ::Vector3 rotationAxis = footToePre.Cross(kneePre);
-
-            rotationAxis.NormalizeSafe();
-            if (rotationAxis.IsZero())
-            {		
-
-#if ENABLE_IK_DEBUG_VERBOSE
-                AZ_Warning("LogRTIK", false, "Knee correction -- rotation Axis normalization failure ");
-#endif
-
-                if (footToePre.Dot(kneePre) < 0.0f)
-                {
-                    // Knee and foot point in opposite directions
-                    rotationAxis  = hipFootAxisPost;
-                    footKneeRad = AZ::Constants::Pi;
-                }
-                else
-                {
-                    // Foot any knee point in same direction (no rotation needed)
-                    rotationAxis  = hipFootAxisPost;
-                    footKneeRad = 0.0f;
-                }
-            }
-
-            AZ::Quaternion footKneeRotPost = AZ::Quaternion::CreateFromAxisAngle(rotationAxis, footKneeRad);
-            AZ::Vector3 newKneeDirection = footKneeRotPost.TransformVector(footToePost);
-            
-            // Transform back to component space
-            AZ::Vector3 newKneeCS = centerPost + (newKneeDirection * (kneeCSPost - centerPost).GetLength());
-
-            outputPositions[1] = newKneeCS;
+            CalcKneeCorrection(
+                inputPositions,
+                outputPositions,
+                inTransformPose.GetModelSpaceTransform(uniqueData->m_jointToeIndex).m_position
+            );
         }
 
         // Update the rotations to match the new positions
@@ -375,6 +252,142 @@ namespace EMotionFX
                 outTransformPose.SetLocalSpaceTransform(nodeIndex, finalTransform);
             }
         }
+    }
+
+    void BlendTreeRangeLimitedFABRIKNode::CalcKneeCorrection(
+            const AZStd::vector<AZ::Vector3>& inputPositions,
+            AZStd::vector<AZ::Vector3>& outputPositions,
+            const AZ::Vector3& toePosition
+        )
+    {
+        // Pre-IK positions
+        AZ::Vector3 hipCSPre      = inputPositions[0];
+        AZ::Vector3 kneeCSPre     = inputPositions[1];
+        AZ::Vector3 footCSPre     = inputPositions[2];
+        AZ::Vector3 toeCSPre      = toePosition;
+
+        // Post-IK positions
+        AZ::Vector3 hipCSPost       = outputPositions[0];
+        AZ::Vector3 kneeCSPost      = outputPositions[1];
+        AZ::Vector3 footCSPost      = outputPositions[2];
+        AZ::Vector3 toeCSPost       = toeCSPre - footCSPre + footCSPost;
+
+        // Thigh and shin before correction
+        AZ::Vector3 oldThighVec = (kneeCSPost - hipCSPost).GetNormalized();
+        AZ::Vector3 oldShinVec  = (footCSPost - kneeCSPost).GetNormalized();
+
+        // If the leg is fully extended or fully folded, early out (correction is never needed)
+        if (AZ::IsClose(AZ::Abs(oldThighVec.Dot(oldShinVec)), 1.0f))
+        {
+            return;
+        }
+    
+        // To correct the knee:
+        // - Project everything onto the plane normal to the vector from thigh to foot
+        // - Find the angle, in the base pose, between the direction of the foot and the direction of the knee. If the leg is fully extended, assume this angle is 0.	
+        // - Rotate the IKed knee angle so that it maintains the same angle with the IKed foot	
+
+        // Project everything onto the plane defined by the axis between the hip and the foot. The knee can be rotated
+        // around this axis without changing the position of the effector (the foot).	
+
+        // Define each plane	
+        AZ::Vector3 hipFootAxisPre    = footCSPre - hipCSPre;
+        hipFootAxisPre.NormalizeSafe();
+        if (hipFootAxisPre.IsZero())
+        {
+#if ENABLE_IK_DEBUG
+            AZ_Warning("LogRTIK", false, "Knee Correction - HipFootAxisPre Normalization Failure");
+#endif // ENABLE_IK_DEBUG_VERBOSE
+            hipFootAxisPre        = AZ::Vector3(0.0f, 0.0f, 1.0f);
+        }
+        AZ::Vector3 centerPre         = hipCSPre + (kneeCSPre - hipCSPre).GetProjectedOnNormal(hipFootAxisPre);
+        AZ::Vector3 kneeDirectionPre  = (kneeCSPre - centerPre).GetNormalized();
+
+        AZ::Vector3 hipFootAxisPost   = footCSPost - hipCSPost;
+        hipFootAxisPost.NormalizeSafe();
+        if (hipFootAxisPost.IsZero())
+        {
+#if ENABLE_IK_DEBUG
+            AZ_Warning("LogRTIK", false, "Knee Correction - HipFootAxisPost Normalization Failure");
+#endif // ENABLE_IK_DEBUG_VERBOSE
+            hipFootAxisPost       = AZ::Vector3(0.0f, 0.0f, 1.0f);
+        }
+        AZ::Vector3 centerPost        = hipCSPost + (kneeCSPost - hipCSPost).GetProjectedOnNormal(hipFootAxisPost);
+        AZ::Vector3 kneeDirectionPost = (kneeCSPost - centerPost).GetNormalized();
+
+        // Get the projected foot-toe vectors
+        AZ::Vector3 footToePre = AZ::Plane::CreateFromNormalAndDistance(hipFootAxisPre, 0.0f).GetProjected(toeCSPre - footCSPre);
+        footToePre.NormalizeSafe();
+        if (footToePre.IsZero())
+        {
+#if ENABLE_IK_DEBUG
+            AZ_Warning("LogRTIK", false, "Knee Correction - FootToePre Normalization Failure");
+#endif // ENABLE_IK_DEBUG_VERBOSE
+            footToePre = kneeDirectionPre;
+        }
+
+        // Rotate the foot according to how the hip-foot axis is changed. Without this, the foot direction
+        // may be reversed when projected onto the rotation plane	
+        float hipAxisRad = AZ::Acos(hipFootAxisPre.Dot(hipFootAxisPost));
+        AZ::Vector3 footToeRotationAxis = hipFootAxisPre.Cross(hipFootAxisPost);
+        AZ::Vector3 footCSPostRotated = footCSPost;
+        AZ::Vector3 toeCSPostRotated = toeCSPost;
+        footToeRotationAxis.Normalize();
+        if (!footToeRotationAxis.IsZero())
+        {
+            AZ::Quaternion footToeRotation = AZ::Quaternion::CreateFromAxisAngle(footToeRotationAxis, hipAxisRad);
+            AZ::Vector3 footDirection = footCSPost - hipCSPost;
+            AZ::Vector3 toeDirection = toeCSPost - hipCSPost;
+            footCSPostRotated = hipCSPost + footToeRotation.TransformVector(footDirection);
+            toeCSPostRotated = hipCSPost + footToeRotation.TransformVector(toeDirection);
+        }
+
+        AZ::Vector3 footToePost = AZ::Plane::CreateFromNormalAndDistance(hipFootAxisPost, 0.0f).GetProjected(toeCSPostRotated - footCSPostRotated);
+        footToePost.NormalizeSafe();
+        if (footToePost.IsZero())
+        {
+#if ENABLE_IK_DEBUG_VERBOSE
+            AZ_Warning("LogRTIK", false, "Knee Correction - FootToePost Normalization Failure");
+#endif // ENABLE_IK_DEBUG_VERBOSE
+            footToePost = kneeDirectionPost;
+        }
+
+        // No need to failsafe -- we've already checked that the leg isn't completely straight
+        AZ::Vector3 kneePre = (kneeCSPre - centerPre).GetNormalized();
+
+        // Rotate the post-IK foot to find the corrected knee direction (on the hip-foot plane)
+        float footKneeRad  = AZ::Acos(footToePre.Dot(kneePre));
+        AZ::Vector3 rotationAxis = footToePre.Cross(kneePre);
+
+        rotationAxis.NormalizeSafe();
+        if (rotationAxis.IsZero())
+        {		
+
+#if ENABLE_IK_DEBUG_VERBOSE
+            AZ_Warning("LogRTIK", false, "Knee correction -- rotation Axis normalization failure ");
+#endif
+
+            if (footToePre.Dot(kneePre) < 0.0f)
+            {
+                // Knee and foot point in opposite directions
+                rotationAxis  = hipFootAxisPost;
+                footKneeRad = AZ::Constants::Pi;
+            }
+            else
+            {
+                // Foot any knee point in same direction (no rotation needed)
+                rotationAxis  = hipFootAxisPost;
+                footKneeRad = 0.0f;
+            }
+        }
+
+        AZ::Quaternion footKneeRotPost = AZ::Quaternion::CreateFromAxisAngle(rotationAxis, footKneeRad);
+        AZ::Vector3 newKneeDirection = footKneeRotPost.TransformVector(footToePost);
+        
+        // Transform back to component space
+        AZ::Vector3 newKneeCS = centerPost + (newKneeDirection * (kneeCSPost - centerPost).GetLength());
+
+        outputPositions[1] = newKneeCS;
     }
 
     void BlendTreeRangeLimitedFABRIKNode::Reflect(AZ::ReflectContext* context)
