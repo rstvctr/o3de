@@ -46,7 +46,9 @@
 #include <EMotionFX/Source/BlendTreeVector4DecomposeNode.h>
 #include <EMotionFX/Source/BlendTreeVector2ComposeNode.h>
 #include <EMotionFX/Source/BlendTreeVector3ComposeNode.h>
+#include <EMotionFX/Source/BlendTreeVector3ConstantNode.h>
 #include <EMotionFX/Source/BlendTreeVector4ComposeNode.h>
+#include <EMotionFX/Source/BlendTreeRotateVectorNode.h>
 #include <EMotionFX/Source/BlendTreeRotationMath2Node.h>
 #include <EMotionFX/Source/BlendTreeRotationLimitNode.h>
 #include <EMotionFX/Source/BlendTreeTwoLinkIKNode.h>
@@ -172,10 +174,12 @@ namespace EMotionFX
         BlendTreeVector3Math1Node::Reflect(context);
         BlendTreeVector3Math2Node::Reflect(context);
         BlendTreeVector2DecomposeNode::Reflect(context);
+        BlendTreeVector3ConstantNode::Reflect(context);
         BlendTreeVector3DecomposeNode::Reflect(context);
         BlendTreeVector4DecomposeNode::Reflect(context);
         BlendTreeVector2ComposeNode::Reflect(context);
         BlendTreeVector3ComposeNode::Reflect(context);
+        BlendTreeRotateVectorNode::Reflect(context);
         BlendTreeRotationMath2Node::Reflect(context);
         BlendTreeRotationLimitNode::Reflect(context);
         BlendTreeVector4ComposeNode::Reflect(context);
@@ -229,6 +233,7 @@ namespace EMotionFX
             azrtti_typeid<BlendTreeMaskLegacyNode>(),
             azrtti_typeid<BlendTreeMorphTargetNode>(),
             azrtti_typeid<BlendTreeMotionFrameNode>(),
+            azrtti_typeid<BlendTreeVector3ConstantNode>(),
             azrtti_typeid<BlendTreeVector3Math1Node>(),
             azrtti_typeid<BlendTreeVector3Math2Node>(),
             azrtti_typeid<BlendTreeVector2DecomposeNode>(),
@@ -252,6 +257,7 @@ namespace EMotionFX
             azrtti_typeid<BlendTreeRagdollNode>(),
             azrtti_typeid<BlendTreeRagdollStrenghModifierNode>(),
             azrtti_typeid<BlendTreeRangeLimitedFABRIKNode>(),
+            azrtti_typeid<BlendTreeRotateVectorNode>(),
             azrtti_typeid<BlendTreeRotationLimitNode>(),
             azrtti_typeid<BlendTreeRotationMath2Node>(),
             azrtti_typeid<BlendTreeFootIKNode>(),

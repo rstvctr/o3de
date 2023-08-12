@@ -280,6 +280,8 @@ set(FILES
     Source/BlendTreeVector2DecomposeNode.h
     Source/BlendTreeVector3ComposeNode.cpp
     Source/BlendTreeVector3ComposeNode.h
+    Source/BlendTreeVector3ConstantNode.cpp
+    Source/BlendTreeVector3ConstantNode.h
     Source/BlendTreeVector3DecomposeNode.cpp
     Source/BlendTreeVector3DecomposeNode.h
     Source/BlendTreeVector3Math1Node.cpp
@@ -292,6 +294,8 @@ set(FILES
     Source/BlendTreeVector4DecomposeNode.h
     Source/BlendTreeRaycastNode.cpp
     Source/BlendTreeRaycastNode.h
+    Source/BlendTreeRotateVectorNode.cpp
+    Source/BlendTreeRotateVectorNode.h
     Source/BlendTreeRotationMath2Node.cpp
     Source/BlendTreeRotationMath2Node.h
     Source/BlendTreeRotationLimitNode.cpp
