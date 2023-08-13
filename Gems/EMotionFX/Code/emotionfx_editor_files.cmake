@@ -13,6 +13,13 @@ set(FILES
     ../Assets/Editor/Images/Icons/Viewport/ActorComponent.svg
     ../Assets/Editor/Images/Icons/AnimGraphComponent.svg
     ../Assets/Editor/Images/Icons/Viewport/AnimGraphComponent.svg
+    ../Assets/Editor/Images/Icons/BoneMapHumanBody.svg
+    ../Assets/Editor/Images/Icons/BoneMapHumanFace.svg
+    ../Assets/Editor/Images/Icons/BoneMapHumanLeftHand.svg
+    ../Assets/Editor/Images/Icons/BoneMapHumanRightHand.svg
+    ../Assets/Editor/Images/Icons/BoneMapperHandle.svg
+    ../Assets/Editor/Images/Icons/BoneMapperHandleCircle.svg
+    ../Assets/Editor/Images/Icons/BoneMapperHandleSelected.svg
     Source/Integration/Editor/Components/EditorActorComponent.h
     Source/Integration/Editor/Components/EditorActorComponent.cpp
     Source/Integration/Editor/Components/EditorAnimAudioComponent.h
@@ -161,6 +168,8 @@ set(FILES
     Source/Editor/PropertyWidgets/RagdollJointHandler.cpp
     Source/Editor/PropertyWidgets/BlendTreeRotationLimitHandler.cpp
     Source/Editor/PropertyWidgets/BlendTreeRotationLimitHandler.h
+    Source/Editor/PropertyWidgets/BoneMapHandler.cpp
+    Source/Editor/PropertyWidgets/BoneMapHandler.h
     Source/Editor/PropertyWidgets/TransitionStateFilterLocalHandler.h
     Source/Editor/PropertyWidgets/TransitionStateFilterLocalHandler.cpp
     Source/Editor/PropertyWidgets/PropertyTypes.h

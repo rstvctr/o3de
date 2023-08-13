@@ -55,6 +55,8 @@ set(FILES
     Rules/RootMotionExtractionRule.cpp
     Rules/SkeletonOptimizationRule.h
     Rules/SkeletonOptimizationRule.cpp
+    Rules/SkeletonRemapRule.h
+    Rules/SkeletonRemapRule.cpp
     Data/LodNodeSelectionList.h
     Data/LodNodeSelectionList.cpp
     Utilities/LODSelector.h

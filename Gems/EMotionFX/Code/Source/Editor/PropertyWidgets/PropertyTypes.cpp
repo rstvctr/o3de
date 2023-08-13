@@ -22,6 +22,7 @@
 #include <Editor/PropertyWidgets/EventDataHandler.h>
 #include <Editor/PropertyWidgets/MotionSetMotionIdHandler.h>
 #include <Editor/PropertyWidgets/BlendTreeRotationLimitHandler.h>
+#include <Editor/PropertyWidgets/BoneMapHandler.h>
 #include <Editor/PropertyWidgets/MotionSetNameHandler.h>
 #include <Editor/PropertyWidgets/RagdollJointHandler.h>
 #include <Editor/PropertyWidgets/TransitionStateFilterLocalHandler.h>
@@ -73,6 +74,7 @@ namespace EMotionFX
             aznew EMotionFX::MotionSetNameHandler(),
             aznew EMotionFX::BlendTreeRotationLimitHandler(),
             aznew EMotionFX::BlendTreeRotationLimitContainerHandler(),
+            aznew EMotionFX::BoneMapHandler(),
             aznew EMotionFX::Pipeline::UI::LODTreeSelectionHandler(),
             aznew EMotionFX::BlendNParamWeightsHandler(),
             aznew EMotionFX::BlendNParamWeightElementHandler(),

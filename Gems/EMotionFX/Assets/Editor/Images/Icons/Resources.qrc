@@ -9,6 +9,13 @@
         <file>AnimGraphComponent.svg</file>
         <file>Backward.svg</file>
         <file>Bone.svg</file>
+        <file>BoneMapHumanBody.svg</file>
+        <file>BoneMapHumanFace.svg</file>
+        <file>BoneMapHumanLeftHand.svg</file>
+        <file>BoneMapHumanRightHand.svg</file>
+        <file>BoneMapperHandle.svg</file>
+        <file>BoneMapperHandleCircle.svg</file>
+        <file>BoneMapperHandleSelected.svg</file>
         <file>Character.svg</file>
         <file>Clear.svg</file>
         <file>Cloth.svg</file>
