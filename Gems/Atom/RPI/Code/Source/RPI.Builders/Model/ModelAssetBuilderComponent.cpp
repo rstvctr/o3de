@@ -18,6 +18,7 @@
 #include <AzCore/Serialization/Utils.h>
 #include <AzCore/std/smart_ptr/make_shared.h>
 
+#include <Atom/RPI.Public/JointRemapBus.h>
 #include <Atom/RPI.Reflect/Buffer/BufferAssetCreator.h>
 #include <Atom/RPI.Reflect/Material/MaterialAsset.h>
 #include <Atom/RPI.Reflect/Model/ModelAssetCreator.h>
@@ -514,6 +515,9 @@ namespace AZ
             // Fill the skin meta asset
             if (!jointNameToIndexMap.empty())
             {
+                // EBus broadcast to attempt joint remap
+                JointRemapBus::Broadcast(&JointRemapEvents::SkinDataRemap, scene, m_modelName, jointNameToIndexMap);
+
                 SkinMetaAssetCreator skinCreator;
                 skinCreator.Begin(SkinMetaAsset::ConstructAssetId(modelAssetId, modelAssetName));
 

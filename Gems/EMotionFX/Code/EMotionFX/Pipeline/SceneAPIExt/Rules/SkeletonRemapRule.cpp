@@ -1,5 +1,4 @@
 #include <AzCore/Serialization/EditContext.h>
-#include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/RTTI/ReflectContext.h>
 #include <AzCore/Memory/SystemAllocator.h>
 #include <SceneAPI/SceneCore/DataTypes/GraphData/IBoneData.h>
@@ -9,14 +8,58 @@ namespace EMotionFX
 {
     AZ_CLASS_ALLOCATOR_IMPL(BoneMap, AZ::SystemAllocator)
 
+    void BoneMap::EventHandler::OnReadEnd(void* classPtr)
+    {
+        BoneMap* boneMap = static_cast<BoneMap*>(classPtr);
+
+        // Re-generate the reverse map after serialization completes
+        boneMap->m_profileToOrigBoneMap.clear();
+        for (const auto& [origBoneName, profileBoneName] : boneMap->m_boneMap)
+        {
+            boneMap->m_profileToOrigBoneMap.emplace(profileBoneName, origBoneName);
+        }
+    }
+
     void BoneMap::Reflect(AZ::ReflectContext* context)
     {
         if (AZ::SerializeContext* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
             serializeContext->Class<BoneMap>()
                 ->Version(1)
+                ->EventHandler<BoneMap::EventHandler>()
                 ->Field("BoneMap", &BoneMap::m_boneMap);
         }
+    }
+
+    void BoneMap::SetSkeletonBoneName(const AZStd::string& mappedBoneName, const AZStd::string& origBoneName)
+    {
+        m_boneMap.emplace(origBoneName, mappedBoneName);
+        m_profileToOrigBoneMap.emplace(mappedBoneName, origBoneName);
+    }
+
+    void BoneMap::Clear()
+    {
+        m_boneMap.clear();
+        m_profileToOrigBoneMap.clear();
+    }
+
+    void BoneMap::Remove(const AZStd::string& name)
+    {
+        if (auto it = m_profileToOrigBoneMap.find(name); it != m_profileToOrigBoneMap.end())
+        {
+            m_boneMap.erase(it->second);
+            m_profileToOrigBoneMap.erase(it);
+        }
+    }
+
+    bool BoneMap::HasBone(const AZStd::string& name) const
+    {
+        return m_profileToOrigBoneMap.find(name) != m_profileToOrigBoneMap.end();
+    }
+
+    const AZStd::string& BoneMap::GetOrigBone(const AZStd::string& name) const
+    {
+        return m_profileToOrigBoneMap.at(name);
     }
 
     namespace Pipeline

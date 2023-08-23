@@ -21,6 +21,7 @@
 
 #include <SceneAPIExt/Rules/LodRule.h>
 #include <SceneAPIExt/Rules/SkeletonOptimizationRule.h>
+#include <SceneAPIExt/Rules/SkeletonRemapRule.h>
 #include <SceneAPIExt/Groups/ActorGroup.h>
 #include <RCExt/Actor/ActorBuilder.h>
 #include <RCExt/ExportContexts.h>
@@ -303,6 +304,31 @@ namespace EMotionFX
                 if (!AZ::IsClose(scaleFactor, 1.0f, FLT_EPSILON)) // If the scale factor is 1, no need to call Scale
                 {
                     actor->Scale(scaleFactor);
+                }
+            }
+
+            const AZStd::shared_ptr<Rule::SkeletonRemapRule> skeletonRemapRule = actorGroup.GetRuleContainerConst().FindFirstByType<Rule::SkeletonRemapRule>();
+            if (skeletonRemapRule)
+            {
+                for (const auto& [skeletonBoneName, profileBoneName] : skeletonRemapRule->GetBoneMap())
+                {
+                    SceneContainers::SceneGraph::NodeIndex nodeIndex = graph.Find(skeletonBoneName);
+                    if (!nodeIndex.IsValid())
+                    {
+                        AZ_TracePrintf(SceneUtil::WarningWindow, "Bone to remap %s is not stored in the scene. Skipping it.", skeletonBoneName.c_str());
+                        continue;
+                    }
+
+                    const SceneContainers::SceneGraph::Name& nodeName = graph.GetNodeName(nodeIndex);
+
+                    EMotionFX::Node* emfxNode = actorSkeleton->FindNodeByName(nodeName.GetName());
+                    if (!emfxNode)
+                    {
+                        AZ_TracePrintf(SceneUtil::WarningWindow, "Bone to remap %s is not in the actor skeleton hierarchy. Skipping it.", nodeName.GetName());
+                        continue;
+                    }
+
+                    emfxNode->SetName(profileBoneName.c_str());
                 }
             }
 

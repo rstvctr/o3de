@@ -4,6 +4,8 @@
 #include <AzToolsFramework/UI/PropertyEditor/PropertyEditorAPI.h>
 #include <EMotionFX/Pipeline/SceneAPIExt/Rules/SkeletonRemapRule.h>
 #include <EMotionFX/Source/Transform.h>
+#include <SceneAPI/SceneCore/Containers/SceneGraph.h>
+#include <SceneAPI/SceneUI/SceneWidgets/SceneGraphWidget.h>
 #include <QBitmap>
 #include <QGraphicsItem>
 #include <QWidget>
@@ -16,8 +18,6 @@ class QLineEdit;
 
 namespace EMotionFX
 {
-    class ActorJointPicker;
-
     class BoneTargetItem : public QGraphicsItem
     {
     public:
@@ -73,33 +73,76 @@ namespace EMotionFX
             AZ::Vector2 m_handle_offset;
             AZStd::string m_group;
             bool m_require = false;
+            BoneTargetItem* m_boneTarget = nullptr;
         };
 
         AZ_CLASS_ALLOCATOR_DECL
+
         BoneMapWidget(QWidget* parent);
 
+        const BoneMap& GetBoneMap() const;
+        void SetBoneMap(const BoneMap& boneMap);
+
     signals:
+        void mappingChanged();
 
     private slots:
         void onGraphicsSceneSelectionChanged();
         void onGuessBoneMappingsButtonClicked();
         void onClearButtonClicked();
         void onGroupSelectCurrentIndexChanged(int index);
-        void onBonePickerSelectionChanged();
+        void onPickButtonClicked();
+        void onResetButtonClicked();
 
     private:
+        enum BoneSegregation {
+            BONE_SEGREGATION_NONE,
+            BONE_SEGREGATION_LEFT,
+            BONE_SEGREGATION_RIGHT
+        };
+        using NodeIndex = AZ::SceneAPI::Containers::SceneGraph::NodeIndex;
+
+        void OnListChangesAccepted();
+        void OnListChangesCanceled();
+
         void InitBonesAndGroups();
+
+        static QString CamelcaseToUnderscore(const QString& in);
+        static QString ToSnakeCase(const QString& in);
+        BoneSegregation GuessBoneSegregation(const QString& boneName);
+        static AZStd::vector<NodeIndex> GetParentlessBones(const AZ::SceneAPI::Containers::SceneGraph& graph);
+        static AZStd::vector<NodeIndex> GetBoneChildren(const AZ::SceneAPI::Containers::SceneGraph& graph, NodeIndex node);
+        static NodeIndex GetBoneParent(const AZ::SceneAPI::Containers::SceneGraph& graph, NodeIndex node);
+        static int CountBones(const AZ::SceneAPI::Containers::SceneGraph& graph, const AZStd::vector<NodeIndex>& boneList);
+        NodeIndex SearchBoneByName(
+            AZ::SceneAPI::Containers::SceneGraph& graph,
+            AZStd::vector<AZStd::string> picklist,
+            BoneSegregation segregation = BONE_SEGREGATION_NONE,
+            NodeIndex parent = NodeIndex(),
+            NodeIndex child = NodeIndex(),
+            int children_count = -1);
+        void GuessBoneMapping(AZ::SceneAPI::Containers::SceneGraph& graph, BoneMap& boneMap);
+
+        void UpdateAllBones(AZ::SceneAPI::Containers::SceneGraph& graph);
+        void UpdateBone(AZ::SceneAPI::Containers::SceneGraph& graph, int index);
+        
+        AZ::SceneAPI::Containers::SceneGraph& GetGraph();
 
         QGraphicsScene* m_graphicsScene = nullptr;
         QGraphicsView* m_graphicsView = nullptr;
         QLabel* m_targetNameLabel = nullptr;
         QLineEdit* m_boneNameLineEdit = nullptr;
-        ActorJointPicker* m_bonePicker = nullptr;
+
+        AZStd::unique_ptr<AZ::SceneAPI::UI::SceneGraphWidget> m_treeWidget;
 
         BoneTargetItem* m_currentSelectedTarget = nullptr;
 
         AZStd::vector<SkeletonProfileGroup> m_groups;
         AZStd::vector<SkeletonProfileBone> m_bones;
+        QList<QRegularExpression> m_leftWords;
+        QList<QRegularExpression> m_rightWords;
+
+        BoneMap m_boneMapping;
     };
 
     class BoneMapHandler

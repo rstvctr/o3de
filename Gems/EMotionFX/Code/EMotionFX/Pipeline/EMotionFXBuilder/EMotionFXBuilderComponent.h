@@ -12,6 +12,8 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Module/Environment.h>
 
+#include <Atom/RPI.Public/JointRemapBus.h>
+
 #include "MotionSetBuilderWorker.h"
 #include "AnimGraphBuilderWorker.h"
 
@@ -30,6 +32,7 @@ namespace EMotionFX
         //! The EMotionFXBuilderComponent is responsible for setting up the EMotionFXBuilderWorker.
         class EMotionFXBuilderComponent
             : public AZ::Component
+            , public AZ::RPI::JointRemapBus::Handler
         {
         public:
             AZ_COMPONENT(EMotionFXBuilderComponent, "{5484372D-E088-41CB-BFB4-73649DD9DB10}");
@@ -45,6 +48,11 @@ namespace EMotionFX
             //////////////////////////////////////////////////////////////////////////
 
         private:
+            //////////////////////////////////////////////////////////////////////////
+            // AZ::RPI::JointRemapBus::Handler
+            void SkinDataRemap(const AZ::SceneAPI::Containers::Scene& scene, const AZStd::string& meshName, AZStd::unordered_map<AZStd::string, uint16_t>& jointNameToIndexMap) override;
+            //////////////////////////////////////////////////////////////////////////
+
             //unique_ptr cannot be copied -> vector of unique_ptrs cannot be copied -> class cannot be copied
             EMotionFXBuilderComponent(const EMotionFXBuilderComponent&) = delete;
 
