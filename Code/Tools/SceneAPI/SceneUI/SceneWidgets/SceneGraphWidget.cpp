@@ -351,37 +351,40 @@ namespace AZ
                     }
                 }
 
-                AZStd::stack<QStandardItem*> children;
-                int rowCount = item->rowCount();
-                for (int index = 0; index < rowCount; ++index)
+                if (m_checkChildren)
                 {
-                    children.push(item->child(index));
-                }
-
-                while (!children.empty())
-                {
-                    QStandardItem* current = children.top();
-                    children.pop();
-
-                    if (decrement)
+                    AZStd::stack<QStandardItem*> children;
+                    int rowCount = item->rowCount();
+                    for (int index = 0; index < rowCount; ++index)
                     {
-                        if (current->checkState() != Qt::CheckState::Unchecked && RemoveSelection(current))
-                        {
-                            current->setCheckState(state);
-                        }
-                    }
-                    else
-                    {
-                        if (current->checkState() == Qt::CheckState::Unchecked && AddSelection(current))
-                        {
-                            current->setCheckState(state);
-                        }
+                        children.push(item->child(index));
                     }
 
-                    int rowCount2 = current->rowCount();
-                    for (int index = 0; index < rowCount2; ++index)
+                    while (!children.empty())
                     {
-                        children.push(current->child(index));
+                        QStandardItem* current = children.top();
+                        children.pop();
+
+                        if (decrement)
+                        {
+                            if (current->checkState() != Qt::CheckState::Unchecked && RemoveSelection(current))
+                            {
+                                current->setCheckState(state);
+                            }
+                        }
+                        else
+                        {
+                            if (current->checkState() == Qt::CheckState::Unchecked && AddSelection(current))
+                            {
+                                current->setCheckState(state);
+                            }
+                        }
+
+                        int rowCount2 = current->rowCount();
+                        for (int index = 0; index < rowCount2; ++index)
+                        {
+                            children.push(current->child(index));
+                        }
                     }
                 }
 

@@ -94,6 +94,9 @@ namespace AZ
                 // Constructs the widget's content. Call this after making one or more changes to the settings.
                 virtual void Build();
 
+                // Set whether or not to set the check boxes for children when their parent item is checked
+                void SetCheckChildren(bool value) { m_checkChildren = value; }
+
             Q_SIGNALS:
                 void SelectionChanged(AZStd::shared_ptr<const DataTypes::IGraphObject> item);
 
@@ -133,6 +136,7 @@ namespace AZ
                 size_t m_totalCount;
                 EndPointOption m_endPointOption;
                 CheckableOption m_checkableOption;
+                bool m_checkChildren = true;
 
             private:
                 bool IsSelectedInSelectionList(const Containers::SceneGraph::Name& name, const DataTypes::ISceneNodeSelectionList& targetList) const;
